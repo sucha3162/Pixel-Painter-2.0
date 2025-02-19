@@ -39,10 +39,11 @@
                 class="pl-1"
                 v-model="hexColor"
                 placeholder="#000000"
-                style="width: 50%"
+                style="width: 54%"
                 @focus="inputActive"
                 @blur="inputInactive"
-                @input="ValidateHex" />
+                @input="ValidateHex"
+                @keydown.enter="handleEnter" />
             </div>
             <ColorPicker class="m-1" v-model="selectedColor" />
           </div>
@@ -132,6 +133,17 @@
               @dblclick="deleteColor('=', 11)"
               class="border-1 m-1 w-2rem h-2rem border-round-md"
               v-tooltip.bottom="'Shortcut: ='"></div>
+            <div class="parent">
+              <input
+                class="pl-1"
+                v-model="hexColor"
+                placeholder="#000000"
+                style="width: 54%"
+                @focus="inputActive"
+                @blur="inputInactive"
+                @input="ValidateHex"
+                @keydown.enter="handleEnter" />
+            </div>
             <ColorPicker class="m-1" v-model="selectedColor"></ColorPicker>
           </div>
           <div class="mt-1">Size: {{ size }}</div>
@@ -245,6 +257,9 @@ function setCurrentPallet(tab: number) {
   } else localStorage.setItem("currentPallet", JSON.stringify(customColors));
 }
 
+function handleEnter(event: KeyboardEvent) {
+  (event.target as HTMLElement).blur();
+}
 function inputActive() {
   emit("DisableKeyBinds");
 }

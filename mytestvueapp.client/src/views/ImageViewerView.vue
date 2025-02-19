@@ -6,7 +6,8 @@
         :key="art.id"
         :art="art"
         :pixelSize="20"
-      ></my-canvas>
+        :canvas-number="1">
+      </my-canvas>
     </div>
     <Card class="w-20rem ml-5">
       <template #content>
@@ -22,8 +23,7 @@
             <LikeButton
               class=""
               :art-id="id"
-              :likes="art.numLikes"
-            ></LikeButton>
+              :likes="art.numLikes"></LikeButton>
             <SaveImageToFile :art="art"></SaveImageToFile>
           </div>
           <div class="flex gap-2">
@@ -32,8 +32,7 @@
               label="Edit"
               icon="pi pi-pencil"
               severity="secondary"
-              @click="router.push(`/paint/${id}`)"
-            ></Button>
+              @click="router.push(`/paint/${id}`)"></Button>
             <DeleteArtButton v-if="art.currentUserIsOwner || user" :art="art">
             </DeleteArtButton>
           </div>
@@ -49,14 +48,12 @@
     <NewComment
       @newComment="updateComments"
       class="mb-4"
-      :allComments="allComments"
-    ></NewComment>
+      :allComments="allComments"></NewComment>
     <CommentOnArt
       v-for="Comment in allComments"
       :key="Comment.id"
       :comment="Comment"
-      @delete-comment="updateComments"
-    ></CommentOnArt>
+      @delete-comment="updateComments"></CommentOnArt>
   </div>
 </template>
 <script setup lang="ts">
@@ -109,7 +106,7 @@ onMounted(() => {
 });
 
 function updateComments() {
-  numberTotalComments=0;
+  numberTotalComments = 0;
   CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });
