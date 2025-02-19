@@ -13,8 +13,7 @@
       setEndVector();
       onMouseUp();
     "
-    @contextmenu.prevent
-  />
+    @contextmenu.prevent />
   <Toolbar class="fixed bottom-0 left-0 right-0 m-2">
     <template #start>
       <div class="flex gap-2">
@@ -22,8 +21,7 @@
           icon="pi pi-ban"
           label="Quit"
           severity="secondary"
-          @click="ResetArt()"
-        >
+          @click="ResetArt()">
         </Button>
         <UploadButton :art="art" @OpenModal="ToggleKeybinds" />
         <SaveImageToFile :art="art"></SaveImageToFile>
@@ -31,7 +29,11 @@
     </template>
 
     <template #center>
-      <ColorSelection v-model:color="cursor.color" v-model:size="cursor.size" />
+      <ColorSelection
+        v-model:color="cursor.color"
+        v-model:size="cursor.size"
+        @enable-key-binds="keyBindActive = true"
+        @disable-key-binds="keyBindActive = false" />
       <BrushSelection v-model="cursor.selectedTool" />
       <!-- <SaveAndLoad v-model="pixelGrid" /> -->
     </template>
@@ -41,14 +43,12 @@
         class="mr-2"
         severity="primary"
         label="Recenter"
-        @click="canvas?.recenter()"
-      />
+        @click="canvas?.recenter()" />
       <Button
         :icon="intervalId != -1 ? 'pi pi-stop' : 'pi pi-play'"
         class="mr-2 Rainbow"
         label="Gravity"
-        @click="runGravity()"
-      />
+        @click="runGravity()" />
 
       <Button
         icon="pi pi-lightbulb"
@@ -58,8 +58,7 @@
           art.pixelGrid.randomizeGrid();
           currentGrid = JSON.parse(JSON.stringify(art.pixelGrid.grid));
           undoList.append(currentGrid);
-        "
-      />
+        " />
     </template>
   </Toolbar>
 </template>
@@ -100,6 +99,7 @@ const route = useRoute();
 const canvas = ref();
 const toast = useToast();
 const intervalId = ref<number>(-1);
+const keyBindActive = ref<boolean>(true);
 
 const cursor = ref<Cursor>(
   new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "000000")
@@ -615,92 +615,94 @@ function redo() {
 }
 
 function handleKeyDown(event: KeyboardEvent) {
-  if (event.key === "p") {
-    event.preventDefault();
-    cursor.value.selectedTool.label = "Pan";
-    canvas?.value.updateCursor();
-  } else if (event.key === "b") {
-    event.preventDefault();
-    cursor.value.selectedTool.label = "Brush";
-    canvas?.value.updateCursor();
-  } else if (event.key === "e") {
-    event.preventDefault();
-    cursor.value.selectedTool.label = "Eraser";
-    canvas?.value.updateCursor();
-  } else if (event.key === "d") {
-    event.preventDefault();
-    cursor.value.selectedTool.label = "Pipette";
-    canvas?.value.updateCursor();
-  } else if (event.key === "f") {
-    event.preventDefault();
-    cursor.value.selectedTool.label = "Bucket";
-    canvas?.value.updateCursor();
-  } else if (event.key === "r") {
-    event.preventDefault();
-    cursor.value.selectedTool.label = "Rectangle";
-    canvas?.value.updateCursor();
-  } else if (event.key === "q" && cursor.value.size > 1) {
-    event.preventDefault();
-    cursor.value.size -= 1;
-    canvas?.value.updateCursor();
-  } else if (event.key === "w" && cursor.value.size < 32) {
-    event.preventDefault();
-    cursor.value.size += 1;
-    canvas?.value.updateCursor();
-  } else if (event.ctrlKey && event.key === "z") {
-    event.preventDefault();
-    undo();
-  } else if (event.ctrlKey && event.key === "y") {
-    event.preventDefault();
-    redo();
-  } else if (event.key === "1") {
-    event.preventDefault();
-    updatePallet();
-    cursor.value.color = currentPallet[0];
-  } else if (event.key === "2") {
-    event.preventDefault();
-    updatePallet();
-    cursor.value.color = currentPallet[1];
-  } else if (event.key === "3") {
-    event.preventDefault();
-    updatePallet();
-    cursor.value.color = currentPallet[2];
-  } else if (event.key === "4") {
-    event.preventDefault();
-    updatePallet();
-    cursor.value.color = currentPallet[3];
-  } else if (event.key === "5") {
-    event.preventDefault();
-    updatePallet();
-    cursor.value.color = currentPallet[4];
-  } else if (event.key === "6") {
-    event.preventDefault();
-    updatePallet();
-    cursor.value.color = currentPallet[5];
-  } else if (event.key === "7") {
-    event.preventDefault();
-    updatePallet();
-    cursor.value.color = currentPallet[6];
-  } else if (event.key === "8") {
-    event.preventDefault();
-    updatePallet();
-    cursor.value.color = currentPallet[7];
-  } else if (event.key === "9") {
-    event.preventDefault();
-    updatePallet();
-    cursor.value.color = currentPallet[8];
-  } else if (event.key === "0") {
-    event.preventDefault();
-    updatePallet();
-    cursor.value.color = currentPallet[9];
-  } else if (event.key === "-") {
-    event.preventDefault();
-    updatePallet();
-    cursor.value.color = currentPallet[10];
-  } else if (event.key === "=") {
-    event.preventDefault();
-    updatePallet();
-    cursor.value.color = currentPallet[11];
+  if (keyBindActive.value) {
+    if (event.key === "p") {
+      event.preventDefault();
+      cursor.value.selectedTool.label = "Pan";
+      canvas?.value.updateCursor();
+    } else if (event.key === "b") {
+      event.preventDefault();
+      cursor.value.selectedTool.label = "Brush";
+      canvas?.value.updateCursor();
+    } else if (event.key === "e") {
+      event.preventDefault();
+      cursor.value.selectedTool.label = "Eraser";
+      canvas?.value.updateCursor();
+    } else if (event.key === "d") {
+      event.preventDefault();
+      cursor.value.selectedTool.label = "Pipette";
+      canvas?.value.updateCursor();
+    } else if (event.key === "f") {
+      event.preventDefault();
+      cursor.value.selectedTool.label = "Bucket";
+      canvas?.value.updateCursor();
+    } else if (event.key === "r") {
+      event.preventDefault();
+      cursor.value.selectedTool.label = "Rectangle";
+      canvas?.value.updateCursor();
+    } else if (event.key === "q" && cursor.value.size > 1) {
+      event.preventDefault();
+      cursor.value.size -= 1;
+      canvas?.value.updateCursor();
+    } else if (event.key === "w" && cursor.value.size < 32) {
+      event.preventDefault();
+      cursor.value.size += 1;
+      canvas?.value.updateCursor();
+    } else if (event.ctrlKey && event.key === "z") {
+      event.preventDefault();
+      undo();
+    } else if (event.ctrlKey && event.key === "y") {
+      event.preventDefault();
+      redo();
+    } else if (event.key === "1") {
+      event.preventDefault();
+      updatePallet();
+      cursor.value.color = currentPallet[0];
+    } else if (event.key === "2") {
+      event.preventDefault();
+      updatePallet();
+      cursor.value.color = currentPallet[1];
+    } else if (event.key === "3") {
+      event.preventDefault();
+      updatePallet();
+      cursor.value.color = currentPallet[2];
+    } else if (event.key === "4") {
+      event.preventDefault();
+      updatePallet();
+      cursor.value.color = currentPallet[3];
+    } else if (event.key === "5") {
+      event.preventDefault();
+      updatePallet();
+      cursor.value.color = currentPallet[4];
+    } else if (event.key === "6") {
+      event.preventDefault();
+      updatePallet();
+      cursor.value.color = currentPallet[5];
+    } else if (event.key === "7") {
+      event.preventDefault();
+      updatePallet();
+      cursor.value.color = currentPallet[6];
+    } else if (event.key === "8") {
+      event.preventDefault();
+      updatePallet();
+      cursor.value.color = currentPallet[7];
+    } else if (event.key === "9") {
+      event.preventDefault();
+      updatePallet();
+      cursor.value.color = currentPallet[8];
+    } else if (event.key === "0") {
+      event.preventDefault();
+      updatePallet();
+      cursor.value.color = currentPallet[9];
+    } else if (event.key === "-") {
+      event.preventDefault();
+      updatePallet();
+      cursor.value.color = currentPallet[10];
+    } else if (event.key === "=") {
+      event.preventDefault();
+      updatePallet();
+      cursor.value.color = currentPallet[11];
+    }
   }
 }
 
