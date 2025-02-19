@@ -11,7 +11,7 @@ import { onMounted, ref, computed, watch } from "vue";
 const props = defineProps<{
   art: Art;
   pixelSize: number;
-  canvasNumber: number;
+  canvasNumber?: number;
 }>();
 
 const canvasId = computed(() => {

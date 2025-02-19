@@ -1,13 +1,7 @@
 <template>
   <div class="justify-content-center flex w-full h-full align-items-center">
     <div class="border-2">
-      <my-canvas
-        v-if="art"
-        :key="art.id"
-        :art="art"
-        :pixelSize="20"
-        :canvas-number="1">
-      </my-canvas>
+      <my-canvas v-if="art" :key="art.id" :art="art" :pixelSize="20" />
     </div>
     <Card class="w-20rem ml-5">
       <template #content>
