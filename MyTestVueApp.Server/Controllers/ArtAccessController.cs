@@ -218,7 +218,8 @@ namespace MyTestVueApp.Server.Controllers
                     var artist = await LoginService.GetUserBySubId(userId);
                     var art = ArtAccessService.GetArtById(artId);
 
-                    if (art.artistId != artist.id)
+
+                    if (art.artistId != artist.id && !artist.isAdmin)
                     {
                         return Unauthorized("User is not authorized for this action");
                     }

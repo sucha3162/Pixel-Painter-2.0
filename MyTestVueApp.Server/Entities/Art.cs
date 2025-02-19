@@ -17,6 +17,8 @@ namespace MyTestVueApp.Server.Entities
         public int numComments { get; set; }
         public bool currentUserIsOwner { get; set; } = false;
 
+         public bool currentUserIsAdmin { get; set; } = false;
+
     }
 
 }

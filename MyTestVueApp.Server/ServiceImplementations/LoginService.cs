@@ -267,7 +267,48 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return null;
         }
 
+        public async Task<bool> IsUserAdmin(string userId)
+        {
+            var artist = new Artist();
 
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                var query = @"
+                    SELECT TOP (1) [Id]
+                          ,[SubId]
+                          ,[Name]
+                          ,[IsAdmin]
+                          ,[CreationDate]
+                          ,[Email]
+                      FROM [PixelPainter].[dbo].[Artist]
+                      WHERE Id = @Id
+                    ";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (reader.Read())
+                        {
+                            artist = new Artist
+                            {
+                                id = reader.GetInt32(0),
+                                subId = reader.GetString(1),
+                                name = reader.GetString(2),
+                                isAdmin = reader.GetBoolean(3),
+                                creationDate = reader.GetDateTime(4),
+                                email = reader.GetString(5),
+                            };
+                            return artist.isAdmin;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
         public async Task DeleteArtist(int ArtistId)
         {
             try

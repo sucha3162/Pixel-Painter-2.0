@@ -6,17 +6,20 @@ export class PixelGrid {
   backgroundColor: string;
   grid: string[][];
   encodedGrid?: string;
+  isGif: boolean;
 
   constructor(
     width: number,
     height: number,
     backgroundColor: string,
+    isGif: boolean,
     encodedGrid?: string
   ) {
     this.width = width;
     this.height = height;
     this.grid = this.createGrid(width, height, backgroundColor);
     this.backgroundColor = backgroundColor;
+    this.isGif = isGif;
 
     if (encodedGrid) {
       this.encodedGrid = encodedGrid;
@@ -62,6 +65,7 @@ export class PixelGrid {
     this.width = decodedGrid.width;
     this.height = decodedGrid.height;
     this.backgroundColor = decodedGrid.backgroundColor;
+    this.isGif = decodedGrid.isGif;
     this.grid = this.createGrid(this.width, this.height, this.backgroundColor);
     for (let i = 0; i < this.height; i++) {
       for (let j = 0; j < this.width; j++) {

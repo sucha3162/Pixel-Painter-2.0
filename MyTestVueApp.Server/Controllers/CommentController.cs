@@ -10,6 +10,7 @@ using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
 using MyTestVueApp.Server.ServiceImplementations;
 
+
 namespace MyTestVueApp.Server.Controllers
 {
     [ApiController]
@@ -20,6 +21,7 @@ namespace MyTestVueApp.Server.Controllers
         private ICommentAccessService CommentAccessService { get; }
         private IOptions<ApplicationConfiguration> AppConfig { get; }
         private ILoginService LoginService { get; }
+         
         public CommentController(ILogger<CommentController> logger, ICommentAccessService commentAccessService, IOptions<ApplicationConfiguration> appConfig, ILoginService loginService)
         {
             Logger = logger;
@@ -95,8 +97,9 @@ namespace MyTestVueApp.Server.Controllers
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
                 var comment = CommentAccessService.GetCommentByCommentId(commentId);
+                var artist = await LoginService.GetUserBySubId(userId);
                 var subid = await LoginService.GetUserBySubId(userId);
-                if (comment.artistId == subid.id)
+                if (comment.artistId == subid.id || artist.isAdmin)
                 {
                     // You can add additional checks here if needed
                     var rowsChanged = await CommentAccessService.DeleteComment(commentId);
@@ -106,7 +109,7 @@ namespace MyTestVueApp.Server.Controllers
                     }
                     else
                     {
-                        return BadRequest("Failed to delte Comment");
+                        return BadRequest("Failed to delete Comment");
                     }
                 }
                 else
