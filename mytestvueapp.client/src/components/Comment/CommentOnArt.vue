@@ -6,7 +6,7 @@
           <i class="pi pi-star-fill" style="color: yellow"></i>
         </span>
         <span style="font-weight: bold">{{ comment.commenterName }}</span>
-        <span>{{ comment.creationDate }}</span>
+        <span style="font-style: italic; color: gray">{{ dateFormatted }}</span>
       </div>
       <div class="ml-2">
         <span v-if="!editing" style="word-break: break-word">{{
@@ -43,7 +43,7 @@
           severity="secondary"
         ></Button>
         <Button
-          v-if="comment.currentUserIsOwner"
+          v-if="comment.currentUserIsOwner || user"
           icon="pi pi-ellipsis-h"
           rounded
           text
@@ -80,12 +80,13 @@
 import CommentAccessService from "../../services/CommentAccessService";
 
 import type Comment from "@/entities/Comment";
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Menu from "primevue/menu";
 import { useToast } from "primevue/usetoast";
 import NewComment from "./NewComment.vue";
+import LoginService from "../../services/LoginService";
 
 const emit = defineEmits(["deleteComment", "updateComments"]);
 
@@ -94,6 +95,8 @@ const newMessage = ref("");
 const toast = useToast();
 const showReply = ref(false);
 const menu = ref();
+const user = ref<boolean>(false);
+const dateFormatted = ref();
 
 function openMenu() {
   menu.value.toggle(event);
@@ -120,9 +123,18 @@ watch(editing, () => {
   newMessage.value = props.comment.message ?? "";
 });
 
+onMounted(() => {
+  getIsAdmin();
+});
 const props = defineProps<{
-  comment: Comment;
+    comment: Comment;
 }>();
+
+function getIsAdmin() {
+  LoginService.GetIsAdmin().then((promise: boolean) => {
+    user.value = promise;
+  });
+}
 
 const SubmitEdit = () => {
   if (props.comment.id != null) {
@@ -149,4 +161,36 @@ const DeleteComment = () => {
     });
   }
 };
+
+onMounted(() => {
+  const creationDate = adjustForTimezone(new Date(props.comment.creationDate));
+  const today = new Date();
+
+  const differenceMs = today.getTime() - creationDate.getTime();
+  const differenceMinutes = Math.round(differenceMs / (1000 * 60));
+
+  dateFormatted.value = getRelativeTime(differenceMinutes);
+});
+
+function adjustForTimezone(date: Date): Date{
+  var timeOffsetInMS: number = date.getTimezoneOffset() * 60000;
+  date.setTime(date.getTime() - timeOffsetInMS);
+  return date;
+}
+
+function getRelativeTime(minutes: number): string {  
+  if (minutes === 0) return `Just now`;
+  if (minutes < 60) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+  if (minutes < 1440) return `${Math.floor(minutes / 60)} hour${Math.floor(minutes / 60) > 1 ? "s" : ""} ago`;
+
+  const days = Math.round(minutes / (60 * 24));
+
+  if (days < 7) return `${days} day${days > 1 ? "s" : ""} ago`;
+  if (days < 30) return `${Math.floor(days / 7)} week${Math.floor(days / 7)>1 ? "s" : ""} ago`;
+  if (days < 365) return `${Math.floor(days / 30.437)} month${Math.floor(days / 30.437) > 1 ? "s" : ""} ago`;
+
+
+  const years = Math.floor(days / 365);
+  return `${years} year${years > 1 ? "s" : ""} ago`;
+}
 </script>

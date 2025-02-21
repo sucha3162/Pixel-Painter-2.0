@@ -91,6 +91,34 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
+        [Route("GetIsAdmin")]
+        public async Task<IActionResult> GetIsAdmin()
+        {
+            try
+            {
+                // If the user is logged in
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    if (artist.isAdmin)
+                    {
+                        return Ok(true);
+                    }
+                    else { return Ok(false); }
+
+                }
+                else
+                {
+                    return BadRequest("User is not logged in");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("UpdateUsername")]
         public async Task<IActionResult> UpdateUsername(string newUsername)
         {

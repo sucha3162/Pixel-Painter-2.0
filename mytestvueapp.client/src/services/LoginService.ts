@@ -45,10 +45,29 @@ export default class LoginService {
     }
   }
 
+  public static async GetIsAdmin(): Promise<boolean> {
+    try {
+      const response = await fetch("/login/GetIsAdmin");
+
+      if (!response.ok) {
+        console.log("Response was not ok");
+        throw new Error("Error: Bad response");
+      }
+
+      const data = await response.json();
+      const isAdmin: boolean = data;
+
+      return isAdmin;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
   public static async updateUsername(newUsername: any): Promise<boolean> {
     try {
       const response = await fetch(
-        `login/UpdateUsername?newUsername=${newUsername}`,
+        `login/UpdateUsername?newUsername=${newUsername}`
       );
 
       if (!response.ok) {
@@ -68,7 +87,7 @@ export default class LoginService {
   public static async DeleteArtist(ArtistName: string): Promise<void> {
     try {
       const response = await fetch(
-        `/login/DeleteArtist?ArtistName=${ArtistName}`,
+        `/login/DeleteArtist?ArtistName=${ArtistName}`
       );
 
       if (!response.ok) {
