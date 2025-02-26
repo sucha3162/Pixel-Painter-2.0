@@ -37,13 +37,12 @@
                   />
                 </div>
                 <Button
-                  v-if="!isEditing"
+                  v-if="!isEditing && (user || curUser.name == artist.name)"
                   severity="secondary"
                   rounded
                   icon="pi pi-pencil"
                   @click="isEditing = true"
                 />
-
                 <span v-else class="">
                   <Button
                     severity="danger"
@@ -99,7 +98,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import LoginService from "@/services/LoginService";
@@ -123,7 +121,9 @@ const route = useRoute();
 var artist = ref<Artist>(new Artist());
 var isEditing = ref(false);
 var newUsername = ref("");
-var curUser = ref<boolean>(false);
+var user = ref<boolean>();
+var curUser = ref<Artist>(new Artist());
+var artistList = ref<Artist[]>();
 
 var myArt = ref<Art[]>([]);
 
@@ -141,14 +141,18 @@ onMounted(() => {
     newUsername.value = user.name;
     artist.value = user;
   });
-
-  ArtAccessService.GetCurrentUsersArt().then((art) => {
+  ArtAccessService.getAllArtByUser("Ezechiel Lathy").then((art) => {
     myArt.value = art;
   });
-
-  // if (route.hash != "#settings" && route.hash != "#art") {
-  //   router.push("/account#settings");
-  // }
+  LoginService.GetCurrentUser().then((name) => {
+    curUser.value = name;
+  });
+  LoginService.GetAllArtists().then((newList: Artist[]) => {
+    artistList.value = newList;
+  });
+  if (route.hash != "#settings" && route.hash != "#art") {
+    router.push("/account#settings");
+  }
 });
 
 function logout() {
@@ -213,5 +217,10 @@ function UpdateUsername() {
 
 function ChangeHash(hash: string) {
   window.location.hash = hash;
+}
+function getIsAdmin() {
+  LoginService.GetIsAdmin().then((promise: boolean) => {
+    user.value = promise;
+  });
 }
 </script>

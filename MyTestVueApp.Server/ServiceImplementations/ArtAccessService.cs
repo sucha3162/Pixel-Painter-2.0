@@ -80,6 +80,70 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return paintings;
         }
 
+        public IEnumerable<Art> GetAllArtByUser(string name)
+        {
+            var paintings = new List<Art>();
+            var connectionString = AppConfig.Value.ConnectionString;
+            
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
+                var query =
+                    $@"
+                    Select 
+	                    Art.Id, 
+	                    Art.Title, 
+	                    Art.ArtistId, 
+	                    Artist.Name, 
+	                    Art.Width, 
+	                    Art.Height, 
+	                    Art.Encode, 
+	                    Art.CreationDate, 
+	                    Art.isPublic, 
+	                    COUNT(distinct Likes.ArtistId) as Likes, 
+	                    Count(distinct Comment.Id) as Comments  
+                    FROM ART  
+	                LEFT JOIN Likes ON Art.ID = Likes.ArtID  
+	                LEFT JOIN Comment ON Art.ID = Comment.ArtID  
+	                LEFT JOIN Artist ON Art.ArtistId = Artist.Id
+                    GROUP BY Art.ID, Art.Title, Art.ArtistID, Artist.Name, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
+                    ";
+
+                using (var command = new SqlCommand(query, connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var pixelGrid = new PixelGrid()
+                            {
+                                width = reader.GetInt32(4),
+                                height = reader.GetInt32(5),
+                                encodedGrid = reader.GetString(6)
+                            };
+                            var painting = new Art
+                            { //Art Table + NumLikes and NumComments
+                                id = reader.GetInt32(0),
+                                title = reader.GetString(1),
+                                artistId = reader.GetInt32(2),
+                                artistName = reader.GetString(3),
+                                creationDate = reader.GetDateTime(7),
+                                isPublic = reader.GetBoolean(8),
+                                numLikes = reader.GetInt32(9),
+                                numComments = reader.GetInt32(10),
+                                pixelGrid = pixelGrid,
+                            };
+                            if(painting.artistName == name)
+                            {
+                                paintings.Add(painting);
+                            }
+                        }
+                    }
+                }
+            }
+            return paintings;
+        }
         public Art GetArtById(int id)
         {
             var connectionString = AppConfig.Value.ConnectionString;

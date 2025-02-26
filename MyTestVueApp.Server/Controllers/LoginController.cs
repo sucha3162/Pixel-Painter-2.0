@@ -119,6 +119,24 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
+        [Route("GetAllArtists")]
+
+        public IEnumerable<Artist> GetallArtists()
+        {
+           
+            try
+            {
+               var artists = LoginService.GetAllArtists();
+               return artists;
+                
+            }
+            catch (Exception ex)
+            {
+                return (IEnumerable<Artist>)Problem(ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("UpdateUsername")]
         public async Task<IActionResult> UpdateUsername(string newUsername)
         {

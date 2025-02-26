@@ -26,6 +26,25 @@ export default class LoginService {
     }
   }
 
+  public static async GetAllArtists(): Promise<Artist[]> {
+    try {
+      const response = await fetch("login/GetAllArtists");
+
+      if (!response.ok) {
+        console.log("Response was not ok");
+        throw new Error("Error: Bad response");
+      }
+
+      const data = await response.json();
+      const list: Artist[] = data;
+
+      return list;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
   public static async GetCurrentUser(): Promise<Artist> {
     try {
       const response = await fetch("/login/GetCurrentUser");

@@ -6,6 +6,7 @@
         :key="art.id"
         :art="art"
         :pixelSize="20"
+        :canvas-number="1"
       ></my-canvas>
     </div>
     <Card class="w-20rem ml-5">
@@ -14,7 +15,13 @@
           {{ art.title }}
         </h3>
 
-        <div>By {{ art.artistName }}</div>
+        <div>
+          By
+          {{ art.artistName }}
+          <RouterLink to="/accountpage">
+            <Button>Account Page</Button>
+          </RouterLink>
+        </div>
         <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
 
         <div class="flex flex-column gap-2 mt-4">
@@ -68,7 +75,7 @@ import { ref, onMounted } from "vue";
 import Comment from "@/entities/Comment";
 import CommentOnArt from "@/components/Comment/CommentOnArt.vue";
 import ArtAccessService from "../services/ArtAccessService";
-import { useRoute } from "vue-router";
+import { useRoute, RouterLink } from "vue-router";
 import CommentAccessService from "../services/CommentAccessService";
 import NewComment from "@/components/Comment/NewComment.vue";
 import Card from "primevue/card";
@@ -109,7 +116,7 @@ onMounted(() => {
 });
 
 function updateComments() {
-  numberTotalComments=0;
+  numberTotalComments = 0;
   CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });

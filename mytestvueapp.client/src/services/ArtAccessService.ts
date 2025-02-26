@@ -9,6 +9,27 @@ export default class ArtAccessService {
       const json = await response.json();
 
       const allArt: Art[] = [];
+      console.log("Hit here");
+      for (const jsonArt of json) {
+        let art = new Art();
+        art = jsonArt as Art;
+
+        allArt.push(art);
+      }
+      console.log("Past here");
+      return allArt;
+    } catch (error) {
+      console.error;
+      throw error;
+    }
+  }
+
+  public static async getAllArtByUser(name: string): Promise<Art[]> {
+    try {
+      const response = await fetch(`/artaccess/GetAllArtByUser?name=${name}`);
+      const json = await response.json();
+
+      const allArt: Art[] = [];
 
       for (const jsonArt of json) {
         let art = new Art();
@@ -22,70 +43,76 @@ export default class ArtAccessService {
       console.error;
       throw error;
     }
+  }
+
+  public static async getArtByLikes(isAscending: boolean): Promise<Art[]> {
+    try {
+      const response = await fetch(
+        `/artaccess/GetArtByLikes?isAscending=${isAscending}`
+      );
+      const json = await response.json();
+
+      const allArt: Art[] = [];
+
+      for (const jsonArt of json) {
+        let art = new Art();
+        art = jsonArt as Art;
+
+        allArt.push(art);
+      }
+
+      return allArt;
+    } catch (error) {
+      console.error;
+      throw error;
     }
+  }
 
-    public static async getArtByLikes(isAscending: boolean): Promise<Art[]> {
-        try {
-            const response = await fetch(`/artaccess/GetArtByLikes?isAscending=${isAscending}`);
-            const json = await response.json();
+  public static async getArtByComments(isAscending: boolean): Promise<Art[]> {
+    try {
+      const response = await fetch(
+        `/artaccess/GetArtByComments?isAscending=${isAscending}`
+      );
+      const json = await response.json();
 
-            const allArt: Art[] = [];
+      const allArt: Art[] = [];
 
-            for (const jsonArt of json) {
-                let art = new Art();
-                art = jsonArt as Art;
+      for (const jsonArt of json) {
+        let art = new Art();
+        art = jsonArt as Art;
 
-                allArt.push(art);
-            }
+        allArt.push(art);
+      }
 
-            return allArt;
-        } catch (error) {
-            console.error;
-            throw error;
-        }
+      return allArt;
+    } catch (error) {
+      console.error;
+      throw error;
     }
+  }
 
-    public static async getArtByComments(isAscending: boolean): Promise<Art[]> {
-        try {
-            const response = await fetch(`/artaccess/GetArtByComments?isAscending=${isAscending}`);
-            const json = await response.json();
+  public static async getArtByDate(isAscending: boolean): Promise<Art[]> {
+    try {
+      const response = await fetch(
+        `/artaccess/GetArtByDate?isAscending=${isAscending}`
+      );
+      const json = await response.json();
 
-            const allArt: Art[] = [];
+      const allArt: Art[] = [];
 
-            for (const jsonArt of json) {
-                let art = new Art();
-                art = jsonArt as Art;
+      for (const jsonArt of json) {
+        let art = new Art();
+        art = jsonArt as Art;
 
-                allArt.push(art);
-            }
+        allArt.push(art);
+      }
 
-            return allArt;
-        } catch (error) {
-            console.error;
-            throw error;
-        }
+      return allArt;
+    } catch (error) {
+      console.error;
+      throw error;
     }
-
-    public static async getArtByDate(isAscending: boolean): Promise<Art[]> {
-        try {
-            const response = await fetch(`/artaccess/GetArtByDate?isAscending=${isAscending}`);
-            const json = await response.json();
-
-            const allArt: Art[] = [];
-
-            for (const jsonArt of json) {
-                let art = new Art();
-                art = jsonArt as Art;
-
-                allArt.push(art);
-            }
-
-            return allArt;
-        } catch (error) {
-            console.error;
-            throw error;
-        }
-    }
+  }
 
   public static async GetCurrentUsersArt(): Promise<Art[]> {
     try {

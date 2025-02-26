@@ -10,6 +10,7 @@ using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
 using System;
+using System.Collections;
 using System.Data;
 
 namespace MyTestVueApp.Server.ServiceImplementations
@@ -267,6 +268,50 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return null;
         }
 
+
+        public IEnumerable<Artist> GetAllArtists()
+        {
+            var artists = new List<Artist>();
+
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                var query = @"
+                    SELECT [Id]
+                          ,[SubId]
+                          ,[Name]
+                          ,[IsAdmin]
+                          ,[CreationDate]
+                          ,[Email]
+                      FROM [PixelPainter].[dbo].[Artist]
+                    ";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+
+                    using (var reader =  command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var artist = new Artist
+                            {
+                                id = reader.GetInt32(0),
+                                subId = reader.GetString(1),
+                                name = reader.GetString(2),
+                                isAdmin = reader.GetBoolean(3),
+                                creationDate = reader.GetDateTime(4),
+                                email = reader.GetString(5),
+                            };
+                            artists.Add(artist);
+                        }
+                    return artists;
+                    }
+                }
+            }
+
+            return null;
+        }
         public async Task<bool> IsUserAdmin(string userId)
         {
             var artist = new Artist();

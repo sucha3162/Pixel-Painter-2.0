@@ -30,6 +30,13 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
+        [Route("GetAllArtByUser")]
+        public IEnumerable<Art> GetAllArtByUser(string name)
+        {
+            return ArtAccessService.GetAllArtByUser(name).Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
+        }
+
+        [HttpGet]
         [Route("GetArtByLikes")]
         public IEnumerable<Art> GetArtByLikes(bool isAscending)
         {
