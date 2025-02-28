@@ -7,12 +7,10 @@
     @mousedown="
       mouseButtonHeldDown = true;
       setStartVector();
-      setEndVector();
     "
     @mouseup="
       mouseButtonHeldDown = false;
-      setEndVector();
-      onMouseUp()"
+      setEndVector();"
     @contextmenu.prevent />
   <Toolbar class="fixed bottom-0 left-0 right-0 m-2">
     <template #start>
@@ -25,7 +23,6 @@
         </Button>
         <UploadButton :art="art" @OpenModal="ToggleKeybinds" />
         <SaveImageToFile :art="art"></SaveImageToFile>
-        <ConnectButton @OpenModal="ToggleKeybinds" @Connect="connect" @Disconnect="disconnect" :connected="connected" />
       </div>
     </template>
 
@@ -88,14 +85,10 @@ import { useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
 
 //scripts
+//import DoublyLinkedList from "@/utils/DoublyLinkedList";
 import ArtAccessService from "@/services/ArtAccessService";
 import Art from "@/entities/Art";
 import fallingSand from "@/utils/fallingSand";
-import ConnectButton from "@/components/PainterUi/ConnectButton.vue";
-
-//Other
-import * as SignalR from "@microsoft/signalr";
-import { FillStyle } from "pixi.js";
 
 //variables
 const route = useRoute();
@@ -104,58 +97,6 @@ const toast = useToast();
 const intervalId = ref<number>(-1);
 const keyBindActive = ref<boolean>(true);
 
-// Connection Information
-const connected = ref(false);
-const groupName = ref("");
-let connection = new SignalR.HubConnectionBuilder()
-            .withUrl("https://localhost:7154/signalhub", {
-                skipNegotiation: true,
-                transport: SignalR.HttpTransportType.WebSockets
-            })
-            .build();
-
-connection.on("Send", (user: string, msg: string) => {
-        console.log("Received Message", user + " " + msg);
-});
-
-connection.on("ReceivePixel", (color: string, coord: Vector2) => {
-        //console.log("Color: " + color + "Pixles: X-" + coord.x + " Y-" + coord.y);
-        DrawPixel(color, coord);
-});
-
-connection.on("ReceivePixels", (color: string, coords: Vector2[]) => {
-        //console.log("Color: " + color + "Pixles: X-" + coords[0].x + " Y-" + coords[0].y);
-        DrawPixels(color, coords);
-});
-
-connection.on("ReceiveBucket", (color: string, coord: Vector2) => {
-        //console.log("Fill Color: " + color + "Pixl: X-" + coord.x + " Y-" + coord.y);
-        fill(coord.x, coord.y, color);
-});
-
-const connect = (groupname: string) => {
-  connection.start()
-      .then(
-          () => {
-              console.log("Connected to SignalR!");
-              connection.invoke("JoinGroup", groupname);
-              groupName.value = groupname;
-              connected.value = !connected.value;
-          }
-      ).catch(err => console.error("Error connecting to Hub:",err));
-}
-
-const disconnect = (groupname: string) => {
-  connection.invoke("LeaveGroup",groupname)
-    .then(() => {
-      connection.stop()
-        .then(() => {
-          connected.value = !connected.value;
-        }).catch(err => console.error("Error Disconnecting:", err));
-    }
-    ).catch(err => console.error("Error Leaving Group:",err));
-}
-//End of Connection Information
 const cursor = ref<Cursor>(
   new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "000000")
 );
@@ -325,52 +266,7 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
   return pixels;
 }
 
-function DrawPixel(color: string, coord: Vector2) {
-  art.value.pixelGrid.grid[coord.x][coord.y] = color;
-}
-
-function DrawPixels(color: string, coords: Vector2[]) {
-  for (const coord of coords) {
-    art.value.pixelGrid.grid[coord.x][coord.y] = color;
-  }
-}
-
-function SendPixel(color: string, coord: Vector2) {
-  if (connected.value) {
-        connection.invoke(
-            "SendPixel", 
-            groupName.value,
-            color,
-            coord
-          );
-      }
-}
-
-function SendPixels(color: string, coords: Vector2[]) {
-  if (connected.value) {
-    connection.invoke(
-        "SendPixels",
-        groupName.value,
-        color,
-        coords
-    )
-  }
-}
-
-function SendBucket(color: string, coord: Vector2) {
-  if (connected.value) {
-    connection.invoke(
-      "SendBucket",
-      groupName.value,
-      color,
-      coord
-    )
-  }
-}
-
 function DrawAtCoords(coords: Vector2[]) {
-    let coordinates: Vector2[] = [];
-
     if (
     cursor.value.selectedTool.label === "Rectangle" ||
     cursor.value.selectedTool.label === "Ellipse"
@@ -383,6 +279,7 @@ function DrawAtCoords(coords: Vector2[]) {
       }
     }
   }
+
   coords.forEach((coord: Vector2) => {
     if (mouseButtonHeldDown.value) {
       if (cursor.value.selectedTool.label === "Brush") {
@@ -394,13 +291,11 @@ function DrawAtCoords(coords: Vector2[]) {
               coord.y + j >= 0 &&
               coord.y + j < art.value.pixelGrid.height
             ) {
-              coordinates.push(new Vector2(coord.x + i, coord.y + j));
               art.value.pixelGrid.grid[coord.x + i][coord.y + j] =
                 cursor.value.color;
             }
           }
         }
-        SendPixels(cursor.value.color, coordinates);
       } else if (cursor.value.selectedTool.label === "Eraser") {
         for (let i = 0; i < cursor.value.size; i++) {
           for (let j = 0; j < cursor.value.size; j++) {
@@ -411,14 +306,12 @@ function DrawAtCoords(coords: Vector2[]) {
               coord.y + j < art.value.pixelGrid.height
             ) {
               if (art.value.pixelGrid.backgroundColor != null) {
-                coordinates.push(new Vector2(coord.x + i, coord.y + j));
                 art.value.pixelGrid.grid[coord.x + i][coord.y + j] =
                   art.value.pixelGrid.backgroundColor;
               }
             }
           }
         }
-        SendPixels(art.value.pixelGrid.backgroundColor, coordinates);
       } else if (
         coord.x >= 0 &&
         coord.x < art.value.pixelGrid.width &&
@@ -434,14 +327,12 @@ function DrawAtCoords(coords: Vector2[]) {
           if (
             art.value.pixelGrid.grid[coord.x][coord.y] != cursor.value.color
           ) {
-            SendBucket(cursor.value.color, coord);
             fill(cursor.value.position.x, cursor.value.position.y);
           }
         } else if (
           cursor.value.selectedTool.label === "Rectangle" ||
           cursor.value.selectedTool.label === "Ellipse"
         ) {
-          //SendPixels(cursor.value.color,coords);
           art.value.pixelGrid.grid[coord.x][coord.y] = cursor.value.color;
         }
       }
@@ -449,33 +340,33 @@ function DrawAtCoords(coords: Vector2[]) {
   });
 }
 
-function fill(x: number, y: number, color: string = cursor.value.color) {
+function fill(x: number, y: number) {
   if (y >= 0 && y < art.value.pixelGrid.height) {
     const oldColor = art.value.pixelGrid.grid[x][y];
-    art.value.pixelGrid.grid[x][y] = color;
-    if (oldColor != color) {
+    art.value.pixelGrid.grid[x][y] = cursor.value.color;
+    if (oldColor != cursor.value.color) {
       if (x + 1 < art.value.pixelGrid.width) {
         if (art.value.pixelGrid.grid[x + 1][y] == oldColor) {
           //alert(x+1 + ", " + y);
-          fill(x + 1, y, color);
+          fill(x + 1, y);
         }
       }
       if (y + 1 < art.value.pixelGrid.height) {
         if (art.value.pixelGrid.grid[x][y + 1] == oldColor) {
           //alert(x + ", " + y+1);
-          fill(x, y + 1, color);
+          fill(x, y + 1);
         }
       }
       if (x - 1 >= 0) {
         if (art.value.pixelGrid.grid[x - 1][y] == oldColor) {
           //alert(x-1 + ", " + y);
-          fill(x - 1, y, color);
+          fill(x - 1, y);
         }
       }
       if (y - 1 >= 0) {
         if (art.value.pixelGrid.grid[x][y - 1] == oldColor) {
           //alert(x + ", " + (y-1));
-          fill(x, y - 1, color);
+          fill(x, y - 1);
         }
       }
     }
@@ -563,10 +454,6 @@ function GetEllipsePixels(start: Vector2, end: Vector2): Vector2[] {
 
 function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
   let coords: Vector2[] = [];
-  if (start.x == end.x && start.y == end.y) {
-    coords.push(start);
-    return coords;
-  }
   let leftBound = Math.min(start.x, end.x);
   let rightBound = Math.max(start.x, end.x);
   let lowerBound = Math.min(start.y, end.y);
@@ -589,14 +476,14 @@ function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
     for (let i = leftBound; i <= rightBound; i++) {
       let yP = Math.round(ellipseXtoY(center, a, b, i));
       let yN = center.y - (yP - center.y);
-      console.log(`HorXtoY: (${i},${yP}),(${i},${yN}) `);
+      //console.log(`New Vector: (${i},${yP}),(${i},${yN}) `);
       coords.push(new Vector2(i, yP));
       coords.push(new Vector2(i, yN));
     }
-    for (let i = lowerBound; i < upperBound; i++) {
+    for (let i = lowerBound; i <= upperBound; i++) {
       let xP = Math.round(ellipseYtoX(center, b, a, i));
       let xN = center.x - (xP - center.x);
-      console.log(`HorYtoX: (${xP},${i}),(${xN},${i}) `);
+      //console.log(`New Vector: (${i},${xP}),(${i},${xN}) `);
       coords.push(new Vector2(xP, i));
       coords.push(new Vector2(xN, i));
     }
@@ -605,14 +492,14 @@ function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
     for (let i = lowerBound; i <= upperBound; i++) {
       let xP = Math.round(ellipseYtoX(center, a, b, i));
       let xN = center.x - (xP - center.x);
-      console.log(`VertYtoX: (${xP},${i}),(${xN},${i}) `);
+      //console.log(`New Vector: (${i},${xP}),(${i},${xN}) `);
       coords.push(new Vector2(xP, i));
       coords.push(new Vector2(xN, i));
     }
-    for (let i = leftBound; i < rightBound; i++) {
+    for (let i = leftBound; i <= rightBound; i++) {
       let yP = Math.round(ellipseXtoY(center, b, a, i));
       let yN = center.y - (yP - center.y);
-      console.log(`VertXtoY: (${i},${yP}),(${i},${yN}) `);
+      //console.log(`New Vector: (${i},${yP}),(${i},${yN}) `);
       coords.push(new Vector2(i, yP));
       coords.push(new Vector2(i, yN));
     }
@@ -666,55 +553,6 @@ function ResetArt() {
   localStorage.removeItem("working-art");
   router.push("/new");
 }
-
-function onMouseUp() {
-  // currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
-  // if (undoList.isDifferent(currentGrid)) {
-  //   undoList.append(currentGrid);
-  // }
-  if (
-    cursor.value.selectedTool.label == "Rectangle"
-  ) {
-    SendPixels(
-      cursor.value.color,
-      GetRectanglePixels(startPix.value, endPix.value)
-    );
-  }
-  if (
-    cursor.value.selectedTool.label == "Ellipse"
-  ) {
-    CalculateEllipse(startPix.value, endPix.value).forEach((vector) => {
-      console.log(vector.x + " " + vector.y);
-    });
-    SendPixels(
-      cursor.value.color,
-      GetEllipsePixels(startPix.value, endPix.value)
-    );
-  }
-
-}
-
-// function undo() {
-//   let previousGrid = undoList.getPrevious();
-
-//   if (previousGrid) {
-//     for (let i = 0; i < art.value.pixelGrid.width; i++) {
-//       for (let j = 0; j < art.value.pixelGrid.height; j++) {
-//         art.value.pixelGrid.grid[i][j] = previousGrid[i][j];
-//       }
-//     }
-//   }
-// }
-
-// function redo() {
-//   let nextGrid = undoList.getNext();
-//   if (nextGrid)
-//     for (let i = 0; i < art.value.pixelGrid.width; i++) {
-//       for (let j = 0; j < art.value.pixelGrid.height; j++) {
-//         art.value.pixelGrid.grid[i][j] = nextGrid[i][j];
-//       }
-//     }
-// }
 
 function handleKeyDown(event: KeyboardEvent) {
   if (keyBindActive.value) {
@@ -805,7 +643,6 @@ function handleKeyDown(event: KeyboardEvent) {
 function LocalSave() {
   localStorage.setItem("working-art", JSON.stringify(art.value.pixelGrid));
 }
-
 </script>
 <style scoped>
 .Rainbow,
