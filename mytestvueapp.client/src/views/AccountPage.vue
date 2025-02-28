@@ -4,8 +4,8 @@
       <Card class="h-fit">
         <template #content>
           <Avatar icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
-          <div class="text-3xl p-font-bold">{{ artist.name }}</div>
-          <div class="">{{ artist.email }}</div>
+          <div class="text-3xl p-font-bold">{{ artistList[1].name }}</div>
+          <!-- <div class="">{{ artist.email }}</div> -->
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
               :severity="route.hash == '#settings' ? 'primary' : 'secondary'"
@@ -15,7 +15,7 @@
             <Button
               :severity="route.hash == '#art' ? 'primary' : 'secondary'"
               @click="ChangeHash('#art')"
-              >My Art</Button
+              >Creator's Art</Button
             >
           </div>
         </template>
@@ -37,7 +37,7 @@
                   />
                 </div>
                 <Button
-                  v-if="!isEditing && (user || curUser.name == artist.name)"
+                  v-if="!isEditing && (user || curArtist.name == artist.name)"
                   severity="secondary"
                   rounded
                   icon="pi pi-pencil"
@@ -82,7 +82,6 @@
           </template>
         </Card>
       </div>
-
       <div v-if="route.hash == '#art'">
         <h2>My Art</h2>
         <div class="flex flex-wrap">
@@ -114,6 +113,7 @@ import { useRoute } from "vue-router";
 import type Art from "@/entities/Art";
 import ArtCard from "@/components/Gallery/ArtCard.vue";
 import DeleteArtistButton from "@/components/DeleteArtistButton.vue";
+import type { RefSymbol } from "@vue/reactivity";
 
 const toast = useToast();
 const route = useRoute();
@@ -122,8 +122,9 @@ var artist = ref<Artist>(new Artist());
 var isEditing = ref(false);
 var newUsername = ref("");
 var user = ref<boolean>();
-var curUser = ref<Artist>(new Artist());
-var artistList = ref<Artist[]>();
+var curArtist = ref<Artist>(new Artist());
+//curArtist: new Artist();
+const artistList = ref<Artist[]>([]);
 
 var myArt = ref<Art[]>([]);
 
@@ -141,18 +142,19 @@ onMounted(() => {
     newUsername.value = user.name;
     artist.value = user;
   });
-  ArtAccessService.getAllArtByUser("Ezechiel Lathy").then((art) => {
+  ArtAccessService.getAllArtByUser(curArtist.value.name).then((art) => {
     myArt.value = art;
   });
-  LoginService.GetCurrentUser().then((name) => {
-    curUser.value = name;
-  });
   LoginService.GetAllArtists().then((newList: Artist[]) => {
-    artistList.value = newList;
+    artistList. = newList;
   });
-  if (route.hash != "#settings" && route.hash != "#art") {
-    router.push("/account#settings");
-  }
+  /*
+  Set selected artist from image viewer here
+  */
+  curArtist.value = artistList[0].value;
+  // if (route.hash != "#settings" && route.hash != "#art") {
+  //   router.push("/accountpage#settings");
+  // }
 });
 
 function logout() {

@@ -123,17 +123,9 @@ namespace MyTestVueApp.Server.Controllers
 
         public IEnumerable<Artist> GetallArtists()
         {
-           
-            try
-            {
-               var artists = LoginService.GetAllArtists();
-               return artists;
-                
-            }
-            catch (Exception ex)
-            {
-                return (IEnumerable<Artist>)Problem(ex.Message);
-            }
+
+        var artists = LoginService.GetAllArtists();
+        return artists;
         }
 
         [HttpGet]

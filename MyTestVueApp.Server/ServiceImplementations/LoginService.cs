@@ -284,16 +284,24 @@ namespace MyTestVueApp.Server.ServiceImplementations
                           ,[Name]
                           ,[IsAdmin]
                           ,[CreationDate]
-                          ,[Email]
+                          
                       FROM [PixelPainter].[dbo].[Artist]
                     ";
+                System.Console.WriteLine(query);
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
 
                     using (var reader =  command.ExecuteReader())
                     {
+                        
                         while (reader.Read())
                         {
+                            System.Console.WriteLine(reader.GetInt32(0));
+                            System.Console.WriteLine(reader.GetString(1));
+                            System.Console.WriteLine(reader.GetString(2));
+                            System.Console.WriteLine(reader.GetBoolean(3));
+                            System.Console.WriteLine(reader.GetDateTime(4));
+                            //System.Console.WriteLine(reader.GetString(5));
                             var artist = new Artist
                             {
                                 id = reader.GetInt32(0),
@@ -301,7 +309,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 name = reader.GetString(2),
                                 isAdmin = reader.GetBoolean(3),
                                 creationDate = reader.GetDateTime(4),
-                                email = reader.GetString(5),
+                                //email = 'Null',
                             };
                             artists.Add(artist);
                         }

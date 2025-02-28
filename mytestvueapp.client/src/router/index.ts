@@ -38,6 +38,11 @@ const router = createRouter({
       name: "Account",
       component: () => import("../views/AccountView.vue"),
     },
+    {
+      path: "/accountpage",
+      name: "AccountPage",
+      component: () => import("../views/AccountPage.vue"),
+    },
   ],
 });
 export default router;
