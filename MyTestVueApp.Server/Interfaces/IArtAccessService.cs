@@ -18,6 +18,7 @@ namespace MyTestVueApp.Server.Interfaces
         // public IEnumerable<Art> GetArtByComments(bool order);
        // public IEnumerable<Art> GetArtByDate(bool order);
         public Art GetArtById(int id);
+        public IEnumerable<Art> GetArtByArtist(int artistId);
         public Task DeleteArt(int artId);
         public Task<Art> SaveNewArt(Artist artist, Art art);
         public Task<Art> UpdateArt(Artist artist, Art art);

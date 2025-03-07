@@ -43,7 +43,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         Comment.[Message],
 	                    Artist.[Name] as CommenterName,
                         Comment.CreationDate,
-                        Comment.ReplyId
+                        Comment.ReplyId,
+                        Comment.Viewed
                     FROM Comment  
                     JOIN Artist ON Artist.id = Comment.ArtistId
                     WHERE ArtID = @id
@@ -64,7 +65,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                     message = reader.GetString(3),
                                     commenterName = reader.GetString(4),
                                     creationDate = reader.GetDateTime(5),
-                                    replyId = reader.IsDBNull(6) ? 0 : reader.GetInt32(6)
+                                    replyId = reader.IsDBNull(6) ? 0 : reader.GetInt32(6),
+                                    Viewed = reader.GetInt32(7)==0 ? false : true
                                 };
                                 comments.Add(comment);
                             }

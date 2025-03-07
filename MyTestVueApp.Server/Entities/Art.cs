@@ -20,5 +20,4 @@ namespace MyTestVueApp.Server.Entities
          public bool currentUserIsAdmin { get; set; } = false;
 
     }
-
 }

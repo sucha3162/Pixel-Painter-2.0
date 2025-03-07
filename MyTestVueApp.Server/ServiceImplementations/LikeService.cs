@@ -3,6 +3,7 @@ using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
 using Microsoft.Data.SqlClient;
+using System.Reflection.Metadata.Ecma335;
 
 namespace MyTestVueApp.Server.ServiceImplementations
 {
@@ -38,7 +39,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     }
                 }
 
-                var query = "INSERT INTO Likes (ArtistID, ArtID) VALUES (@ArtistId, @ArtId)";
+                var query = "INSERT INTO Likes (ArtistID, ArtID, Viewed) VALUES (@ArtistId, @ArtId, 0)";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@ArtistId", artist.id);
@@ -119,6 +120,45 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     }
                 }
             }
+        }
+        public IEnumerable<Like> GetLikesByArtwork(int artworkId)
+        {
+            var likes = new List<Like>();
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                //Need to Append Created On to query when added to database
+                string likedQuery = 
+                    $@"
+                        SELECT Artist.Name, Art.Name, Like.Viewed 
+                        FROM Likes as Like 
+                        LEFT JOIN Arts ON Art.ID = Likes.ArtID 
+                        LEFT JOIN Artist ON Art.ArtistId = Artist.Id
+                        WHERE Art.ID = @ArtId";
+                using (SqlCommand command = new SqlCommand(likedQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@ArtId", artworkId);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var like = new Like
+                            {   //ArtId, ArtName
+                                Artist = reader.GetString(0),
+                                Artwork = reader.GetString(1),
+                                Viewed = reader.GetInt32(2) == 1 ? true : false,
+                                LikedOn = new DateTime()
+                            };
+                            likes.Add(like);
+                        }
+                    }
+
+                }
+            }
+            return likes;
         }
     }
 }
