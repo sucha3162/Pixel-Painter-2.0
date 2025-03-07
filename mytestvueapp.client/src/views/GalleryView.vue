@@ -85,9 +85,9 @@ const sortBy = ref([
   { sort: "Date", code: "D" },
 ]);
 const paginationOptions = ref<Number[]>([12, 24, 36]);
-const sortType = ref(""); // Value binded to sort drop down
+const sortType = ref("D"); // Value binded to sort drop down
 const isSorted = ref(false); // Renders the Descending checkbox while true
-const isSortedByDate = ref(false);
+const isSortedByDate = ref(true);
 const checkAscending = ref(false);
 const isModified = ref(false);
 const tempArt = ref([]);
@@ -128,11 +128,14 @@ watch(search, () => {
   if (publicArt.value) {
     isModified.value = true;
     displayArt.value = publicArt.value.filter((Art) =>
-      Art.artistName.toLowerCase().includes(filter.value.toLowerCase())
+      Art.artistName
+        .toString()
+        .toLowerCase()
+        .includes(filter.value.toLowerCase()),
     );
 
     displayArt.value = displayArt.value.filter((Art) =>
-      Art.title.toLowerCase().includes(search.value.toLowerCase())
+      Art.title.toLowerCase().includes(search.value.toLowerCase()),
     );
   }
 });
@@ -149,7 +152,10 @@ watch(filter, () => {
     );
 
     displayArt.value = displayArt.value.filter((Art) =>
-      Art.artistName.toLowerCase().includes(filter.value.toLowerCase())
+      Art.artistName
+        .toString()
+        .toLowerCase()
+        .includes(filter.value.toLowerCase())
     );
   }
 });
@@ -161,7 +167,10 @@ function changePage(page: number) {
 function searchAndFilter() {
   if (displayArt.value) {
     displayArt.value = displayArt.value.filter((Art) =>
-      Art.artistName.toLowerCase().includes(filter.value.toLowerCase())
+      Art.artistName
+        .toString()
+        .toLowerCase()
+        .includes(filter.value.toLowerCase())
     );
 
     displayArt.value = displayArt.value.filter((Art) =>

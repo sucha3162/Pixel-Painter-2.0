@@ -3,7 +3,7 @@ import { PixelGrid } from "./PixelGrid";
 export default class Art {
   //required
   id: number;
-  artistId: number;
+  artistId: number[];
   title: string;
   isPublic: boolean;
   creationDate: string;
@@ -12,7 +12,7 @@ export default class Art {
   pixelGrid: PixelGrid;
 
   //optional
-  artistName: string;
+  artistName: string[];
   numLikes: number;
   numComments: number;
   currentUserIsOwner: boolean;
@@ -20,8 +20,8 @@ export default class Art {
   constructor() {
     this.id = 0;
     this.title = "";
-    this.artistId = 0;
-    this.artistName = "";
+    this.artistId = [0];
+    this.artistName = [""];
 
     this.creationDate = "";
     this.isPublic = false;

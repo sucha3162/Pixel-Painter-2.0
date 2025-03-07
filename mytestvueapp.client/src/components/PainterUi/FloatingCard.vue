@@ -41,6 +41,6 @@ const props = defineProps<{
 }>();
 
 onMounted(() => {
-  openDialog.value = props.defaultOpen;
+    openDialog.value = props.defaultOpen;
 });
 </script>

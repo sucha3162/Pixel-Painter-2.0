@@ -4,7 +4,7 @@ namespace MyTestVueApp.Server.Entities
     {
         //Required
         public int id { get; set; }
-        public int artistId { get; set; }
+        public int[] artistId { get; set; }
         public string title { get; set; }
         public bool isPublic { get; set; }
         public DateTime creationDate { get; set; }
@@ -12,10 +12,25 @@ namespace MyTestVueApp.Server.Entities
 
 
         //Optional external values
-        public string artistName { get; set; }
+        public string[] artistName { get; set; }
         public int numLikes { get; set; }
         public int numComments { get; set; }
         public bool currentUserIsOwner { get; set; } = false;
+
+        public void SetArtists(Artist[] artist)
+        {
+            List<int> Ids;
+            List<String> names;
+            Ids = new List<int>();
+            names = new List<string>();
+            for (int i = 0; i < artist.Length; i++)
+            {
+                Ids.Add(artist[i].id);
+                names.Add(artist[i].name);
+            }
+            artistId = Ids.ToArray();
+            artistName = names.ToArray();
+        }
 
          public bool currentUserIsAdmin { get; set; } = false;
 

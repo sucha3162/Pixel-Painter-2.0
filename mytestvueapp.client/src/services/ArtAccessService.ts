@@ -170,5 +170,30 @@ export default class ArtAccessService {
       console.error;
       throw error;
     }
-  }
+    }
+    public static async DeleteContributingArtist(ArtistId: number): Promise<void> {
+        try {
+            const response = await fetch(`/artaccess/DeleteContributingArtist?ArtId=${ArtistId}`);
+
+            if (!response.ok) {
+                throw new Error("Error: Bad response");
+            }
+        } catch (error) {
+            console.error;
+            throw error;
+        }
+    }
+    public static async GetArtists(ArtId: number): Promise<any> {
+        try {
+            const response = await fetch(`/artaccess/GetArtists?ArtId=${ArtId}`);
+
+            if (!response.ok) {
+                throw new Error("Error: Bad response");
+            }
+        } catch (error) {
+            console.error;
+            throw error;
+        }
+        return
+    }
 }

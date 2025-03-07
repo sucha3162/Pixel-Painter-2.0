@@ -8,6 +8,7 @@
 import type Art from "@/entities/Art";
 import { onMounted, ref, computed, watch } from "vue";
 
+
 const props = defineProps<{
   art: Art;
   pixelSize: number;

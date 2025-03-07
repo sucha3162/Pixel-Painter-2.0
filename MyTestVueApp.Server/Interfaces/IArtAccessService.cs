@@ -19,7 +19,10 @@ namespace MyTestVueApp.Server.Interfaces
        // public IEnumerable<Art> GetArtByDate(bool order);
         public Art GetArtById(int id);
         public IEnumerable<Art> GetArtByArtist(int artistId);
+
+        public Artist[] GetArtists(int artId);
         public Task DeleteArt(int artId);
+        public Task DeleteContributingArtist(int artid,int artistid);
         public Task<Art> SaveNewArt(Artist artist, Art art);
         public Task<Art> UpdateArt(Artist artist, Art art);
     }

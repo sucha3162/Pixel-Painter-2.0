@@ -12,6 +12,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@microsoft/signalr": "^8.0.7",
     "@pixi/filter-drop-shadow": "^5.2.0",
     "@pixi/filter-outline": "^5.2.0",
     "@primevue/themes": "^4.0.7",
