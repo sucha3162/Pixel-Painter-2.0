@@ -42,17 +42,22 @@
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { useToast } from "primevue/usetoast";
 import router from "@/router";
 import { useRoute } from "vue-router";
-
+import ArtAccessService from "@/services/ArtAccessService";
 import Message from "primevue/message";
 import LoginService from "@/services/LoginService";
+import type Art from "@/entities/Art";
 
+const user = ref<boolean>(false);
 const toast = useToast();
 const visible = ref(false);
 const confirmText = ref("");
+const props = defineProps<{
+  art: Art;
+}>();
 
 watch(visible, (newVal) => {
   if (newVal) {
@@ -61,24 +66,35 @@ watch(visible, (newVal) => {
 });
 
 function ConfirmDelete() {
-  LoginService.DeleteArtist(confirmText.value)
-    .then(() => {
-      window.location.href = "/";
-      toast.add({
-        severity: "success",
-        summary: "User Deleted",
-        detail: "The User has been deleted successfully",
-        life: 3000,
+  if (user) {
+    console.log(props.art.id);
+    ArtAccessService.DeleteArt(props.art.id);
+  } else {
+    LoginService.DeleteArtist(confirmText.value)
+      .then(() => {
+        window.location.href = "/";
+        toast.add({
+          severity: "success",
+          summary: "User Deleted",
+          detail: "The User has been deleted successfully",
+          life: 3000,
+        });
+      })
+      .catch(() => {
+        toast.add({
+          severity: "error",
+          summary: "Error",
+          detail:
+            "error deleting user, please make sure you have spelt it correctly",
+          life: 3000,
+        });
       });
-    })
-    .catch(() => {
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail:
-          "error deleting user, please make sure you have spelt it correctly",
-        life: 3000,
-      });
-    });
+  }
+}
+
+function getIsAdmin() {
+  LoginService.GetIsAdmin().then((promise: boolean) => {
+    user.value = promise;
+  });
 }
 </script>

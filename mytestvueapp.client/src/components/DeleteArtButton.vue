@@ -47,14 +47,16 @@
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import ArtAccessService from "@/services/ArtAccessService";
 import { useToast } from "primevue/usetoast";
 import router from "@/router";
 import { useRoute } from "vue-router";
 import type Art from "@/entities/Art";
 import Message from "primevue/message";
+import LoginService from "../services/LoginService";
 
+const user = ref<boolean>(false);
 const toast = useToast();
 const props = defineProps<{
   art: Art;
@@ -68,24 +70,45 @@ watch(visible, (newVal) => {
   }
 });
 
+onMounted(() => {
+  getIsAdmin();
+});
+
 function ConfirmDelete() {
-  ArtAccessService.DeleteArt(props.art.id)
-    .then(() => {
-      router.push("/account#art");
-      toast.add({
-        severity: "success",
-        summary: "Art Deleted",
-        detail: "The art has been deleted successfully",
-        life: 3000,
-      });
-    })
-    .catch(() => {
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail: "An error occurred while deleting the art",
-        life: 3000,
-      });
+  if (user) {
+    ArtAccessService.DeleteArt(props.art.id);
+    router.push("/gallery");
+    toast.add({
+      severity: "success",
+      summary: "Art Deleted",
+      detail: "The art has been deleted successfully",
+      life: 3000,
     });
+  } else {
+    ArtAccessService.DeleteContributingArtist(props.art.id)
+      .then(() => {
+        router.push("/account#art");
+        toast.add({
+          severity: "success",
+          summary: "Art Deleted",
+          detail: "The art has been deleted successfully",
+          life: 3000,
+        });
+      })
+      .catch(() => {
+        toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: "An error occurred while deleting the art",
+          life: 3000,
+        });
+      });
+  }
+}
+
+function getIsAdmin() {
+  LoginService.GetIsAdmin().then((promise: boolean) => {
+    user.value = promise;
+  });
 }
 </script>

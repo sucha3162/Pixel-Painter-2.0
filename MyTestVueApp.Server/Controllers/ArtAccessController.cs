@@ -225,13 +225,55 @@ namespace MyTestVueApp.Server.Controllers
                     var artist = await LoginService.GetUserBySubId(userId);
                     var art = ArtAccessService.GetArtById(artId);
 
-
-                    if (art.artistId != artist.id && !artist.isAdmin)
+                    if (!(art.artistId != artist.id) && !artist.isAdmin)
                     {
                         return Unauthorized("User is not authorized for this action");
                     }
 
                     await ArtAccessService.DeleteArt(artId);
+
+                    return Ok();
+
+                }
+                else
+                {
+                    return BadRequest("User is not logged in");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+
+        }
+
+        [HttpGet]
+        [Route("DeleteContributingArtist")]
+        public async Task<IActionResult> DeleteContrbutingArtist(int artId)
+        {
+
+            try
+            {
+                // If the user is logged in
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var isAnArtist = false;
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    var artists = ArtAccessService.GetArtists(artId);
+
+                    foreach (var item in artists)
+                    {
+                        if(item.id == artist.id || artist.isAdmin)
+                        {
+                            isAnArtist = true;
+                        }
+                    }
+                    if(isAnArtist == false)
+                    {
+                        return Unauthorized("User is not authorized for this action");
+                    }
+
+                    await ArtAccessService.DeleteContributingArtist(artId,artist.id);
 
                     return Ok();
 
