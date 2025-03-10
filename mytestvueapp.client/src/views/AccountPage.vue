@@ -146,12 +146,12 @@ onMounted(() => {
     myArt.value = art;
   });
   LoginService.GetAllArtists().then((newList: Artist[]) => {
-    artistList. = newList;
+    artistList.value = newList;
   });
   /*
   Set selected artist from image viewer here
   */
-  curArtist.value = artistList[0].value;
+  curArtist.value = artistList.value[0];
   // if (route.hash != "#settings" && route.hash != "#art") {
   //   router.push("/accountpage#settings");
   // }
