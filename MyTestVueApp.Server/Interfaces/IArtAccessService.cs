@@ -23,6 +23,6 @@ namespace MyTestVueApp.Server.Interfaces
         public Task<Art> SaveNewArt(Artist artist, Art art);
         public Task<Art> UpdateArt(Artist artist, Art art);
         public IEnumerable<Artist> GetArtists(int artId);
-        public Task<Artist> DeleteContributingArtist(int artId, int artistId);
+        public Task DeleteContributingArtist(int artId, int artistId);
     }
 }

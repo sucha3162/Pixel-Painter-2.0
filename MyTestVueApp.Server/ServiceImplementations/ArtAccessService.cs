@@ -328,6 +328,31 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
+        public async Task DeleteContributingArtist(int ArtId, int ArtistId)
+        {
+            try
+            {
+                var connectionString = AppConfig.Value.ConnectionString;
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    var deleteConArtQuery = "DELETE ContributingArtists where ArtId = @ArtId and ArtistId = @ArtistId;";
+                    using (SqlCommand deleteConArtCommand = new SqlCommand(deleteConArtQuery, connection))
+                    {
+                        deleteConArtCommand.Parameters.AddWithValue("@ArtId", ArtId);
+                        deleteConArtCommand.Parameters.AddWithValue("@ArtistId", ArtistId);
+                        deleteConArtCommand.ExecuteNonQuery();
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex, "Error in DeleteContributingArtist");
+                throw;
+            }
+        }
     }
 }
 
