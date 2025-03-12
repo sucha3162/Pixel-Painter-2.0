@@ -118,6 +118,7 @@ import type { RefSymbol } from "@vue/reactivity";
 const toast = useToast();
 const route = useRoute();
 
+
 var artist = ref<Artist>(new Artist());
 var isEditing = ref(false);
 var newUsername = ref("");
