@@ -251,6 +251,39 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
 
+        public Artist[] GetArtists(int id)
+        {
+            var ContributingArtists = new Artist();
+            var Artists = new List<Artist>();
+            var connectionString = AppConfig.Value.ConnectionString;
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
+                var query1 =
+                    @"
+                    Select ContributingArtists.ArtistId, Artist.Name from ContributingArtists
+                    left join Artist on ContributingArtists.ArtistId = Artist.Id where ContributingArtists.ArtId = @ArtId; ";
+                using (var command = new SqlCommand(query1, connection))
+                {
+                    command.Parameters.AddWithValue("@ArtId", id);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ContributingArtists = new Artist()
+                            {
+                                id = reader.GetInt32(0),
+                                name = reader.GetString(1)
+                            };
+                            Artists.Add(ContributingArtists);
+                        }
+                        return Artists.ToArray();
+                    }
+                }
+            }
+        }
         public async Task<Art> UpdateArt(Artist artist, Art art)
         {
             try
