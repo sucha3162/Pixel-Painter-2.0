@@ -53,20 +53,18 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         {
                             var pixelGrid = new PixelGrid()
                             {
-                                width = reader.GetInt32(4),
-                                height = reader.GetInt32(5),
-                                encodedGrid = reader.GetString(6)
+                                width = reader.GetInt32(2),
+                                height = reader.GetInt32(3),
+                                encodedGrid = reader.GetString(4)
                             };
                             var painting = new Art
                             { //Art Table + NumLikes and NumComments
                                 id = reader.GetInt32(0),
                                 title = reader.GetString(1),
-                                artistId = reader.GetInt32(2),
-                                artistName = reader.GetString(3),
-                                creationDate = reader.GetDateTime(7),
-                                isPublic = reader.GetBoolean(8),
-                                numLikes = reader.GetInt32(9),
-                                numComments = reader.GetInt32(10),
+                                creationDate = reader.GetDateTime(5),
+                                isPublic = reader.GetBoolean(6),
+                                numLikes = reader.GetInt32(7),
+                                numComments = reader.GetInt32(8),
                                 pixelGrid = pixelGrid,
                             };
                             paintings.Add(painting);
