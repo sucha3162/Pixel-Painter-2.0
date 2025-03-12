@@ -17,7 +17,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             Logger = logger;
             LoginService = loginService;
         }
-
+        //Queues all the art
         public IEnumerable<Art> GetAllArt()
         {
             var paintings = new List<Art>();
@@ -79,7 +79,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
             return paintings;
         }
-
+        //Pull all art related to user
         public IEnumerable<Art> GetAllArtByUser(string name)
         {
             var paintings = new List<Art>();
@@ -144,6 +144,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
             return paintings;
         }
+        //Pulls art by Id
         public Art GetArtById(int id)
         {
             var connectionString = AppConfig.Value.ConnectionString;
@@ -209,7 +210,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
             return null;
         }
-
+        //Saves art
         public async Task<Art> SaveNewArt(Artist artist, Art art)
         {
             try
