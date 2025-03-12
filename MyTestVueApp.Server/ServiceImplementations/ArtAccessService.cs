@@ -31,9 +31,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     @"
                     Select 
 	                    Art.Id, 
-	                    Art.Title, 
-	                    Art.ArtistId, 
-	                    Artist.Name, 
+	                    Art.Title,   
 	                    Art.Width, 
 	                    Art.Height, 
 	                    Art.Encode, 
@@ -44,8 +42,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     FROM ART  
 	                    LEFT JOIN Likes ON Art.ID = Likes.ArtID  
 	                    LEFT JOIN Comment ON Art.ID = Comment.ArtID  
-	                    LEFT JOIN Artist ON Art.ArtistId = Artist.Id
-                    GROUP BY Art.ID, Art.Title, Art.ArtistID, Artist.Name, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
+                    GROUP BY Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
                     ";
 
                 using (var command = new SqlCommand(query, connection))
