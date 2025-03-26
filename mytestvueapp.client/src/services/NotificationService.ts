@@ -1,26 +1,28 @@
 import Notification from "../entities/Notification";
 
 export default class NotificationService {
-  public static async getNotifications(artistId: number): Promise<Notification[]> {
+  public static async getNotifications(artistId: number): Promise<any> {
     try {
-      console.log("Call Controller");
       const response = await fetch(
-        `/notification/GetNotifications?artId=${artistId}`
-      )
-      const jsonNotifications = await response.json();
-      console.log(jsonNotifications);
+        `/notification/GetNotifications?userId=${artistId}`
+      );
+      if(!response.ok){
+        throw new Error("Problem getting notifications");
+      }
+      const data = await response.json();
+      
 
       const allNotifications: Notification[] = [];
-      for (const jsonComment of jsonNotifications) {
+      for (const newNotification of data) {
         let notification = new Notification();
-        notification = jsonComment as Notification;
+        notification = newNotification as Notification;
         allNotifications.push(notification);
       }
 
       return allNotifications;
     } catch (error) {
       console.error;
-      return [];
+      throw error;
     }
   }
 }

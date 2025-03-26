@@ -4,6 +4,7 @@ using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
 using Microsoft.Data.SqlClient;
 using System.Reflection.Metadata.Ecma335;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 
 namespace MyTestVueApp.Server.ServiceImplementations
 {
@@ -132,15 +133,13 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 //Need to Append Created On to query when added to database
                 string likedQuery = 
                     $@"
-                        SELECT Artist.Name, Art.Name, Like.Viewed 
-                        FROM Likes as Like 
-                        LEFT JOIN Arts ON Art.ID = Likes.ArtID 
+                        SELECT Artist.Name, Art.Title, Likes.ArtId, Likes.ArtistId, Likes.Viewed 
+                        FROM Likes
+                        LEFT JOIN Art ON Art.ID = Likes.ArtID 
                         LEFT JOIN Artist ON Art.ArtistId = Artist.Id
-                        WHERE Art.ID = @ArtId";
+                        WHERE Art.ID = {artworkId}";
                 using (SqlCommand command = new SqlCommand(likedQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@ArtId", artworkId);
-
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
@@ -149,7 +148,9 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             {   //ArtId, ArtName
                                 Artist = reader.GetString(0),
                                 Artwork = reader.GetString(1),
-                                Viewed = reader.GetInt32(2) == 1 ? true : false,
+                                ArtId = reader.GetInt32(2),
+                                ArtistId = reader.GetInt32(3),
+                                Viewed = reader.GetInt32(4) == 1 ? true : false,
                                 LikedOn = new DateTime()
                             };
                             likes.Add(like);
@@ -159,6 +160,47 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
             return likes;
+        }
+        public async Task<Like> GetLikeByIds(int artId, int artistId)
+        {
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                //Need to Append Created On to query when added to database
+                string likedQuery =
+                    $@"
+                          SELECT Artist.Name, Art.Title, Likes.ArtId, Likes.ArtistId, Likes.Viewed 
+                          FROM Likes
+                          LEFT JOIN Art ON Art.ID = Likes.ArtID 
+                          LEFT JOIN Artist ON Art.ArtistId = Artist.Id
+                          WHERE Art.ID = @art and Art.ArtistId = @artist
+                          ";
+                using (SqlCommand command = new SqlCommand(likedQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@artist", artistId);
+                    command.Parameters.AddWithValue("@art", artId);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (reader.Read())
+                        {
+                            var like = new Like
+                            {   //ArtId, ArtName
+                                Artist = reader.GetString(0),
+                                Artwork = reader.GetString(1),
+                                ArtId = reader.GetInt32(2),
+                                ArtistId = reader.GetInt32(3),
+                                Viewed = reader.GetInt32(4) == 1 ? true : false,
+                                LikedOn = new DateTime()
+                            };
+                            return like;
+                        }
+                    }
+                }
+            }
+            throw new ArgumentException("No like data in the datbase matches values art id: " + artId + " and artist id: " + artistId);
         }
     }
 }

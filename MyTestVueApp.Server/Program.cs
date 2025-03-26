@@ -23,6 +23,7 @@ builder.Services.AddTransient<IArtAccessService, ArtAccessService>();
 builder.Services.AddTransient<ILoginService, LoginService>();
 builder.Services.AddTransient<ILikeService, LikeService>();
 builder.Services.AddTransient<ICommentAccessService, CommentAccessService>();
+builder.Services.AddTransient<INotificationService, NotificationService>();
 
 
 var app = builder.Build();

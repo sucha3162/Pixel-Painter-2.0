@@ -21,7 +21,7 @@
       </div>
     </template>
     <template #end>
-      <RouterLink class="mr-2" to="/notification" v-if="isLoggedIn">
+      <RouterLink class="mr-2" to="/notifications" v-if="isLoggedIn">
         <Notification />
       </RouterLink>
       <DarkModeSwitcher class="mr-2" />
@@ -59,3 +59,4 @@ onMounted(() => {
   background-color: transparent;
 }
 </style>
+

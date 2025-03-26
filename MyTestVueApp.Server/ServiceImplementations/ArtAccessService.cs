@@ -86,7 +86,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query =
                     $@"
-                                            Select	
+                    Select	
 	                    Art.ID,
 	                    Art.Title, 
 	                    Art.Width, 
