@@ -7,7 +7,7 @@
         v-for="(notification, index) in notifications"
         v-bind:key="index"
         :class="notification.viewed ? 'lCardV' : 'lCard'"
-        @click="notification.viewed = true">
+        @click="MarkViewed(notification)">
         {{ notification.user }} has
         <span v-if="notification.type == 1">liked</span
         ><span v-else>commented</span> on your
@@ -58,6 +58,24 @@ onMounted(() => {
     });
   });
 });
+
+async function MarkViewed(notification: Notification) {
+  if (notification.commentId === null) {
+    notification.viewed = await MarkLike(
+      notification.artId,
+      notification.artistId
+    );
+  } else {
+    notification.viewed = await MarkComment(notification.commentId);
+  }
+}
+
+async function MarkComment(commentId: number): Promise<boolean> {
+  return await NotificationService.markCommentViewed(commentId);
+}
+async function MarkLike(artId: number, artistId: number): Promise<boolean> {
+  return await NotificationService.markLikeViewed(artId, artistId);
+}
 </script>
 <style scoped>
 .lCard {

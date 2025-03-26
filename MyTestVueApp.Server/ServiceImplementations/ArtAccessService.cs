@@ -26,7 +26,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query1 =
                     @"
                     Select 
