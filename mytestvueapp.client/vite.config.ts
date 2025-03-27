@@ -69,7 +69,7 @@ export default defineConfig({
         target,
         secure: false
       },
-      "^/notification": {
+      "^/notification/": {
         target,
         secure: false
       },
