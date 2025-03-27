@@ -71,7 +71,11 @@ export default defineConfig({
       },
       "^/notification": {
         target,
-        secure:false
+        secure: false
+      },
+      "^/GIFCreation": {
+        target,
+        secure: false,
       }
     },
     port: 5173,

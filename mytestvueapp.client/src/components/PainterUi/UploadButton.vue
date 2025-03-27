@@ -56,13 +56,15 @@
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import Art from "@/entities/Art";
 import ToggleButton from "primevue/togglebutton";
 import ArtAccessService from "@/services/ArtAccessService";
 import { useToast } from "primevue/usetoast";
 import router from "@/router";
 import LoginService from "@/services/LoginService";
+import { HubConnection, HubConnectionState } from "@microsoft/signalr";
+import Artist from "@/entities/Artist";
 
 const toast = useToast();
 const visible = ref(false);
@@ -71,8 +73,13 @@ const loading = ref(false);
 const newName = ref("");
 const newPrivacy = ref(false);
 
+const contributors = ref<Artist[]>([]);
+
 const props = defineProps<{
   art: Art;
+  connection: signalR.HubConnection;
+  connected: boolean;
+  groupName: string;
 }>();
 
 const isEditing = computed(() => {
@@ -83,6 +90,24 @@ const emit = defineEmits(["OpenModal"]);
 
 watch(visible, () => {
   emit("OpenModal", visible.value);
+});
+
+// WHY CANT I JUST WATCH props.connection.state !!!!!!!
+// I even tried using computed and {deep: true}!!!!
+watch(() => props.connected, () => {
+  if (props.connection.state == HubConnectionState.Connected) {
+    props.connection.invoke("GetContributingArtists", props.groupName);
+  } 
+});
+
+onMounted(() => {
+  if (props.connection.state == HubConnectionState.Connected){
+    props.connection.invoke("GetContributingArtists", props.groupName);
+  } 
+});
+
+props.connection.on("ContributingArtists", (allArtists: Artist[]) => {
+  contributors.value = allArtists;
 });
 
 function ToggleModal() {
@@ -104,6 +129,11 @@ function Upload() {
       newArt.isPublic = newPrivacy.value;
       newArt.pixelGrid.DeepCopy(props.art.pixelGrid);
       newArt.id = props.art.id;
+      if (props.connected){
+        newArt.artistName = contributors.value.map((artist) => artist.name);
+        newArt.artistId = contributors.value.map((artist) => artist.id);
+      }
+
       ArtAccessService.SaveArt(newArt)
         .then((data: Art) => {
           if (data.id != undefined) {

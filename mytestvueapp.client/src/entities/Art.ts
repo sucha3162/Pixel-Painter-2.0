@@ -27,7 +27,7 @@ export default class Art {
     this.isPublic = false;
     this.numLikes = 0;
     this.numComments = 0;
-    this.pixelGrid = new PixelGrid(1, 1, "FF0000");
+    this.pixelGrid = new PixelGrid(1, 1, "FF0000", false);
     this.currentUserIsOwner = false;
   }
 }

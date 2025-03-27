@@ -216,6 +216,72 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
 
+        public async Task<Art> SaveNewArtMulti(Art art)//Multi artist
+        {
+            try
+            {
+                art.creationDate = DateTime.UtcNow;
+
+                using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
+                {
+                    connection.Open();
+
+                    var query = @"
+                    INSERT INTO Art (Title, Width, Height, Encode, CreationDate, IsPublic)
+                    VALUES (@Title, @Width, @Height, @Encode, @CreationDate, @IsPublic);
+                    SELECT SCOPE_IDENTITY();
+                ";
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@Title", art.title);
+                        command.Parameters.AddWithValue("@Width", art.pixelGrid.width);
+                        command.Parameters.AddWithValue("@Height", art.pixelGrid.height);
+                        command.Parameters.AddWithValue("@Encode", art.pixelGrid.encodedGrid);
+                        command.Parameters.AddWithValue("@CreationDate", art.creationDate);
+                        command.Parameters.AddWithValue("@IsPublic", art.isPublic);
+
+                        var newArtId = await command.ExecuteScalarAsync();
+                        art.id = Convert.ToInt32(newArtId);
+                    }
+                }
+
+                return art;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error in SaveArt");
+                throw;
+            }
+        }
+
+        public async Task AddContributingArtist(int artId, int artistId)
+        {
+            try
+            {
+
+                using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
+                {
+                    connection.Open();
+
+                    var query = @"
+                    INSERT INTO ContributingArtists(ArtId,ArtistId) values (@ArtId,@ArtistId);
+                ";
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@ArtId", artId);
+                        command.Parameters.AddWithValue("@ArtistId", artistId);
+                        command.ExecuteNonQuery();
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error in SaveContributingArtist");
+                throw;
+            }
+        }
+
         public async Task<Art> UpdateArt(Artist artist, Art art)
         {
             try

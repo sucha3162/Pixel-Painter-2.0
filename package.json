@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "gifencoder": "^2.0.1"
+  },
+  "devDependencies": {
+    "@types/omggif": "^1.0.5"
+  }
+}

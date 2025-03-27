@@ -2,6 +2,7 @@
     <Button
         :label="connected ? 'Disconnect' : 'Connect'"
         :severity="connected ? 'danger': 'primary'"
+        :disabled ="isGif"
         icon="pi pi-wifi"
         @click="ToggleModal()"
     />
@@ -48,6 +49,7 @@
 
     const props = defineProps<{
         connected: boolean;
+        isGif: boolean;
     }>();
 
     const visible = ref(false);

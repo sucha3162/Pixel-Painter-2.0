@@ -143,7 +143,13 @@ export default class ArtAccessService {
     try {
       art.creationDate = new Date().toISOString();
 
-      const response = await fetch("/artaccess/SaveArt", {
+      let request = "/artaccess/SaveArt";
+      console.log("#Artists: " + art.artistId.length);
+      if (art.artistId.length > 1) {
+        request = "/artaccess/SaveArtCollab"
+      }
+
+      const response = await fetch(request, {
         method: "POST",
         body: JSON.stringify(art),
         headers: { "Content-Type": "application/json" }

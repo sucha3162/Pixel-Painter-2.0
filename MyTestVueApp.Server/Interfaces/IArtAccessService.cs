@@ -21,6 +21,8 @@ namespace MyTestVueApp.Server.Interfaces
         public Task DeleteArt(int artId);
         public Task DeleteContributingArtist(int artid,int artistid);
         public Task<Art> SaveNewArt(Artist artist, Art art);
+        public Task<Art> SaveNewArtMulti(Art art);
+        public Task AddContributingArtist(int artId, int artistId);
         public Task<Art> UpdateArt(Artist artist, Art art);
     }
 }

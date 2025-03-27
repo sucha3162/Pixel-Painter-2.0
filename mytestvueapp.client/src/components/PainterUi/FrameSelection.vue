@@ -72,14 +72,6 @@ import { ref, onBeforeMount } from 'vue';
         }
 
         if (localStorage.getItem(`frame${frameCount + 1}`) != null) {
-            /*if (selectedFrame.value == frameCount + 1) {
-                oldFrame.value = frameCount;
-                selectedFrame.value = frameCount;
-
-                console.log("FrameCount: ", frameCount);
-                console.log("SelFrame: ", selectedFrame.value);
-                console.log("OldFrame: ", oldFrame.value);
-            }*/
             localStorage.removeItem(`frame${frameCount + 1}`);
         }
     }
