@@ -149,14 +149,16 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query =
                     $@"
-                    Select	
-	                    Art.ID,
-	                    Art.Title
-                    FROM ART
-                    WHERE Art.ID =  {artistId}
+                      Select	
+                        Art.ID,
+                        Art.Title
+                      FROM ART
+                      left join  ContributingArtists as CA on CA.ArtId = Art.Id
+                      WHERE CA.ArtistId = @ArtistID
                     ";
                 using (var command = new SqlCommand(query, connection))
                 {
+                    command.Parameters.AddWithValue("@ArtistID", artistId);
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())

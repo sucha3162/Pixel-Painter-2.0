@@ -35,7 +35,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var comments = commentService.GetCommentsByArtId(artwork.id);
                 foreach(Comment comment in comments)
                 {
-                    if(comment.replyId == null || comment.replyId == 0) //don't want to get replies here, just original comments on art
+                    if(comment.artistId == artistId)
+                    {
+                        continue;
+                    }
+                    else if(comment.replyId == null || comment.replyId == 0) //don't want to get replies here, just original comments on art
                     {
                         var notification = new Notification
                         {
@@ -54,6 +58,10 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var likes = likeService.GetLikesByArtwork(artwork.id);
                 foreach(Like like in likes) 
                 {
+                    if (like.ArtistId == artistId)
+                    {
+                        continue;
+                    }
                     var notification = new Notification
                     {
                         commentId = -1,
@@ -72,7 +80,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
             {
                 var replies = commentService.GetReplyByCommentId(comment.id);
                 foreach(Comment reply in replies)
+
                 {
+                    if(reply.artistId == artistId){
+                        continue;
+                    }
                     var notification = new Notification
                     {
                         commentId = reply.id,

@@ -1,6 +1,8 @@
 <template>
   <div id="notificationParent">
-    <div id="redicon" v-if="notificationCount > 0">{{ notificationCount }}</div>
+    <div id="redicon" v-if="notificationsCount > 0">
+      {{ notificationsCount }}
+    </div>
     <Button
       id="notificationButton"
       rounded
@@ -11,20 +13,31 @@
 
 <script setup lang="ts">
 import Button from "primevue/button";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import router from "@/router";
+import Notification from "@/entities/Notification";
 //services
 import LoginService from "@/services/LoginService";
 import NotificationService from "@/services/NotificationService";
+//stores
+import { useNotificationStore } from "@/store/NotificationStore";
 
-const notificationCount = ref<number>(0);
+const notificationStore = useNotificationStore();
+const notificationsCount = computed(() => {
+  return notificationStore.notifications.reduce(
+    (count, data) => count + (data.viewed ? 0 : 1),
+    0
+  );
+});
 
 onMounted(() => {
-  LoginService.GetCurrentUser().then((data) => {
-    NotificationService.getNotifications(data.id).then((data) => {
-      notificationCount.value = data.length;
+  if (notificationStore.notifications.length === 0) {
+    LoginService.GetCurrentUser().then((user) => {
+      NotificationService.getNotifications(user.id).then((data) => {
+        notificationStore.notifications = data;
+      });
     });
-  });
+  }
 });
 
 function buttonClick() {

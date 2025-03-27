@@ -10,10 +10,9 @@
         @click="MarkViewed(notification)">
         {{ notification.user }} has
         <span v-if="notification.type == 1">liked</span
-        ><span v-else>commented</span> on your
+        ><span v-else>commented on</span> your
         <span v-if="notification.type == 3">comment</span
         ><span v-else>artwork, "{{ notification.artName }}"</span>
-        <div icon="pi pi-info upside-down"></div>
       </div>
     </div>
     <div v-else>
@@ -21,52 +20,52 @@
         v-for="(notification, index) in notifications"
         v-bind:key="index"
         :class="notification.viewed ? 'dCardV' : 'dCard'"
-        @click="notification.viewed = true">
+        @click="MarkViewed(notification)">
         {{ notification.user }} has
-        <div>
-          <span v-if="notification.type === 1">liked</span>
-          <span v-else-if="notification.type === 0">commented on</span>
-          <span v-else-if="notification.type === 3">replied to</span>
-        </div>
+        <span v-if="notification.type === 1">liked</span>
+        <span v-else-if="notification.type === 0">commented on</span>
+        <span v-else-if="notification.type === 3">replied to</span>
         your
-        <div>
-          <span v-if="notification.type == 3">comment</span
-          ><span v-else>artwork, "{{ notification.artName }}"</span>
-        </div>
-        <i class="pi pi-exclamation-circle"></i>
+        <span v-if="notification.type == 3">comment</span
+        ><span v-else>artwork, "{{ notification.artName }}"</span>
       </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { onMounted, computed } from "vue";
 
 import Notification from "@/entities/Notification";
 import NotificationService from "@/services/NotificationService";
 import LoginService from "@/services/LoginService";
 
 import { useThemeStore } from "@/store/ThemeStore";
+import { useNotificationStore } from "@/store/NotificationStore";
 
-const notifications = ref<Notification[]>([]);
+const notifications = computed(() => {
+  return notificationStore.notifications;
+});
 const store = useThemeStore();
+const notificationStore = useNotificationStore();
 
 onMounted(() => {
-  LoginService.GetCurrentUser().then((data) => {
-    NotificationService.getNotifications(data.id).then((data) => {
-      notifications.value = data;
-      console.log(notifications.value);
+  if (notificationStore.notifications.length === 0) {
+    LoginService.GetCurrentUser().then((data) => {
+      NotificationService.getNotifications(data.id).then((data) => {
+        notificationStore.notifications = data;
+      });
     });
-  });
+  }
 });
 
 async function MarkViewed(notification: Notification) {
-  if (notification.commentId === null) {
+  if (notification.commentId != -1) {
+    notification.viewed = await MarkComment(notification.commentId);
+  } else {
     notification.viewed = await MarkLike(
       notification.artId,
       notification.artistId
     );
-  } else {
-    notification.viewed = await MarkComment(notification.commentId);
   }
 }
 

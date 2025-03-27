@@ -136,10 +136,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         SELECT Artist.Name, Art.Title, Likes.ArtId, Likes.ArtistId, Likes.Viewed 
                         FROM Likes
                         LEFT JOIN Art ON Art.ID = Likes.ArtID 
-                        LEFT JOIN Artist ON Art.ArtistId = Artist.Id
-                        WHERE Art.ID = {artworkId}";
+                        LEft join Artist on Artist.Id = Likes.ArtistId
+                        WHERE Likes.ArtId = @artworkId";
                 using (SqlCommand command = new SqlCommand(likedQuery, connection))
                 {
+                    command.Parameters.AddWithValue("@artworkId", artworkId);
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
@@ -174,8 +175,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                           SELECT Artist.Name, Art.Title, Likes.ArtId, Likes.ArtistId, Likes.Viewed 
                           FROM Likes
                           LEFT JOIN Art ON Art.ID = Likes.ArtID 
-                          LEFT JOIN Artist ON Art.ArtistId = Artist.Id
-                          WHERE Art.ID = @art and Art.ArtistId = @artist
+                          LEFT JOIN Artist ON Likes.ArtistId = Artist.Id
+                          WHERE Likes.ArtId = @art and Likes.ArtistId = @artist
                           ";
                 using (SqlCommand command = new SqlCommand(likedQuery, connection))
                 {

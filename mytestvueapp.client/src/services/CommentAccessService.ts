@@ -55,7 +55,6 @@ export default class CommentAccessService {
       }
 
       const json = await response.json();
-      console.log(json);
       const result: Comment = json as Comment;
       return result;
     } catch (error) {

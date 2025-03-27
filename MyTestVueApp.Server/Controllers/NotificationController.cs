@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
+using MyTestVueApp.Server.Models;
 using MyTestVueApp.Server.ServiceImplementations;
 using System.Security.Authentication;
 
@@ -44,36 +45,28 @@ namespace MyTestVueApp.Server.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch (Exception ex)
-            {
+              {
                 return StatusCode(500);
             }
         }
 
-        [HttpPut]
+        [HttpPost]
         [Route("MarkCommentViewed")]
-        public async Task<IActionResult> MarkCommentViewed([FromQuery] string viewedComment)
+        public async Task<IActionResult> MarkCommentViewed([FromBody] int commentId)
         {
             try
             {
-                int commentId;
-                if(int.TryParse(viewedComment, out commentId))
+                Comment comment = await commentService.GetCommentByCommentId(commentId);
+                if (comment != null)
                 {
-                    Comment comment = await commentService.GetCommentByCommentId(commentId);
-                    if (comment != null)
+                    if(await notificationService.MarkComment(comment.id))
                     {
-                        if(await notificationService.MarkComment(commentId))
-                        {
-                            return Ok();
-                        } else
-                        {
-                            throw new Exception("An unknown Error has Occured");
-                        }
-                        
+                        return Ok();
                     } else
                     {
-                        throw new ArgumentException("Comment with id: " + viewedComment + " was not found");
+                        throw new Exception("An unknown Error has Occured");
                     }
+                    
                 }
                 else
                 {
@@ -91,36 +84,28 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPost]
         [Route("MarkLikeViewed")]
-        public async Task<IActionResult> MarkLikeViewed([FromQuery] string viewedArtId, [FromQuery] string viewedArtistId)
+        public async Task<IActionResult> MarkLikeViewed([FromBody] LikesModel likeModel)
         {
             try
             {
-                int artId, artistId;
-                if (int.TryParse(viewedArtId, out artId) && int.TryParse(viewedArtistId, out artistId))
+                Like like = await likeService.GetLikeByIds(likeModel.ArtId, likeModel.ArtistId);
+                if (like != null)
                 {
-                    Like like = await likeService.GetLikeByIds(artId, artistId);
-                    if (like != null)
+                    if (await notificationService.MarkLike(like.ArtId, like.ArtistId))
                     {
-                        if (await notificationService.MarkLike(artId, artistId))
-                        {
-                            return Ok();
-                        }
-                        else
-                        {
-                            throw new Exception("An unknown Error has Occured");
-                        }
-
+                        return Ok();
                     }
                     else
                     {
-                        throw new ArgumentException("Like with art id: " + viewedArtId + " and artist id: "+ viewedArtistId+ " was not found");
+                        throw new Exception("An unknown Error has Occured");
                     }
+
                 }
                 else
                 {
-                    throw new HttpRequestException("CommentId must be an int");
+                    throw new ArgumentException("Like with art id: " + likeModel.ArtId + " and artist id: "+ likeModel.ArtistId+ " was not found");
                 }
             }
             catch (HttpRequestException ex)
