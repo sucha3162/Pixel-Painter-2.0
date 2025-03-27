@@ -27,6 +27,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         public IEnumerable<Notification> GetNotificationsForArtist(int artistId)
         {
+            DateTime thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
+
             var notifications = new List<Notification>();
             var artworks = artService.GetArtByArtist(artistId);
             foreach (Art artwork in artworks)
@@ -35,7 +37,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var comments = commentService.GetCommentsByArtId(artwork.id);
                 foreach(Comment comment in comments)
                 {
-                    if(comment.artistId == artistId)
+                    if(comment.artistId == artistId || comment.creationDate < thirtyDaysAgo) //Make sure it is not the user, or over 30 days old
                     {
                         continue;
                     }
@@ -58,7 +60,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var likes = likeService.GetLikesByArtwork(artwork.id);
                 foreach(Like like in likes) 
                 {
-                    if (like.ArtistId == artistId)
+                    if (like.ArtistId == artistId || like.LikedOn < thirtyDaysAgo) //Make sure it is not the user, or over 30 days old
                     {
                         continue;
                     }
@@ -82,7 +84,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 foreach(Comment reply in replies)
 
                 {
-                    if(reply.artistId == artistId){
+                    if(reply.artistId == artistId || comment.creationDate < thirtyDaysAgo) //Make sure it is not the user, or over 30 days old
+                    {
                         continue;
                     }
                     var notification = new Notification

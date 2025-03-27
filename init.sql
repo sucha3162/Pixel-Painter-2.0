@@ -47,6 +47,7 @@ BEGIN
         ArtistId INT,
         ArtId INT,
         CreationDate DATETIME DEFAULT GETDATE(),
+        Viewed INT DEFAULT 0,
         PRIMARY KEY (ArtistId, ArtId),
         CONSTRAINT FK_Likes_Art FOREIGN KEY (ArtId) REFERENCES Art(Id) ON DELETE CASCADE
     );
@@ -71,6 +72,7 @@ BEGIN
         ReplyId INT,
         [Message] VARCHAR(2222),
         CreationDate DATETIME DEFAULT GETDATE(),
+        Viewed INT DEFAULT 0,
         PRIMARY KEY (Id),
         CONSTRAINT FK_Comment_Art FOREIGN KEY (ArtId) REFERENCES Art(Id) ON DELETE CASCADE,
     );
