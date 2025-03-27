@@ -37,6 +37,7 @@
         @disable-key-binds="keyBindActive = false" />
       <BrushSelection v-model="cursor.selectedTool" />
       <FrameSelection v-if="art.pixelGrid.isGif" v-model:selFrame="selectedFrame" v-model:lastFrame="lastFrame" v-model:frameIndex="index"/>
+      <LayerSelection v-if="!art.pixelGrid.isGif"/>
       <!-- <SaveAndLoad v-model="pixelGrid" /> -->
     </template>
     <template #end>
@@ -73,7 +74,8 @@ import BrushSelection from "@/components/PainterUi/BrushSelection.vue";
 import ColorSelection from "@/components/PainterUi/ColorSelection.vue";
 import UploadButton from "@/components/PainterUi/UploadButton.vue";
 import SaveImageToFile from "@/components/PainterUi/SaveImageToFile.vue";
-import FrameSelection from "@/components/PainterUi/FrameSelection.vue"
+import FrameSelection from "@/components/PainterUi/FrameSelection.vue";
+import LayerSelection from "@/components/PainterUi/LayerSelection.vue";
 
 //entities
 import { PixelGrid } from "@/entities/PixelGrid";
@@ -293,32 +295,32 @@ watch(mouseButtonHeldDown, async () => {
 });
 
     
-    watch(selectedFrame, () => {
-        if (lastFrame.value <= index.value) {
-            localStorage.setItem(`frame${lastFrame.value}`, JSON.stringify(art.value.pixelGrid));
-        }
+watch(selectedFrame, () => {
+  if (lastFrame.value <= index.value) {
+      localStorage.setItem(`frame${lastFrame.value}`, JSON.stringify(art.value.pixelGrid));
+  }
 
-        const workingGrid = JSON.parse(
-            localStorage.getItem(`frame${selectedFrame.value}`) as string
-        ) as PixelGrid;
+  const workingGrid = JSON.parse(
+      localStorage.getItem(`frame${selectedFrame.value}`) as string
+  ) as PixelGrid;
 
-        if (workingGrid == null) {
-            const newGrid = new PixelGrid(
-                art.value.pixelGrid.width,
-                art.value.pixelGrid.height,
-                art.value.pixelGrid.backgroundColor,
-                art.value.pixelGrid.isGif
-            );
-            art.value.pixelGrid.DeepCopy(newGrid);
-            canvas.value?.recenter();
-            localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+  if (workingGrid == null) {
+    const newGrid = new PixelGrid(
+      art.value.pixelGrid.width,
+      art.value.pixelGrid.height,
+      art.value.pixelGrid.backgroundColor,
+      art.value.pixelGrid.isGif
+    );
+    art.value.pixelGrid.DeepCopy(newGrid);
+    canvas.value?.recenter();
+    localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
 
-        } else {
-            art.value.pixelGrid.DeepCopy(workingGrid);
-            canvas.value?.recenter();
-            localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
-        }
-    });
+  } else {
+    art.value.pixelGrid.DeepCopy(workingGrid);
+    canvas.value?.recenter();
+    localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+  }
+});
 
 //functions
 function runGravity() {
@@ -858,14 +860,14 @@ function LocalSave() {
   localStorage.setItem("working-art", JSON.stringify(art.value.pixelGrid));
 }
 
-    function LocalSaveGif() {
-        const workingGrid = JSON.parse(
-            localStorage.getItem("frame1") as string
-        ) as PixelGrid;
+function LocalSaveGif() {
+  const workingGrid = JSON.parse(
+    localStorage.getItem("frame1") as string
+  ) as PixelGrid;
 
-        localStorage.setItem("working-art", JSON.stringify(workingGrid));
-        localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
-    }
+  localStorage.setItem("working-art", JSON.stringify(workingGrid));
+  localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+}
 
 </script>
 <style scoped>

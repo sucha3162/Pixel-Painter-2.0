@@ -100,6 +100,7 @@ namespace MyTestVueApp.Server.Controllers
                 if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
                     var artist = await LoginService.GetUserBySubId(userId);
+                    if(artist == null) { return Ok(false); }
                     if (artist.isAdmin)
                     {
                         return Ok(true);

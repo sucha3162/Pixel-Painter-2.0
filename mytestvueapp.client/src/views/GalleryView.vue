@@ -7,19 +7,22 @@
           class="mt-2"
           v-model.trim="search"
           type="text"
-          placeholder="Search title..." />
+          placeholder="Search title..."
+        />
         <InputText
           class="mt-2 w-2"
           v-model.trim="filter"
           type="text"
-          placeholder="Search artists..." />
+          placeholder="Search artists..."
+        />
         <Dropdown
           class="pl mt-2 text-base w-1.5 font-normal"
           v-model="sortType"
           :options="sortBy"
           optionLabel="sort"
           optionValue="code"
-          placeholder="Sort by" />
+          placeholder="Sort by"
+        />
         <ToggleButton
           v-if="isSorted"
           id="toggle"
@@ -29,7 +32,8 @@
           onIcon="pi pi-arrow-up"
           offLabel="Descending"
           offIcon="pi pi-arrow-down"
-          @click="handleCheckBox()" />
+          @click="handleCheckBox()"
+        />
 
         <ToggleButton
           v-if="isSortedByDate"
@@ -40,14 +44,16 @@
           onIcon="pi pi-arrow-up"
           offLabel="Newest First"
           offIcon="pi pi-arrow-down"
-          @click="handleCheckBox()" />
+          @click="handleCheckBox()"
+        />
       </h1>
       <div style="display: inline-flex">
         <p>Art per page: &nbsp;</p>
         <Dropdown
           class="pl my-2 text-base w-1.5 font-normal"
           v-model="perPage"
-          :options="paginationOptions" />
+          :options="paginationOptions"
+        />
       </div>
     </header>
     <div class="shrink-limit flex flex-wrap" v-if="!loading">
@@ -56,7 +62,8 @@
         :key="index"
         :art="displayArt[index + offset]"
         :size="6"
-        :position="index" />
+        :position="index"
+      />
     </div>
     <ArtPaginator :pages="pages" @page-change="changePage" />
   </div>
@@ -84,7 +91,7 @@ const sortBy = ref([
   { sort: "Comments", code: "C" },
   { sort: "Date", code: "D" },
 ]);
-const paginationOptions = ref<Number[]>([12, 24, 36]);
+const paginationOptions = ref<Number[]>([4, 24, 36]);
 const sortType = ref("D"); // Value binded to sort drop down
 const isSorted = ref(false); // Renders the Descending checkbox while true
 const isSortedByDate = ref(true);
@@ -92,7 +99,7 @@ const checkAscending = ref(false);
 const isModified = ref(false);
 const tempArt = ref([]);
 const currentPage = ref<number>(1);
-const perPage = ref<number>(12);
+const perPage = ref<number>(4);
 const pages = computed(() => {
   return Math.ceil(displayArt.value.length / perPage.value);
 });
@@ -148,14 +155,14 @@ watch(filter, () => {
   if (publicArt.value) {
     isModified.value = true;
     displayArt.value = publicArt.value.filter((Art) =>
-      Art.title.toLowerCase().includes(search.value.toLowerCase())
+      Art.title.toLowerCase().includes(search.value.toLowerCase()),
     );
 
     displayArt.value = displayArt.value.filter((Art) =>
       Art.artistName
         .toString()
         .toLowerCase()
-        .includes(filter.value.toLowerCase())
+        .includes(filter.value.toLowerCase()),
     );
   }
 });
@@ -170,11 +177,11 @@ function searchAndFilter() {
       Art.artistName
         .toString()
         .toLowerCase()
-        .includes(filter.value.toLowerCase())
+        .includes(filter.value.toLowerCase()),
     );
 
     displayArt.value = displayArt.value.filter((Art) =>
-      Art.title.toLowerCase().includes(search.value.toLowerCase())
+      Art.title.toLowerCase().includes(search.value.toLowerCase()),
     );
   }
 }

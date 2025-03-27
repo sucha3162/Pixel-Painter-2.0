@@ -117,7 +117,10 @@ namespace MyTestVueApp.Server.Controllers
                     if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                     {
                         var artist = await LoginService.GetUserBySubId(userId);
-                        art.currentUserIsOwner = (art.artistId.Contains(artist.id));
+                        if (artist != null)
+                        {
+                            art.currentUserIsOwner = (art.artistId.Contains(artist.id));
+                        }
                     }
                     return Ok(art);
                 }
