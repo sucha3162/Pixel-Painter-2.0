@@ -2,6 +2,9 @@
   <div>
     <h1 class="flex align-items-center gap-3 ml-4">Notifications</h1>
 
+    <div v-if="notificationStore.notifications.length == 0" class="SadText">
+      <p>You do not have any notifications at this time</p>
+    </div>
     <div v-if="store.Theme === 'light'">
       <div
         v-for="(notification, index) in notifications"
@@ -151,6 +154,9 @@ async function MarkLike(artId: number, artistId: number): Promise<boolean> {
 .upside-down {
   transform: rotate(180deg); /* Flips the icon upside down */
   display: inline-block;
+}
+.SadText {
+  margin: 40px;
 }
 </style>
 
