@@ -30,15 +30,20 @@
     </template>
 
     <template #center>
-      <ColorSelection
-        v-model:color="cursor.color"
-        v-model:size="cursor.size"
-        @enable-key-binds="keyBindActive = true"
-        @disable-key-binds="keyBindActive = false" />
+      <ColorSelection 
+      v-model:color="cursor.color"
+      v-model:size="cursor.size"
+      @enable-key-binds="keyBindActive = true"
+      @disable-key-binds="keyBindActive = false" />
       <BrushSelection v-model="cursor.selectedTool" />
+      <ColorSelection 
+      v-model:color="art.pixelGrid.backgroundColor"
+      v-model:size="cursor.size"
+      isBackground="true"
+      @enable-key-binds="keyBindActive = true"
+      @disable-key-binds="keyBindActive = false" />
       <FrameSelection v-if="art.pixelGrid.isGif" v-model:selFrame="selectedFrame" v-model:lastFrame="lastFrame" v-model:frameIndex="index"/>
       <LayerSelection v-if="!art.pixelGrid.isGif"/>
-      <!-- <SaveAndLoad v-model="pixelGrid" /> -->
     </template>
     <template #end>
       <Button
@@ -75,6 +80,7 @@ import ColorSelection from "@/components/PainterUi/ColorSelection.vue";
 import UploadButton from "@/components/PainterUi/UploadButton.vue";
 import SaveImageToFile from "@/components/PainterUi/SaveImageToFile.vue";
 import FrameSelection from "@/components/PainterUi/FrameSelection.vue";
+import BackgroundSelection from "@/components/PainterUi/BackgroundSelection.vue";
 import LayerSelection from "@/components/PainterUi/LayerSelection.vue";
 
 //entities
@@ -159,17 +165,14 @@ connection.onclose(error => {
 });
 
 connection.on("ReceivePixel", (color: string, coord: Vector2) => {
-        //console.log("Color: " + color + "Pixles: X-" + coord.x + " Y-" + coord.y);
         DrawPixel(color, coord);
 });
 
 connection.on("ReceivePixels", (color: string, coords: Vector2[]) => {
-        //console.log("Color: " + color + "Pixles: X-" + coords[0].x + " Y-" + coords[0].y);
         DrawPixels(color, coords);
 });
 
 connection.on("ReceiveBucket", (color: string, coord: Vector2) => {
-        //console.log("Fill Color: " + color + "Pixl: X-" + coord.x + " Y-" + coord.y);
         fill(coord.x, coord.y, color);
 });
 
@@ -363,6 +366,9 @@ watch(mouseButtonHeldDown, async () => {
   DrawAtCoords([cursor.value.position]);
 });
 
+watch(() => art.value.pixelGrid.backgroundColor, (newColor, oldColor) => {
+  ChangeBackgroundColor(newColor);
+});
     
 watch(selectedFrame, () => {
   if (lastFrame.value <= index.value) {
@@ -374,20 +380,24 @@ watch(selectedFrame, () => {
   ) as PixelGrid;
 
   if (workingGrid == null) {
-    const newGrid = new PixelGrid(
-      art.value.pixelGrid.width,
-      art.value.pixelGrid.height,
-      art.value.pixelGrid.backgroundColor,
-      art.value.pixelGrid.isGif
-    );
-    art.value.pixelGrid.DeepCopy(newGrid);
-    canvas.value?.recenter();
-    localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+      const newGrid = new PixelGrid(
+          art.value.pixelGrid.width,
+          art.value.pixelGrid.height,
+          art.value.pixelGrid.backgroundColor,
+          art.value.pixelGrid.isGif
+      );
+      art.value.pixelGrid.DeepCopy(newGrid);
+      canvas.value?.updateCanvas();
+
+      canvas.value?.recenter();
+      localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
 
   } else {
-    art.value.pixelGrid.DeepCopy(workingGrid);
-    canvas.value?.recenter();
-    localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+      art.value.pixelGrid.DeepCopy(workingGrid);
+      canvas.value?.updateCanvas();
+
+      canvas.value?.recenter();
+      localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
   }
 });
 
@@ -457,10 +467,20 @@ function DrawPixels(color: string, coords: Vector2[]) {
 function SendPixels(color: string, coords: Vector2[]) {
   if (connected.value) {
     connection.invoke(
-        "SendPixels",
-        groupName.value,
-        color,
-        coords
+      "SendPixels",
+      groupName.value,
+      color,
+      coords
+    )
+  }
+}
+
+function ChangeBackgroundColor(color: string) {
+  if (connected.value) {
+    connection.invoke(
+      "ChangeBackgroundColor",
+      groupName.value,
+      color
     )
   }
 }
@@ -473,8 +493,8 @@ function DrawAtCoords(coords: Vector2[]) {
     cursor.value.selectedTool.label === "Ellipse"
   ) {
     if (tempGrid) {
-      for (let i = 0; i < art.value.pixelGrid.width; i++) {
-        for (let j = 0; j < art.value.pixelGrid.height; j++) {
+      for (let i = 0; i < art.value.pixelGrid.height; i++) {
+        for (let j = 0; j < art.value.pixelGrid.width; j++) {
           art.value.pixelGrid.grid[i][j] = tempGrid[i][j];
         }
       }
@@ -510,12 +530,12 @@ function DrawAtCoords(coords: Vector2[]) {
               if (art.value.pixelGrid.backgroundColor != null) {
                 coordinates.push(new Vector2(coord.x + i, coord.y + j));
                 art.value.pixelGrid.grid[coord.x + i][coord.y + j] =
-                  art.value.pixelGrid.backgroundColor;
+                  "empty";
               }
             }
           }
         }
-        SendPixels(art.value.pixelGrid.backgroundColor, coordinates);
+        SendPixels("empty", coordinates);
       } else if (
         coord.x >= 0 &&
         coord.x < art.value.pixelGrid.width &&
@@ -523,15 +543,14 @@ function DrawAtCoords(coords: Vector2[]) {
         coord.y < art.value.pixelGrid.height
       ) {
         if (cursor.value.selectedTool.label === "Pipette") {
-          cursor.value.color =
-            art.value.pixelGrid.grid[cursor.value.position.x][
-              cursor.value.position.y
-            ];
+          let tmp = art.value.pixelGrid.grid[coord.x][coord.y];
+          if (tmp === "empty") tmp = art.value.pixelGrid.backgroundColor;
+
+          cursor.value.color = tmp;
         } else if (cursor.value.selectedTool.label === "Bucket") {
           if (
             art.value.pixelGrid.grid[coord.x][coord.y] != cursor.value.color
           ) {
-            //SendBucket(cursor.value.color, coord);
             coordinates = fill(cursor.value.position.x, cursor.value.position.y);
             SendPixels(cursor.value.color, coordinates);
           }
@@ -539,7 +558,6 @@ function DrawAtCoords(coords: Vector2[]) {
           cursor.value.selectedTool.label === "Rectangle" ||
           cursor.value.selectedTool.label === "Ellipse"
         ) {
-          //SendPixels(cursor.value.color,coords);
           art.value.pixelGrid.grid[coord.x][coord.y] = cursor.value.color;
         }
       }
@@ -556,25 +574,21 @@ function fill(x: number, y: number, color: string = cursor.value.color) : Vector
     if (oldColor != color) {
       if (x + 1 < art.value.pixelGrid.width) {
         if (art.value.pixelGrid.grid[x + 1][y] == oldColor) {
-          //alert(x+1 + ", " + y);
           vectors = vectors.concat(fill(x + 1, y, color));
         }
       }
       if (y + 1 < art.value.pixelGrid.height) {
         if (art.value.pixelGrid.grid[x][y + 1] == oldColor) {
-          //alert(x + ", " + y+1);
           vectors = vectors.concat(fill(x, y + 1, color));
         }
       }
       if (x - 1 >= 0) {
         if (art.value.pixelGrid.grid[x - 1][y] == oldColor) {
-          //alert(x-1 + ", " + y);
           vectors = vectors.concat(fill(x - 1, y, color));
         }
       }
       if (y - 1 >= 0) {
         if (art.value.pixelGrid.grid[x][y - 1] == oldColor) {
-          //alert(x + ", " + (y-1));
           vectors = vectors.concat(fill(x, y - 1, color));
         }
       }
@@ -679,26 +693,21 @@ function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
 
   let center = new Vector2(leftBound + xOffset / 2, lowerBound + yOffset / 2);
 
-  //console.log(`xOffset: ${xOffset}, yOffset: ${yOffset}`);
 
   let a = Math.max(xOffset, yOffset) / 2; //Major Axis length
   let b = Math.min(xOffset, yOffset) / 2; //Minor Axis length
-
-  //console.log(`MajorAxis: ${a}, MinorAxis: ${b}`);
 
   if (xOffset > yOffset) {
     // Major Axis is Horrizontal
     for (let i = leftBound; i <= rightBound; i++) {
       let yP = Math.round(ellipseXtoY(center, a, b, i));
       let yN = center.y - (yP - center.y);
-      console.log(`HorXtoY: (${i},${yP}),(${i},${yN}) `);
       coords.push(new Vector2(i, yP));
       coords.push(new Vector2(i, yN));
     }
     for (let i = lowerBound; i < upperBound; i++) {
       let xP = Math.round(ellipseYtoX(center, b, a, i));
       let xN = center.x - (xP - center.x);
-      console.log(`HorYtoX: (${xP},${i}),(${xN},${i}) `);
       coords.push(new Vector2(xP, i));
       coords.push(new Vector2(xN, i));
     }
@@ -707,14 +716,12 @@ function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
     for (let i = lowerBound; i <= upperBound; i++) {
       let xP = Math.round(ellipseYtoX(center, a, b, i));
       let xN = center.x - (xP - center.x);
-      console.log(`VertYtoX: (${xP},${i}),(${xN},${i}) `);
       coords.push(new Vector2(xP, i));
       coords.push(new Vector2(xN, i));
     }
     for (let i = leftBound; i < rightBound; i++) {
       let yP = Math.round(ellipseXtoY(center, b, a, i));
       let yN = center.y - (yP - center.y);
-      console.log(`VertXtoY: (${i},${yP}),(${i},${yN}) `);
       coords.push(new Vector2(i, yP));
       coords.push(new Vector2(i, yN));
     }
@@ -760,7 +767,7 @@ function setEndVector() {
       cursor.value.position.y
     );
   } else {
-    tempGrid = art.value.pixelGrid.grid;
+    tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
   }
 }
 
@@ -780,10 +787,6 @@ function ResetArt() {
 }
 
 function onMouseUp() {
-  // currentGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
-  // if (undoList.isDifferent(currentGrid)) {
-  //   undoList.append(currentGrid);
-  // }
   if (
     cursor.value.selectedTool.label == "Rectangle"
   ) {
@@ -796,37 +799,13 @@ function onMouseUp() {
     cursor.value.selectedTool.label == "Ellipse"
   ) {
     CalculateEllipse(startPix.value, endPix.value).forEach((vector) => {
-      console.log(vector.x + " " + vector.y);
     });
     SendPixels(
       cursor.value.color,
       GetEllipsePixels(startPix.value, endPix.value)
     );
   }
-
 }
-
-// function undo() {
-//   let previousGrid = undoList.getPrevious();
-
-//   if (previousGrid) {
-//     for (let i = 0; i < art.value.pixelGrid.width; i++) {
-//       for (let j = 0; j < art.value.pixelGrid.height; j++) {
-//         art.value.pixelGrid.grid[i][j] = previousGrid[i][j];
-//       }
-//     }
-//   }
-// }
-
-// function redo() {
-//   let nextGrid = undoList.getNext();
-//   if (nextGrid)
-//     for (let i = 0; i < art.value.pixelGrid.width; i++) {
-//       for (let j = 0; j < art.value.pixelGrid.height; j++) {
-//         art.value.pixelGrid.grid[i][j] = nextGrid[i][j];
-//       }
-//     }
-// }
 
 function handleKeyDown(event: KeyboardEvent) {
   if (keyBindActive.value) {

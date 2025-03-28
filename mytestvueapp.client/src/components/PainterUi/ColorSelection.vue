@@ -1,11 +1,11 @@
 <template>
   <FloatingCard
     position="left"
-    header="Brush Settings"
+    :header="isBackground ? 'Background Select' : 'Brush Settings'"
     width="13rem"
-    button-icon="pi pi-palette"
+    :button-icon="isBackground ? 'pi pi-tablet' : 'pi pi-palette'"
     button-label=""
-    :default-open="true">
+    :default-open="!isBackground">
     <Tabs value="0">
       <TabList>
         <Tab value="0" @click="setCurrentPallet(0)">Default</Tab>
@@ -18,6 +18,7 @@
           v-tooltip.right="
             'Click to add custom color. Double click to remove color.'
           "
+          v-if="!isBackground"
           >Custom</Tab
         >
       </TabList>
@@ -31,7 +32,7 @@
                 @click="selectedColor = color.hex"
                 class="border-1 m-1 w-2rem h-2rem border-round-md"
                 :style="{ backgroundColor: '#' + color.hex }"
-                v-tooltip.bottom="color.shortcut"></div>
+                :v-tooltip.bottom="isBackground ? '' : color.shortcut"></div>
             </div>
             <!-- @input="updateColorFromHex" -->
             <div class="parent">
@@ -47,9 +48,9 @@
             </div>
             <ColorPicker class="m-1" v-model="selectedColor" />
           </div>
-          <div class="mt-1">Size: {{ size }}</div>
+          <div class="mt-1" v-if="!isBackground">Size: {{ size }}</div>
 
-          <div class="px-2">
+          <div class="px-2" v-if="!isBackground">
             <Slider
               class="mt-2"
               v-model="size"
@@ -58,7 +59,7 @@
               v-tooltip.bottom="'Decrease(q),Increase(w)'" />
           </div>
         </TabPanel>
-        <TabPanel value="1">
+        <TabPanel value="1" v-if="!isBackground">
           <div class="flex flex-wrap">
             <div
               id="1"
@@ -172,6 +173,10 @@ import TabList from "primevue/tablist";
 import Tab from "primevue/tab";
 import TabPanels from "primevue/tabpanels";
 import TabPanel from "primevue/tabpanel";
+
+const props = defineProps<{
+  isBackground?: boolean;
+}>();
 
 const selectedColor = defineModel<string>("color", { default: "000000" });
 const size = defineModel<number>("size", { default: 1 });

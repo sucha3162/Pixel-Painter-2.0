@@ -10,7 +10,7 @@ class NodeT<T> {
   }
 }
 
-class DoublyLinkedList<T> {
+export class DoublyLinkedList<T> {
   head: NodeT<T> | null;
   tail: NodeT<T> | null;
   current: NodeT<T> | null;

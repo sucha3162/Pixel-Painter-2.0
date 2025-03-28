@@ -17,7 +17,7 @@ export class PixelGrid {
   ) {
     this.width = width;
     this.height = height;
-    this.grid = this.createGrid(width, height, backgroundColor);
+    this.grid = this.createGrid(width, height);
     this.backgroundColor = backgroundColor;
     this.isGif = isGif;
 
@@ -32,29 +32,28 @@ export class PixelGrid {
     }
   }
 
-  //Initialize a grid with a given width, height, and background color
+  //Initialize a grid with a given width, height
   createGrid(
     width: number,
     height: number,
-    backgroundColor: string
   ): string[][] {
     const grid: string[][] = [];
     for (let i = 0; i < height; i++) {
       const row: string[] = [];
       for (let j = 0; j < width; j++) {
-        row.push(backgroundColor);
+        row.push("empty");
       }
       grid.push(row);
     }
     return grid;
-  }
+  } 
 
   //Randomize the grid with random colors
   randomizeGrid(): void {
     for (let i = 0; i < this.height; i++) {
       for (let j = 0; j < this.width; j++) {
         this.grid[i][j] =
-          "#" + ((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0");
+          ((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0");
       }
     }
     this.encodedGrid = codec.Encode(this);
@@ -66,7 +65,7 @@ export class PixelGrid {
     this.height = decodedGrid.height;
     this.backgroundColor = decodedGrid.backgroundColor;
     this.isGif = decodedGrid.isGif;
-    this.grid = this.createGrid(this.width, this.height, this.backgroundColor);
+    this.grid = this.createGrid(this.width, this.height);
     for (let i = 0; i < this.height; i++) {
       for (let j = 0; j < this.width; j++) {
         this.grid[i][j] = decodedGrid.grid[i][j];

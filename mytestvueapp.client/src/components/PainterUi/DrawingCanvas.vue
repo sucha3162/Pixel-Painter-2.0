@@ -24,7 +24,10 @@ const props = defineProps<{
 }>();
 
 //exposes the recenter function to be called in parent component
-defineExpose({ recenter, updateCursor });
+  defineExpose({ recenter, updateCursor, updateCanvas });
+
+//other variables
+const firstLoad = ref<boolean>(true);
 
 //model
 const cursor = defineModel<Cursor>({
@@ -39,6 +42,7 @@ const cursor = defineModel<Cursor>({
 //Runs on mounted, creates the canvas
 onMounted(() => {
   document.getElementById("canvas")?.appendChild(app.view as any);
+
   drawCanvas();
   recenter();
   checkIfPan();
@@ -64,6 +68,29 @@ app.stage.addChild(viewport);
 // activate viewport plugins
 viewport.drag().pinch().wheel().decelerate({ friction: 0.7 });
 
+function updateCanvas() {
+  //dropshadow and background are idx 0 and 1 respectively
+  let idx = 2;
+
+  if (viewport.children[1].tint !== props.pixelGrid.backgroundColor) {
+    viewport.children[1].tint = props.pixelGrid.backgroundColor;
+  }
+  else { 
+    for (var i = 0; i < props.pixelGrid.height; i++) {
+      for (var j = 0; j < props.pixelGrid.width; j++) {
+        //tint of erased values doesn't matter since we look at the grid
+        if (props.pixelGrid.grid[i][j] === "empty") {
+          viewport.children[idx].alpha = 0;
+        } else {
+          viewport.children[idx].tint = props.pixelGrid.grid[i][j];
+          viewport.children[idx].alpha = 1;
+        }
+        idx++;
+      }
+    }
+  }
+}
+
 //Draws the canvas
 function drawCanvas() {
   viewport.removeChildren();
@@ -77,13 +104,25 @@ function drawCanvas() {
   dropShadow.tint = 0x000000;
   dropShadow.filters = [dropShadowFilter];
 
+  const background = new Sprite(Texture.WHITE);
+  background.width = props.pixelGrid.width * PIXEL_SIZE;
+  background.height = props.pixelGrid.height * PIXEL_SIZE;
+
+  background.tint = props.pixelGrid.backgroundColor;
+
   viewport.addChild(dropShadow);
+  viewport.addChild(background);
 
-  for (var i = 0; i < props.pixelGrid.width; i++) {
-    for (var j = 0; j < props.pixelGrid.height; j++) {
-      const sprite = viewport.addChild(new Sprite(Texture.WHITE));
-      sprite.tint = props.pixelGrid.grid[i][j];
-
+  for (var i = 0; i < props.pixelGrid.height; i++) {
+    for (var j = 0; j < props.pixelGrid.width; j++) {
+      const sprite = viewport.addChild(new Sprite(Texture.WHITE));  
+      if (props.pixelGrid.grid[i][j] === "empty") {
+        sprite.tint = props.pixelGrid.backgroundColor;
+        sprite.alpha = 0;
+      } else {
+        sprite.tint = props.pixelGrid.grid[i][j];
+        sprite.alpha = 1;
+      }
       sprite.width = sprite.height = PIXEL_SIZE;
       sprite.position.set(i * PIXEL_SIZE, j * PIXEL_SIZE);
       sprite.interactive = true;
@@ -163,7 +202,13 @@ function recenter() {
 }
 
 watch(props.pixelGrid, (prev, next) => {
-  drawCanvas();
+  if (firstLoad.value) {
+    drawCanvas();
+    updateCanvas();
+    firstLoad.value = false;
+  } else {
+    updateCanvas();
+  }
 });
 
 //disable panning when not in pan mode
