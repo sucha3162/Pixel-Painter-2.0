@@ -11,6 +11,8 @@ using Google.Apis.Services;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Components.Web.Virtualization;
+using System.ComponentModel.Design;
+using System.Xml.Linq;
 
 
 namespace MyTestVueApp.Server.ServiceImplementations
@@ -24,7 +26,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             AppConfig = appConfig;
             Logger = logger;
         }
-        public IEnumerable<Comment> GetCommentsById(int id)
+        public IEnumerable<Comment> GetCommentsByArtId(int id)
         {
             try
             {
@@ -43,7 +45,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         Comment.[Message],
 	                    Artist.[Name] as CommenterName,
                         Comment.CreationDate,
-                        Comment.ReplyId
+                        Comment.ReplyId,
+                        Comment.Viewed
                     FROM Comment  
                     JOIN Artist ON Artist.id = Comment.ArtistId
                     WHERE ArtID = @id
@@ -64,7 +67,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                     message = reader.GetString(3),
                                     commenterName = reader.GetString(4),
                                     creationDate = reader.GetDateTime(5),
-                                    replyId = reader.IsDBNull(6) ? 0 : reader.GetInt32(6)
+                                    replyId = reader.IsDBNull(6) ? 0 : reader.GetInt32(6),
+                                    Viewed = reader.GetInt32(7)==0 ? false : true
                                 };
                                 comments.Add(comment);
                             }
@@ -125,7 +129,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-
+        
         public async Task<int> DeleteComment(int commentId)
         {
             var connectionString = AppConfig.Value.ConnectionString;
@@ -321,7 +325,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
-        public Comment GetCommentByCommentId(int id)
+        public async Task<Comment> GetCommentByCommentId(int id)
         {
             try
             {
@@ -363,6 +367,117 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                     replyId = reader.IsDBNull(6) ? -1 : reader.GetInt32(6)
                                 };
                                 comments = comment;
+                            }
+                        }
+                    }
+                }
+                return comments;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex, "Error retrieving comments");
+                throw;
+            }
+        }
+        public IEnumerable<Comment> GetCommentByUserId(int id)
+        {
+            try
+            {
+
+                List<Comment> comments = new List<Comment>();
+                var connectionString = AppConfig.Value.ConnectionString;
+
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
+                    var query = @$"
+                   SELECT 
+                        Comment.Id, 
+                        Comment.ArtistId, 
+                        Comment.ArtID, 
+                        Comment.[Message],
+	                    Artist.[Name] as CommenterName,
+                        Comment.CreationDate,
+                        Comment.ReplyId
+                    FROM Comment  
+                    JOIN Artist ON Artist.id = Comment.ArtistId
+                    WHERE Comment.ArtistId = @id;";
+
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.Add(new SqlParameter("@id", id));
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var comment = new Comment
+                                { //Art Table + NumLikes and NumComments
+                                    id = reader.GetInt32(0),
+                                    artistId = reader.GetInt32(1),
+                                    artId = reader.GetInt32(2),
+                                    message = reader.GetString(3),
+                                    commenterName = reader.GetString(4),
+                                    creationDate = reader.GetDateTime(5),
+                                    replyId = reader.IsDBNull(6) ? -1 : reader.GetInt32(6)
+                                };
+                                comments.Add(comment);
+                            }
+                        }
+                    }
+                }
+                return comments;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex, "Error retrieving comments");
+                throw;
+            }
+        }
+        public IEnumerable<Comment> GetReplyByCommentId(int id)
+        {
+            try
+            {
+                List<Comment> comments = new List<Comment>();
+                var connectionString = AppConfig.Value.ConnectionString;
+
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
+                    var query = @$"
+                   SELECT 
+                        Comment.Id, 
+                        Comment.ArtistId, 
+                        Comment.ArtID, 
+                        Comment.[Message],
+	                    Artist.[Name] as CommenterName,
+                        Comment.CreationDate,
+                        Comment.ReplyId,
+                        Comment.Viewed
+                    FROM Comment  
+                    JOIN Artist ON Artist.id = Comment.ArtistId
+                    WHERE Comment.ReplyId = @id;";
+
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.Add(new SqlParameter("@id", id));
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var comment = new Comment
+                                { //Art Table + NumLikes and NumComments
+                                    id = reader.GetInt32(0),
+                                    artistId = reader.GetInt32(1),
+                                    artId = reader.GetInt32(2),
+                                    message = reader.GetString(3),
+                                    commenterName = reader.GetString(4),
+                                    creationDate = reader.GetDateTime(5),
+                                    replyId = reader.IsDBNull(6) ? -1 : reader.GetInt32(6),
+                                    Viewed = reader.GetInt32(7) == 0 ? false : true
+                                };
+                                comments.Add(comment);
                             }
                         }
                     }

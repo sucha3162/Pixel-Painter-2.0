@@ -152,7 +152,7 @@ export default class ArtAccessService {
       const response = await fetch(request, {
         method: "POST",
         body: JSON.stringify(art),
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" }
       });
       const json = await response.json();
 

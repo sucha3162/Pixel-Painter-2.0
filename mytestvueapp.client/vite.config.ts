@@ -48,36 +48,40 @@ export default defineConfig({
   plugins: [plugin()],
   resolve: {
     alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-    },
+      "@": fileURLToPath(new URL("./src", import.meta.url))
+    }
   },
   server: {
     proxy: {
       "^/artaccess": {
         target,
-        secure: false,
+        secure: false
       },
       "^/comment": {
         target,
-        secure: false,
+        secure: false
       },
       "^/login": {
         target,
-        secure: false,
+        secure: false
       },
       "^/like": {
         target,
-        secure: false,
+        secure: false
+      },
+      "^/notification/": {
+        target,
+        secure: false
       },
       "^/GIFCreation": {
         target,
         secure: false,
-      },
+      }
     },
     port: 5173,
     https: {
       key: fs.readFileSync(keyFilePath),
       cert: fs.readFileSync(certFilePath),
-    },
-  },
+    }
+  }
 });

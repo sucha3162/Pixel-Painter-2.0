@@ -34,7 +34,7 @@ namespace MyTestVueApp.Server.Controllers
         [Route("GetCommentsByArtId")]
         public async Task<IEnumerable<Comment>> GetCommentsByArtId(int artId)
         {
-            var comments = CommentAccessService.GetCommentsById(artId);
+            var comments = CommentAccessService.GetCommentsByArtId(artId);
 
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
@@ -60,7 +60,7 @@ namespace MyTestVueApp.Server.Controllers
             // If the user is logged in
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
-                var comment = CommentAccessService.GetCommentByCommentId(commentId);
+                var comment = await CommentAccessService.GetCommentByCommentId(commentId);
                 var subid = await LoginService.GetUserBySubId(userId);
                 if(comment.artistId == subid.id)
                 {    // You can add additional checks here if needed
@@ -96,7 +96,7 @@ namespace MyTestVueApp.Server.Controllers
             // If the user is logged in
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
-                var comment = CommentAccessService.GetCommentByCommentId(commentId);
+                var comment = await CommentAccessService.GetCommentByCommentId(commentId);
                 var artist = await LoginService.GetUserBySubId(userId);
                 var subid = await LoginService.GetUserBySubId(userId);
                 if (comment.artistId == subid.id || artist.isAdmin)

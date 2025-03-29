@@ -9,6 +9,7 @@ namespace MyTestVueApp.Server.Entities
         public string message { get; set; }
         public string commenterName { get; set; }
         public DateTime creationDate { get; set; }
+        public bool Viewed { get; set; }
 
         //Represents the id that this comment is replying to
         public int replyId { get; set; }

@@ -10,6 +10,7 @@ export default class Comment {
   replyId?: number;
   currentUserIsOwner?: boolean;
   replies: Comment[];
+  isViewed: boolean;
 
   constructor() {
     this.id = 0;
@@ -21,5 +22,6 @@ export default class Comment {
     this.replyId = 0;
     this.currentUserIsOwner = false;
     this.replies=[];
+    this.isViewed=false;
   }
 }

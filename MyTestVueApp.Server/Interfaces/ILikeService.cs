@@ -24,5 +24,14 @@ namespace MyTestVueApp.Server.Interfaces
         /// </summary>
         /// <returns>Returns true if yes and false if no.</returns>
         public Task<bool> IsLiked(int artId, Artist artist);
+        /// <summary>
+        /// Gets all the likes of an Artwork
+        /// </summary>
+        /// <param name="artworkId">Artwork Id to get likes from</param>
+        /// <returns></returns>
+        public IEnumerable<Like> GetLikesByArtwork(int artworkId);
+
+        public Task<Like> GetLikeByIds(int artId, int artistId);
+
     }
 }

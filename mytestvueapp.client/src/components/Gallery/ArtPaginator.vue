@@ -1,13 +1,10 @@
 <template>
   <div class="pagination" v-if="pages > 1">
     <!--Only have pagination if there are more than one page-->
-    <button
-      v-if="pages != 2"
-      :disable="page == 1 ? true : false"
-      @click="page = 1">
+    <button v-if="pages != 2" :disabled="page === 1" @click="page = 1">
       &lt;&lt;
     </button>
-    <button :disable="page == 1 ? true : false" @click="page--">&lt;</button>
+    <button :disabled="page === 1" @click="page--">&lt;</button>
     <div v-if="pages < 16" class="buttonHolder">
       <!--Lists off all the pages-->
       <button
@@ -52,12 +49,10 @@
       </button>
       <button disabled="true">...</button>
     </div>
-    <button :disable="page == pages ? true : false" @click="page++">
-      &gt;
-    </button>
+    <button :disabled="page === pages" @click="page++">&gt;</button>
     <button
       v-if="pages != 2"
-      :disable="page == pages ? true : false"
+      :disabled="page == pages"
       @click="page = props.pages">
       &gt;&gt;
     </button>
@@ -106,3 +101,4 @@ watch(page, () => {
   background-color: grey;
 }
 </style>
+

@@ -8,6 +8,7 @@ namespace MyTestVueApp.Server.Interfaces
     /// </summary>
     public interface ICommentAccessService
     {
+
         Task<int> DeleteComment(int commentId);
         Task<int> EditComment(int commentId, string newMessage);
 
@@ -15,8 +16,10 @@ namespace MyTestVueApp.Server.Interfaces
         /// Gets a list of all paintings from the database.
         /// </summary>
         /// <returns>A list of all paintings</returns>
-        public IEnumerable<Comment> GetCommentsById(int id);
+        public IEnumerable<Comment> GetCommentsByArtId(int id);
         public Task<Comment> CreateComment(Artist commenter, Comment comment);
-        public Comment GetCommentByCommentId(int CommentId);
+        public Task<Comment> GetCommentByCommentId(int CommentId);
+        public IEnumerable<Comment> GetCommentByUserId(int id);
+        public IEnumerable<Comment> GetReplyByCommentId(int id);
     }
 }
