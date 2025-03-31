@@ -29,7 +29,7 @@ namespace MyTestVueApp.Server.Interfaces
         /// </summary>
         /// <param name="artworkId">Artwork Id to get likes from</param>
         /// <returns></returns>
-        public IEnumerable<Like> GetLikesByArtwork(int artworkId);
+        public Task<IEnumerable<Like>> GetLikesByArtwork(int artworkId);
 
         public Task<Like> GetLikeByIds(int artId, int artistId);
 

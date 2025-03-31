@@ -12,17 +12,17 @@ namespace MyTestVueApp.Server.Controllers
     [Route("[controller]")]
     public class NotificationController : ControllerBase
     {
-        private readonly ILogger<NotificationController> logger;
-        private readonly INotificationService notificationService;
-        private readonly ICommentAccessService commentService;
-        private readonly ILikeService likeService;
+        private readonly ILogger<NotificationController> Logger;
+        private readonly INotificationService NotificationService;
+        private readonly ICommentAccessService CommentService;
+        private readonly ILikeService LikeService;
 
-        public NotificationController(ILogger<NotificationController> Logger, INotificationService NotificationService, ICommentAccessService CommentService, ILikeService LikeService)
+        public NotificationController(ILogger<NotificationController> logger, INotificationService notificationService, ICommentAccessService commentService, ILikeService likeService)
         {
-            logger = Logger;
-            notificationService = NotificationService;
-            commentService = CommentService;
-            likeService = LikeService;
+            Logger = logger;
+            NotificationService = notificationService;
+            CommentService = commentService;
+            LikeService = likeService;
         }
 
         [HttpGet]
@@ -33,7 +33,7 @@ namespace MyTestVueApp.Server.Controllers
                 int uid;
                 if (int.TryParse(userId, out uid))
                 {
-                    var notifications = notificationService.GetNotificationsForArtist(uid);
+                    var notifications = NotificationService.GetNotificationsForArtist(uid);
                     return Ok(notifications);
                 }
                 else
@@ -56,10 +56,10 @@ namespace MyTestVueApp.Server.Controllers
         {
             try
             {
-                Comment comment = await commentService.GetCommentByCommentId(commentId);
+                Comment comment = await CommentService.GetCommentByCommentId(commentId);
                 if (comment != null)
                 {
-                    if(await notificationService.MarkComment(comment.id))
+                    if(await NotificationService.MarkComment(comment.id))
                     {
                         return Ok();
                     } else
@@ -90,10 +90,10 @@ namespace MyTestVueApp.Server.Controllers
         {
             try
             {
-                Like like = await likeService.GetLikeByIds(likeModel.ArtId, likeModel.ArtistId);
+                Like like = await LikeService.GetLikeByIds(likeModel.ArtId, likeModel.ArtistId);
                 if (like != null)
                 {
-                    if (await notificationService.MarkLike(like.ArtId, like.ArtistId))
+                    if (await NotificationService.MarkLike(like.ArtId, like.ArtistId))
                     {
                         return Ok();
                     }
@@ -101,7 +101,6 @@ namespace MyTestVueApp.Server.Controllers
                     {
                         throw new Exception("An unknown Error has Occured");
                     }
-
                 }
                 else
                 {

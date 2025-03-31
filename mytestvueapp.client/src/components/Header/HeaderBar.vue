@@ -40,8 +40,6 @@ import Toolbar from "primevue/toolbar";
 import Notification from "./NotificationRedirect.vue";
 import LoginService from "@/services/LoginService";
 
-const visible = ref(false);
-const password = ref(null);
 const isLoggedIn = ref(false);
 
 onMounted(() => {

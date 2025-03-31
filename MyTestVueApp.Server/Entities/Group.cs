@@ -27,11 +27,11 @@
 
         public void AddMember(Artist member)
         {
-            if (!CurrentMembers.Any(cm => cm.id == member.id))
+            if (!CurrentMembers.Any(cm => cm.Id == member.Id))
             {
                 CurrentMembers.Add(member);
             }
-            if (!MemberRecord.Any(mr => mr.id == member.id))
+            if (!MemberRecord.Any(mr => mr.Id == member.Id))
             {
                 MemberRecord.Add(member);
             }
