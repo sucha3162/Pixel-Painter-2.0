@@ -11,7 +11,7 @@
         <template v-for="(frame, index) in frames" :key="frame.id">
             <Button :icon="frame.icon" 
                     :class="frame.class" 
-                    severity="secondary"
+                    :severity="frame.severity"
                     @click="switchFrame(frame.id)" 
                     />
         </template>
@@ -32,7 +32,7 @@ import { ref, onBeforeMount } from 'vue';
 
     let frameCount = 1;
     const frames = ref([
-        { id: 1, icon: 'pi pi-image', class: 'm-1' }
+        { id: 1, icon: 'pi pi-image', class: 'm-1', severity: 'secondary' }
     ]);
 
     onBeforeMount(() => {
@@ -41,13 +41,15 @@ import { ref, onBeforeMount } from 'vue';
             frames.value.push({
                 id: count,
                 icon: 'pi pi-image',
-                class: 'mr-1'
+                class: 'mr-1',
+                severity: 'secondary'
             });
 
             frameCount++;
             count++;
             index.value++;
         }
+        frames.value[0].severity = 'primary';
     });
 
     function addFrame() {
@@ -56,7 +58,8 @@ import { ref, onBeforeMount } from 'vue';
         frames.value.push({
             id: frameCount,
             icon: 'pi pi-image',
-            class: 'mr-1'
+            class: 'mr-1',
+            severity: 'secondary'
         });
     }
 
@@ -77,6 +80,11 @@ import { ref, onBeforeMount } from 'vue';
     }
 
     function switchFrame(frameID: number) {
+        frames.value.forEach((nFrame) => {
+            nFrame.severity = 'secondary';
+        });
+        frames.value[frameID - 1].severity = 'primary';
+
         oldFrame.value = selectedFrame.value;
         selectedFrame.value = frameID;
     }
