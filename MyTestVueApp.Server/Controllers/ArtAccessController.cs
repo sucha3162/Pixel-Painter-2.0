@@ -26,49 +26,16 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("GetAllArt")]
-        public IEnumerable<Art> GetAllArt()
+        public async Task<IEnumerable<Art>> GetAllArt()
         {
-            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
+            return (await ArtAccessService.GetAllArt()).Where(art => art.IsPublic).OrderByDescending(art => art.CreationDate);
         }
 
         [HttpGet]
         [Route("GetArtists")]
-        public IEnumerable<Artist> GetAllArt(int artId)
+        public async Task<IEnumerable<Artist>> GetAllArtists(int artId)
         {
-            return ArtAccessService.GetArtists(artId);
-        }
-
-        [HttpGet]
-        [Route("GetArtByLikes")]
-        public IEnumerable<Art> GetArtByLikes(bool isAscending)
-        {
-            if (isAscending)
-            {
-                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.numLikes);
-            }
-            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.numLikes);
-        }
-
-        [HttpGet]
-        [Route("GetArtByComments")]
-        public IEnumerable<Art> GetArtByComments(bool isAscending)
-        {
-            if (isAscending)
-            {
-                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.numComments);
-            }
-            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.numComments);
-        }
-
-        [HttpGet]
-        [Route("GetArtByDate")]
-        public IEnumerable<Art> GetArtByDate(bool isAscending)
-        {
-            if (isAscending)
-            {
-                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.creationDate);
-            }
-            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
+            return await ArtAccessService.GetArtists(artId);
         }
 
         [HttpGet]
@@ -86,9 +53,9 @@ namespace MyTestVueApp.Server.Controllers
                         return BadRequest("User not logged in");
                     }
 
-                    var result = ArtAccessService.GetAllArt();
+                    var result = await ArtAccessService.GetArtByArtist(artist.Id);
 
-                    return Ok(result.Where(art => art.artistId.Contains(artist.id)).OrderByDescending(art => art.creationDate));
+                    return Ok(result.OrderByDescending(art => art.CreationDate));
                 }
                 else
                 {
@@ -107,21 +74,21 @@ namespace MyTestVueApp.Server.Controllers
         {
             try
             {
-                var art = ArtAccessService.GetArtById(id);
+                var art = await ArtAccessService.GetArtById(id);
 
                 if (art == null)
                 {
-                    return BadRequest("Art not found");
+                    throw new ArgumentException("Art with id: " + id + " can not be found");
                 }
 
-                if (art.isPublic)
+                if (art.IsPublic)
                 {
                     if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                     {
                         var artist = await LoginService.GetUserBySubId(userId);
                         if (artist != null)
                         {
-                            art.currentUserIsOwner = (art.artistId.Contains(artist.id));
+                            art.CurrentUserIsOwner = art.ArtistId.Contains(artist.Id);
                         }
                     }
                     return Ok(art);
@@ -131,22 +98,28 @@ namespace MyTestVueApp.Server.Controllers
                     if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                     {
                         var artist = await LoginService.GetUserBySubId(userId);
-                        art.currentUserIsOwner = (art.artistId.Contains(artist.id));
-                        if (art.currentUserIsOwner)
+                        art.CurrentUserIsOwner = art.ArtistId.Contains(artist.Id);
+                        if (art.CurrentUserIsOwner)
                         {
-
                             return Ok(art);
                         }
                         else
                         {
-                            return Unauthorized("User does not have permission for this action");
+                            throw new AuthenticationException("User does not have permission for this action");
                         }
                     }
                     else
                     {
-                        return Unauthorized("User does not have permission for this action");
+                        throw new AuthenticationException("User does not have permission for this action");
                     }
                 }
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex);
+            } catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex);
             }
             catch (Exception ex)
             {
@@ -155,7 +128,7 @@ namespace MyTestVueApp.Server.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPut]
         [Route("SaveArt")]
         public async Task<IActionResult> SaveArt(Art art)
         {
@@ -167,12 +140,21 @@ namespace MyTestVueApp.Server.Controllers
 
                     if (artist == null)
                     {
-                        return BadRequest("User not logged in");
+                        throw new AuthenticationException("User does not have permission for this action");
                     }
 
-                    if (art.id == 0) //New art
+                    if (art.Id == 0) //New art
                     {
                         var result = await ArtAccessService.SaveNewArt(artist, art);
+                        List<Artist> artistList = new List<Artist>();
+                        foreach (int artistId in art.ArtistId)
+                        {
+                            var artEntityArtist = LoginService.GetArtistById(artistId);
+                            ArtAccessService.AddContributingArtist(art.Id, artistId);
+                            artistList.Add(await artEntityArtist);
+                        }
+                        result.ArtistId = artistList.Select(x => x.Id).ToArray();
+                        result.ArtistName = artistList.Select(x => x.Name).ToArray();
                         return Ok(result);
                     }
                     else //Update art
@@ -187,7 +169,7 @@ namespace MyTestVueApp.Server.Controllers
                 }
                 else
                 {
-                    return BadRequest("User not logged in");
+                    throw new AuthenticationException("User does is not logged in");
                 }
             }
             catch (UnauthorizedAccessException ex)
@@ -200,7 +182,7 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-        [HttpPost]
+        /*[HttpPost]
         [Route("SaveArtCollab")]
         public async Task<IActionResult> SaveArtCollab(Art art)
         {
@@ -212,16 +194,16 @@ namespace MyTestVueApp.Server.Controllers
 
                     if (artist == null)
                     {
-                        return BadRequest("User not logged in");
+                        throw new AuthenticationException("User does not have permission for this action");
                     }
 
-                    if (art.id == 0) //New art
+                    if (art.Id == 0) //New art
                     {
                         var result = await ArtAccessService.SaveNewArtMulti(art);
                         // If there are attatched contributing artists
-                        foreach (int artistId in art.artistId)
+                        foreach (int artistId in art.ArtistId)
                         {
-                            ArtAccessService.AddContributingArtist(art.id, artistId);
+                            ArtAccessService.AddContributingArtist(art.Id, artistId);
                         }
                         return Ok(result);
                     }
@@ -243,9 +225,9 @@ namespace MyTestVueApp.Server.Controllers
             {
                 return Problem(ex.Message);
             }
-        }
+        }*/
 
-        [HttpGet]
+        /*[HttpGet]
         [Route("IsMyArt")]
         public async Task<bool> IsMyArt(int id)
         {
@@ -259,28 +241,27 @@ namespace MyTestVueApp.Server.Controllers
                 ismine = (art.artistId.Contains(artist.id));
             }
             return ismine;
-        }
+        }*/
 
 
         [HttpGet]
         [Route("DeleteArt")]
         public async Task<IActionResult> DeleteArt(int artId)
         {
-
             try
             {
                 // If the user is logged in
                 if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
                     var artist = await LoginService.GetUserBySubId(userId);
-                    var art = ArtAccessService.GetArtById(artId);
+                    var art = await ArtAccessService.GetArtById(artId);
 
-                    if (!art.artistId.Contains(artist.id))
+                    if (!art.ArtistId.Contains(artist.Id))
                     {
                         return Unauthorized("User is not authorized for this action");
                     }
 
-                    await ArtAccessService.DeleteArt(artId);
+                    ArtAccessService.DeleteArt(artId);
 
                     return Ok();
 

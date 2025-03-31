@@ -3,6 +3,7 @@ using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
 using Microsoft.Data.SqlClient;
+using System.Linq;
 
 namespace MyTestVueApp.Server.ServiceImplementations
 {
@@ -66,7 +67,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 NumComments = reader.GetInt32(8),
                                 PixelGrid = pixelGrid,
                             };
-                            painting.SetArtists(GetArtists(painting.Id));
+
+                            painting.SetArtists((await GetArtists(painting.Id)).ToList());
                             paintings.Add(painting);
                         }
                     }
@@ -130,7 +132,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 NumLikes = reader.GetInt32(7),
                                 NumComments = reader.GetInt32(8)
                             };
-                            painting.SetArtists(GetArtists(painting.Id));
+                            painting.SetArtists((await GetArtists(painting.Id)).ToList());
                             return painting;
                         }
                     }
@@ -259,7 +261,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
         {
             try
             {
-
                 using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
                 {
                     connection.Open();
@@ -272,7 +273,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         command.Parameters.AddWithValue("@ArtId", artId);
                         command.Parameters.AddWithValue("@ArtistId", artistId);
                         await command.ExecuteNonQueryAsync();
-
                     }
                 }
             }

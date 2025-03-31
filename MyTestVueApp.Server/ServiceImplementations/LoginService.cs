@@ -304,7 +304,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
             return false;
         }
-        public async Task DeleteArtist(int ArtistId)
+        public async void DeleteArtist(int ArtistId)
         {
             try
             {
@@ -317,7 +317,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     using (SqlCommand deleteArtCommand = new SqlCommand(deleteArtQuery, connection))
                     {
                         deleteArtCommand.Parameters.AddWithValue("@ArtistId", ArtistId);
-                        deleteArtCommand.ExecuteNonQuery();
+                        await deleteArtCommand.ExecuteNonQueryAsync();
                     }
 
                 }
@@ -327,6 +327,48 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 Logger.LogCritical(ex, "Error in DeleteArt");
                 throw;
             }
+        }
+        public async Task<Artist> GetArtistById(int id)
+        {
+            var artist = new Artist();
+
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                var query = @"
+                    SELECT TOP (1) [Id]
+                          ,[SubId]
+                          ,[Name]
+                          ,[IsAdmin]
+                          ,[CreationDate]
+                          ,[Email]
+                      FROM [PixelPainter].[dbo].[Artist]
+                      WHERE Id = @Id
+                    ";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (reader.Read())
+                        {
+                            artist = new Artist
+                            {
+                                Id = reader.GetInt32(0),
+                                SubId = reader.GetString(1),
+                                Name = reader.GetString(2),
+                                IsAdmin = reader.GetBoolean(3),
+                                CreationDate = reader.GetDateTime(4),
+                                Email = reader.GetString(5),
+                            };
+                            return artist;
+                        }
+                    }
+                }
+            }
+            return null;
         }
     }
 }

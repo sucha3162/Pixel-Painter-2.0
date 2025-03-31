@@ -25,39 +25,39 @@ namespace MyTestVueApp.Server.ServiceImplementations
             likeService = LikeService;
         }
 
-        public IEnumerable<Notification> GetNotificationsForArtist(int artistId)
+        public async Task<IEnumerable<Notification>> GetNotificationsForArtist(int artistId)
         {
             DateTime thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
 
             var notifications = new List<Notification>();
-            var artworks = artService.GetArtByArtist(artistId);
+            var artworks = await artService.GetArtByArtist(artistId);
             foreach (Art artwork in artworks)
             {
                 //Get notified on who commented on your art
-                var comments = commentService.GetCommentsByArtId(artwork.id);
+                var comments = await commentService.GetCommentsByArtId(artwork.Id);
                 foreach(Comment comment in comments)
                 {
-                    if(comment.artistId == artistId || comment.creationDate < thirtyDaysAgo) //Make sure it is not the user, or over 30 days old
+                    if(comment.ArtistId == artistId || comment.CreationDate < thirtyDaysAgo) //Make sure it is not the user, or over 30 days old
                     {
                         continue;
                     }
-                    else if(comment.replyId == null || comment.replyId == 0) //don't want to get replies here, just original comments on art
+                    else if(comment.ReplyId == null || comment.ReplyId == 0) //don't want to get replies here, just original comments on art
                     {
                         var notification = new Notification
                         {
-                            commentId = comment.id,
+                            CommentId = comment.Id,
                             ArtId = -1,
                             ArtistId = -1,
-                            type = 0,
-                            user = comment.commenterName,
-                            viewed = comment.Viewed,
-                            artName = artwork.title
+                            Type = 0,
+                            User = comment.CommenterName,
+                            Viewed = comment.Viewed,
+                            ArtName = artwork.Title
                         };
                         notifications.Add(notification);
                     }
                 }
                 //Get notified on who liked your art
-                var likes = likeService.GetLikesByArtwork(artwork.id);
+                var likes = await likeService.GetLikesByArtwork(artwork.Id);
                 foreach(Like like in likes) 
                 {
                     if (like.ArtistId == artistId || like.LikedOn < thirtyDaysAgo) //Make sure it is not the user, or over 30 days old
@@ -66,37 +66,37 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     }
                     var notification = new Notification
                     {
-                        commentId = -1,
+                        CommentId = -1,
                         ArtId = like.ArtId,
                         ArtistId = like.ArtistId,
-                        type = 1,
-                        user = like.Artist,
-                        viewed = like.Viewed,
-                        artName = artwork.title
+                        Type = 1,
+                        User = like.Artist,
+                        Viewed = like.Viewed,
+                        ArtName = artwork.Title
                     };
                     notifications.Add(notification);
                 }
             }
-            var userComments = commentService.GetCommentByUserId(artistId);
+            var userComments = await commentService.GetCommentByUserId(artistId);
             foreach(Comment comment in userComments)
             {
-                var replies = commentService.GetReplyByCommentId(comment.id);
+                var replies = await commentService.GetReplyByCommentId(comment.Id);
                 foreach(Comment reply in replies)
 
                 {
-                    if(reply.artistId == artistId || comment.creationDate < thirtyDaysAgo) //Make sure it is not the user, or over 30 days old
+                    if(reply.ArtistId == artistId || comment.CreationDate < thirtyDaysAgo) //Make sure it is not the user, or over 30 days old
                     {
                         continue;
                     }
                     var notification = new Notification
                     {
-                        commentId = reply.id,
+                        CommentId = reply.Id,
                         ArtId = -1,
                         ArtistId = -1,
-                        type = 3,
-                        user = comment.commenterName,
-                        viewed = comment.Viewed,
-                        artName = ""
+                        Type = 3,
+                        User = comment.CommenterName,
+                        Viewed = comment.Viewed,
+                        ArtName = ""
                     };
                     notifications.Add(notification);
                 }
