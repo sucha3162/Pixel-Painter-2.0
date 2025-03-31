@@ -19,7 +19,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
         private IOptions<ApplicationConfiguration> AppConfig { get; }
         private ILogger<LoginService> Logger { get; }
 
-        private string[] adjectives = new string[]
+        private string[] Adjectives = new string[]
         {
             "Happy", "Sad", "Bright", "Dark", "Quick",
             "Slow", "Loud", "Soft", "Smooth", "Rough",
@@ -33,7 +33,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             "Unknown", "Happy", "Lazy", "Active", "Thoughtful"
         };
 
-        private string[] nouns = new string[]
+        private string[] Nouns = new string[]
         {
             "Apple", "Ball", "Cat", "Dog", "Elephant",
             "Flower", "Guitar", "House", "Ice", "Jacket",
@@ -134,7 +134,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         command.Parameters.AddWithValue("@IsAdmin", false);
                         command.Parameters.AddWithValue("@CreationDate", DateTime.UtcNow);
 
-                        int rowsChanged = command.ExecuteNonQuery();
+                        int rowsChanged = await command.ExecuteNonQueryAsync();
                         if (rowsChanged > 0)
                         {
                             return await GetUserBySubId(subId);
@@ -157,12 +157,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         private string getAdjective(int index)
         {
-            return adjectives[index];
+            return Adjectives[index];
         }
 
         private string getNoun(int index)
         {
-            return nouns[index];
+            return Nouns[index];
         }
 
         private string generateUsername()
@@ -189,7 +189,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     {
                         checkDupCommand.Parameters.AddWithValue("@Name", newUsername);
 
-                        int count = (int)await checkDupCommand.ExecuteScalarAsync();
+                        int count = (int) await checkDupCommand.ExecuteScalarAsync();
                         if (count > 0)
                         {
                             return false;
@@ -203,7 +203,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         command.Parameters.AddWithValue("@SubId", subId);
                         command.Parameters.AddWithValue("@Name", newUsername);
 
-                        int rowsChanged = command.ExecuteNonQuery();
+                        int rowsChanged = await command.ExecuteNonQueryAsync();
                         if (rowsChanged > 0)
                         {
                             return true;
@@ -251,12 +251,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         {
                             artist = new Artist
                             {
-                                id = reader.GetInt32(0),
-                                subId = reader.GetString(1),
-                                name = reader.GetString(2),
-                                isAdmin = reader.GetBoolean(3),
-                                creationDate = reader.GetDateTime(4),
-                                email = reader.GetString(5),
+                                Id = reader.GetInt32(0),
+                                SubId = reader.GetString(1),
+                                Name = reader.GetString(2),
+                                IsAdmin = reader.GetBoolean(3),
+                                CreationDate = reader.GetDateTime(4),
+                                Email = reader.GetString(5),
                             };
                             return artist;
                         }
@@ -277,32 +277,27 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 connection.Open();
 
                 var query = @"
-                    SELECT TOP (1) [Id]
-                          ,[SubId]
-                          ,[Name]
-                          ,[IsAdmin]
-                          ,[CreationDate]
-                          ,[Email]
-                      FROM [PixelPainter].[dbo].[Artist]
+                    SELECT IsAdmin
+                      FROM Artist
                       WHERE Id = @Id
                     ";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-
+                    command.Parameters.AddWithValue("@Id", userId);
                     using (var reader = await command.ExecuteReaderAsync())
                     {
                         while (reader.Read())
                         {
                             artist = new Artist
                             {
-                                id = reader.GetInt32(0),
-                                subId = reader.GetString(1),
-                                name = reader.GetString(2),
-                                isAdmin = reader.GetBoolean(3),
-                                creationDate = reader.GetDateTime(4),
-                                email = reader.GetString(5),
+                                Id = reader.GetInt32(0),
+                                SubId = reader.GetString(1),
+                                Name = reader.GetString(2),
+                                IsAdmin = reader.GetBoolean(3),
+                                CreationDate = reader.GetDateTime(4),
+                                Email = reader.GetString(5),
                             };
-                            return artist.isAdmin;
+                            return artist.IsAdmin;
                         }
                     }
                 }

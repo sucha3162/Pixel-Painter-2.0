@@ -29,7 +29,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var checkDupQuery = "SELECT Count(*) FROM Likes WHERE ArtistID = @ArtistId AND ArtID = @ArtId";
                 using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
                 {
-                    checkDupCommand.Parameters.AddWithValue("@ArtistId", artist.id);
+                    checkDupCommand.Parameters.AddWithValue("@ArtistId", artist.Id);
                     checkDupCommand.Parameters.AddWithValue("@ArtId", artId);
 
                     int count = (int) await checkDupCommand.ExecuteScalarAsync();
@@ -43,10 +43,10 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var query = "INSERT INTO Likes (ArtistID, ArtID, Viewed) VALUES (@ArtistId, @ArtId, 0)";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@ArtistId", artist.id);
+                    command.Parameters.AddWithValue("@ArtistId", artist.Id);
                     command.Parameters.AddWithValue("@ArtId", artId);
 
-                    int rowsChanged = command.ExecuteNonQuery();
+                    int rowsChanged = await command.ExecuteNonQueryAsync();
                     if (rowsChanged > 0)
                     {
                         Console.WriteLine("Like was inserted sucessfully!");
@@ -70,7 +70,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var checkDupQuery = "SELECT Count(*) FROM Likes WHERE ArtistID = @ArtistId AND ArtID = @ArtId";
                 using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
                 {
-                    checkDupCommand.Parameters.AddWithValue("@ArtistId", artist.id);
+                    checkDupCommand.Parameters.AddWithValue("@ArtistId", artist.Id);
                     checkDupCommand.Parameters.AddWithValue("@ArtId", artId);
 
                     int count = (int) await checkDupCommand.ExecuteScalarAsync();
@@ -84,10 +84,10 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var query = "DELETE FROM Likes WHERE ArtistID = @ArtistId AND ArtID = @ArtId";
                 using (SqlCommand command = new SqlCommand(query, connection)) 
                 {
-                    command.Parameters.AddWithValue("@ArtistId", artist.id);
+                    command.Parameters.AddWithValue("@ArtistId", artist.Id);
                     command.Parameters.AddWithValue("@ArtId", artId);
 
-                    int rowsChanged = command.ExecuteNonQuery();
+                    int rowsChanged = await command.ExecuteNonQueryAsync();
                     if (rowsChanged > 0)
                     {
                         Console.WriteLine("Like was removed sucessfully!");
@@ -109,7 +109,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 string likedQuery = "SELECT Count(*) FROM Likes WHERE ArtistId = @ArtistId AND ArtID = @ArtID";
                 using (SqlCommand command = new SqlCommand(likedQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@ArtistId", artist.id);
+                    command.Parameters.AddWithValue("@ArtistId", artist.Id);
                     command.Parameters.AddWithValue("@ArtID", artId);
 
                     int count = (int) await command.ExecuteScalarAsync();
@@ -122,7 +122,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-        public IEnumerable<Like> GetLikesByArtwork(int artworkId)
+        public async Task<IEnumerable<Like>> GetLikesByArtwork(int artworkId)
         {
             var likes = new List<Like>();
             var connectionString = AppConfig.Value.ConnectionString;
@@ -141,7 +141,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 using (SqlCommand command = new SqlCommand(likedQuery, connection))
                 {
                     command.Parameters.AddWithValue("@artworkId", artworkId);
-                    using (var reader = command.ExecuteReader())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
                         while (reader.Read())
                         {

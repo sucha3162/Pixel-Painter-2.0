@@ -63,7 +63,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             Groups.Remove(groupName);
         }
 
-        public Task<Group> GetGroup(string groupName)
+        public Group GetGroup(string groupName)
         {
             return Groups[groupName];
         }
@@ -71,7 +71,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
         public bool GroupExists(string groupName)
         {
             Console.WriteLine("GroupExists!");
-            return groups.ContainsKey(groupName);
+            return Groups.ContainsKey(groupName);
         }
     }
 }

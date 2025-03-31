@@ -11,10 +11,10 @@ namespace MyTestVueApp.Server.Interfaces
         public void AddUser(string groupName, Artist member);
         public void RemoveUser(string groupName, Artist member);
         public void PaintPixels(string groupName, string color, Coordinate[] vector);
-        public Task<Group> GetGroup(string groupName);
-        public Task<IEnumerable<string>> GetGroups();
-        public Task<IEnumerable<Artist>> GetUsersInGroup(string groupName);
-        public Task<IEnumerable<Artist>> GetContributingArtists(string groupName);
-        public Task<bool> GroupExists(string groupName);
+        public Group GetGroup(string groupName);
+        public IEnumerable<string> GetGroups();
+        public IEnumerable<Artist> GetUsersInGroup(string groupName);
+        public IEnumerable<Artist> GetContributingArtists(string groupName);
+        public bool GroupExists(string groupName);
     }
 }
