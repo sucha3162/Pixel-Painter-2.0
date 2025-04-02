@@ -3,15 +3,13 @@
     <!-- Container -->
     <Card
       class="art-card flex-shrink-0 overflow-hidden border-round-md cursor-pointer p-0 gallery-card"
-      @click="router.push(`/art/${art.id}`)"
-    >
+      @click="router.push(`/art/${art.id}`)">
       <template #header>
         <MyCanvas
           :art="art"
           :pixelSize="size"
           :canvasNumber="position"
-          :model-value="'temp'"
-        />
+          :model-value="'temp'" />
       </template>
       <template #title>
         <div class="text-base font-bold m-0 px-2 pt-1">
@@ -30,8 +28,7 @@
             rounded
             severity="secondary"
             icon="pi pi-comment"
-            :label="art.numComments?.toString() || ''"
-          />
+            :label="art.numComments?.toString() || ''" />
         </div>
       </template>
     </Card>
@@ -74,3 +71,4 @@ const props = defineProps<{
   gap: 0px !important;
 }
 </style>
+

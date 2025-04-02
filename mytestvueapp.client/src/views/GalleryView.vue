@@ -7,34 +7,19 @@
           class="mt-2"
           v-model.trim="search"
           type="text"
-          placeholder="Search title..."
-        />
+          placeholder="Search title..." />
         <InputText
           class="mt-2 w-2"
           v-model.trim="filter"
           type="text"
-          placeholder="Search artists..."
-        />
+          placeholder="Search artists..." />
         <Dropdown
           class="pl mt-2 text-base w-1.5 font-normal"
           v-model="sortType"
           :options="sortBy"
           optionLabel="sort"
           optionValue="code"
-          placeholder="Sort by"
-        />
-        <ToggleButton
-          v-if="isSorted"
-          id="toggle"
-          class="mt-2 text-base w-0 font-normal"
-          v-model="checkAscending"
-          onLabel="Ascending"
-          onIcon="pi pi-arrow-up"
-          offLabel="Descending"
-          offIcon="pi pi-arrow-down"
-          @click="handleCheckBox()"
-        />
-
+          placeholder="Sort by" />
         <ToggleButton
           v-if="isSortedByDate"
           id="toggle"
@@ -44,16 +29,24 @@
           onIcon="pi pi-arrow-up"
           offLabel="Newest First"
           offIcon="pi pi-arrow-down"
-          @click="handleCheckBox()"
-        />
+          @click="handleCheckBox()" />
+        <ToggleButton
+          v-else
+          id="toggle"
+          class="mt-2 text-base w-0 font-normal"
+          v-model="checkAscending"
+          onLabel="Ascending"
+          onIcon="pi pi-arrow-up"
+          offLabel="Descending"
+          offIcon="pi pi-arrow-down"
+          @click="handleCheckBox()" />
       </h1>
       <div style="display: inline-flex">
         <p>Art per page: &nbsp;</p>
         <Dropdown
           class="pl my-2 text-base w-1.5 font-normal"
           v-model="perPage"
-          :options="paginationOptions"
-        />
+          :options="paginationOptions" />
       </div>
     </header>
     <div class="shrink-limit flex flex-wrap" v-if="!loading">
@@ -62,8 +55,7 @@
         :key="index"
         :art="displayArt[index + offset]"
         :size="6"
-        :position="index"
-      />
+        :position="index" />
     </div>
     <ArtPaginator :pages="pages" @page-change="changePage" />
   </div>
@@ -89,15 +81,13 @@ const loading = ref(true);
 const sortBy = ref([
   { sort: "Likes", code: "L" },
   { sort: "Comments", code: "C" },
-  { sort: "Date", code: "D" },
+  { sort: "Date", code: "D" }
 ]);
 const paginationOptions = ref<Number[]>([12, 24, 36]);
 const sortType = ref("D"); // Value binded to sort drop down
-const isSorted = ref(false); // Renders the Descending checkbox while true
 const isSortedByDate = ref(true);
 const checkAscending = ref(false);
 const isModified = ref(false);
-const tempArt = ref([]);
 const currentPage = ref<number>(1);
 const perPage = ref<number>(12);
 const pages = computed(() => {
@@ -138,11 +128,11 @@ watch(search, () => {
       Art.artistName
         .toString()
         .toLowerCase()
-        .includes(filter.value.toLowerCase()),
+        .includes(filter.value.toLowerCase())
     );
 
     displayArt.value = displayArt.value.filter((Art) =>
-      Art.title.toLowerCase().includes(search.value.toLowerCase()),
+      Art.title.toLowerCase().includes(search.value.toLowerCase())
     );
   }
 });
@@ -195,28 +185,41 @@ function sortGallery() {
   var sortCode = sortType.value;
   isModified.value = true;
 
-  if (sortCode == "D") {
-    isSorted.value = false;
-    isSortedByDate.value = true;
-  } else {
-    isSorted.value = true;
-    isSortedByDate.value = false;
+  isSortedByDate.value = false;
+  if (sortCode == "L") {
+    // Sort By Likes
+    if (checkAscending.value) {
+      publicArt.value.sort((artA, artB) => artB.numLikes - artA.numLikes); // Sort to Descending
+    } else {
+      publicArt.value.sort((artA, artB) => artA.numLikes - artB.numLikes); // Sort to Ascending
+    }
+  } else if (sortCode == "C") {
+    // Sort By Comments
+    if (checkAscending.value) {
+      publicArt.value.sort((artA, artB) => artB.numComments - artA.numComments); // Sort to Descending
+    } else {
+      publicArt.value.sort((artA, artB) => artA.numComments - artB.numComments); // Sort to Ascending
+    }
+  } else if (sortCode == "D") {
+    if (checkAscending.value) {
+      publicArt.value.sort(
+        (artA, artB) =>
+          new Date(artB.creationDate).getTime() -
+          new Date(artA.creationDate).getTime()
+      ); // Sort to Descending
+    } else {
+      publicArt.value.sort(
+        (artA, artB) =>
+          new Date(artA.creationDate).getTime() -
+          new Date(artB.creationDate).getTime()
+      ); // Sort to Ascending
+    }
   }
 
   switch (sortCode) {
     case "L": {
       // Likes
-      ArtAccessService.getArtByLikes(checkAscending.value)
-        .then((data) => {
-          publicArt.value = data;
-          displayArt.value = data;
-        })
-        .finally(() => {
-          loading.value = false;
-          if (publicArt.value) {
-            searchAndFilter();
-          }
-        });
+      publicArt.value.sort((art) => art.numLikes); //Fix
       break;
     }
     case "C": {
@@ -252,3 +255,4 @@ function sortGallery() {
   }
 }
 </script>
+

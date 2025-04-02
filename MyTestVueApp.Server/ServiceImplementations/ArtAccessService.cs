@@ -315,7 +315,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             command.Parameters.AddWithValue("@Height", art.PixelGrid.Height);
                             command.Parameters.AddWithValue("@Encode", art.PixelGrid.EncodedGrid);
                             command.Parameters.AddWithValue("@Id", art.Id);
-                            command.Parameters.AddWithValue("@ArtistId", artist.Id);
 
                             await command.ExecuteScalarAsync();
                             

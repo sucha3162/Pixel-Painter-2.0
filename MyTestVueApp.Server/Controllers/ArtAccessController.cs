@@ -50,7 +50,7 @@ namespace MyTestVueApp.Server.Controllers
 
                     if (artist == null)
                     {
-                        return BadRequest("User not logged in");
+                        throw new AuthenticationException("User does not have an account.");
                     }
 
                     var result = await ArtAccessService.GetArtByArtist(artist.Id);
@@ -59,8 +59,12 @@ namespace MyTestVueApp.Server.Controllers
                 }
                 else
                 {
-                    return BadRequest("User not logged in");
+                    throw new AuthenticationException("User is not logged in.");
                 }
+            }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
@@ -110,16 +114,17 @@ namespace MyTestVueApp.Server.Controllers
                     }
                     else
                     {
-                        throw new AuthenticationException("User does not have permission for this action");
+                        throw new AuthenticationException("User is not logged in");
                     }
                 }
             }
             catch (ArgumentException ex)
             {
-                return NotFound(ex);
-            } catch (AuthenticationException ex)
+                return NotFound(ex.Message);
+            } 
+            catch (AuthenticationException ex)
             {
-                return Unauthorized(ex);
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
@@ -127,7 +132,11 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="art"></param>
+        /// <returns></returns>
         [HttpPut]
         [Route("SaveArt")]
         public async Task<IActionResult> SaveArt(Art art)
@@ -140,22 +149,17 @@ namespace MyTestVueApp.Server.Controllers
 
                     if (artist == null)
                     {
-                        throw new AuthenticationException("User does not have permission for this action");
+                        throw new AuthenticationException("User does not have an account.");
                     }
 
                     if (art.Id == 0) //New art
                     {
                         var result = await ArtAccessService.SaveNewArt(artist, art);
-                        List<Artist> artistList = new List<Artist>();
                         foreach (int artistId in art.ArtistId)
                         {
-                            var artEntityArtist = LoginService.GetArtistById(artistId);
                             ArtAccessService.AddContributingArtist(art.Id, artistId);
-                            artistList.Add(await artEntityArtist);
                         }
-                        result.ArtistId = artistList.Select(x => x.Id).ToArray();
-                        result.ArtistName = artistList.Select(x => x.Name).ToArray();
-                        return Ok(result);
+                        return Ok(result.Id);
                     }
                     else //Update art
                     {
@@ -164,18 +168,18 @@ namespace MyTestVueApp.Server.Controllers
                         {
                             return BadRequest("Could not update this art");
                         }
-                        return Ok(result);
+                        return Ok(result.Id);
                     }
                 }
                 else
                 {
-                    throw new AuthenticationException("User does is not logged in");
+                    throw new AuthenticationException("User is not logged in");
                 }
             }
-            catch (UnauthorizedAccessException ex)
+            catch (AuthenticationException ex)
             {
                 return Unauthorized(ex.Message);
-            }
+            } 
             catch (Exception ex)
             {
                 return Problem(ex.Message);
@@ -258,7 +262,7 @@ namespace MyTestVueApp.Server.Controllers
 
                     if (!art.ArtistId.Contains(artist.Id))
                     {
-                        return Unauthorized("User is not authorized for this action");
+                        throw new AuthenticationException("User does not have permissions for this artwork.");
                     }
 
                     ArtAccessService.DeleteArt(artId);
@@ -268,8 +272,12 @@ namespace MyTestVueApp.Server.Controllers
                 }
                 else
                 {
-                    return BadRequest("User is not logged in");
+                    throw new AuthenticationException("User is not logged in.");
                 }
+            }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
@@ -290,27 +298,27 @@ namespace MyTestVueApp.Server.Controllers
                 {
                     var isAnArtist = false;
                     var artist = await LoginService.GetUserBySubId(userId);
-                    var artists = ArtAccessService.GetArtists(artId);
+                    var artists = await ArtAccessService.GetArtists(artId);
                     foreach (var item in artists)
                     {
-                        if(item.id == artist.id)
+                        if(item.Id == artist.Id)
                         {
                             isAnArtist = true;
                         }
                     }
-                    if(isAnArtist == false)
+                    if(isAnArtist == false) //// Check if user is an admin
                     {
-                        return Unauthorized("User is not authorized for this action");
+                        throw new AuthenticationException("User does not have permission to remove user.");
                     }
 
-                    await ArtAccessService.DeleteContributingArtist(artId,artist.id);
+                    ArtAccessService.DeleteContributingArtist(artId, artist.Id);
 
                     return Ok();
 
                 }
                 else
                 {
-                    return BadRequest("User is not logged in");
+                    throw new AuthenticationException("User is not logged in.");
                 }
             }
             catch (Exception ex)
