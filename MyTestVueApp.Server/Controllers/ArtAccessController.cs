@@ -320,6 +320,9 @@ namespace MyTestVueApp.Server.Controllers
                 {
                     throw new AuthenticationException("User is not logged in.");
                 }
+            } catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {

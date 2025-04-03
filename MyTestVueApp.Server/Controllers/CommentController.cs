@@ -9,6 +9,7 @@ using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
 using MyTestVueApp.Server.ServiceImplementations;
+using System.Security.Authentication;
 
 
 namespace MyTestVueApp.Server.Controllers
@@ -34,7 +35,7 @@ namespace MyTestVueApp.Server.Controllers
         [Route("GetCommentsByArtId")]
         public async Task<IEnumerable<Comment>> GetCommentsByArtId(int artId)
         {
-            var comments = CommentAccessService.GetCommentsByArtId(artId);
+            var comments = await CommentAccessService.GetCommentsByArtId(artId);
 
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
@@ -45,7 +46,7 @@ namespace MyTestVueApp.Server.Controllers
                 }
                 foreach (var comment in comments)
                 {
-                    comment.currentUserIsOwner = comment.artistId == artist.id;
+                    comment.CurrentUserIsOwner = comment.ArtistId == artist.Id;
                 }
             }
 
@@ -56,37 +57,48 @@ namespace MyTestVueApp.Server.Controllers
         [Route("EditComment")]
         public async Task<IActionResult> EditComment(int commentId, String newMessage)
         {
-
-            // If the user is logged in
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            try
             {
-                var comment = await CommentAccessService.GetCommentByCommentId(commentId);
-                var subid = await LoginService.GetUserBySubId(userId);
-                if(comment.artistId == subid.id)
-                {    // You can add additional checks here if needed
-                    var rowsChanged = await CommentAccessService.EditComment(commentId, newMessage);
-                    if (rowsChanged > 0) // If the comment has been sucessfuly edited
-                    {
-                        return Ok();
+                // If the user is logged in
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var comment = await CommentAccessService.GetCommentByCommentId(commentId);
+                    var subid = await LoginService.GetUserBySubId(userId);
+                    if (comment.ArtistId == subid.Id)
+                    {    // You can add additional checks here if needed
+                        var rowsChanged = await CommentAccessService.EditComment(commentId, newMessage);
+                        if (rowsChanged > 0) // If the comment has been sucessfuly edited
+                        {
+                            return Ok();
+                        }
+                        else
+                        {
+                            throw new ArgumentException("Failed to edit comment.");
+                        }
                     }
                     else
                     {
-                        return BadRequest("Failed to edit comment. User may have already editied this comment.");
+                        throw new AuthenticationException("User does not have permissions for this action.");
                     }
                 }
                 else
                 {
-                    return Unauthorized("User does not have permissions for this action");
+                    throw new AuthenticationException("User is not logged in.");
                 }
             }
-            else
+            catch (ArgumentException ex) 
             {
-                return BadRequest("User is not logged in");
+                return BadRequest(ex.Message);
             }
-            
-
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
-
 
         [HttpGet]
         [Route("DeleteComment")]
@@ -99,7 +111,7 @@ namespace MyTestVueApp.Server.Controllers
                 var comment = await CommentAccessService.GetCommentByCommentId(commentId);
                 var artist = await LoginService.GetUserBySubId(userId);
                 var subid = await LoginService.GetUserBySubId(userId);
-                if (comment.artistId == subid.id || artist.isAdmin)
+                if (comment.ArtistId == subid.Id || artist.IsAdmin)
                 {
                     // You can add additional checks here if needed
                     var rowsChanged = await CommentAccessService.DeleteComment(commentId);
