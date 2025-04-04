@@ -18,10 +18,10 @@ namespace MyTestVueApp.Server.Controllers
     [Route("[controller]")]
     public class CommentController : ControllerBase
     {
-        private ILogger<CommentController> Logger { get; }
-        private ICommentAccessService CommentAccessService { get; }
-        private IOptions<ApplicationConfiguration> AppConfig { get; }
-        private ILoginService LoginService { get; }
+        private readonly ILogger<CommentController> Logger;
+        private readonly ICommentAccessService CommentAccessService;
+        private readonly IOptions<ApplicationConfiguration> AppConfig;
+        private readonly ILoginService LoginService;
          
         public CommentController(ILogger<CommentController> logger, ICommentAccessService commentAccessService, IOptions<ApplicationConfiguration> appConfig, ILoginService loginService)
         {
@@ -104,37 +104,50 @@ namespace MyTestVueApp.Server.Controllers
         [Route("DeleteComment")]
         public async Task<IActionResult> DeleteComment(int commentId)
         {
-
-            // If the user is logged in
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            try
             {
-                var comment = await CommentAccessService.GetCommentByCommentId(commentId);
-                var artist = await LoginService.GetUserBySubId(userId);
-                var subid = await LoginService.GetUserBySubId(userId);
-                if (comment.ArtistId == subid.Id || artist.IsAdmin)
+                // If the user is logged in
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
-                    // You can add additional checks here if needed
-                    var rowsChanged = await CommentAccessService.DeleteComment(commentId);
-                    if (rowsChanged > 0) // If the comment has been deleted
+                    var comment = await CommentAccessService.GetCommentByCommentId(commentId);
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    var subid = await LoginService.GetUserBySubId(userId);
+                    if (comment.ArtistId == subid.Id || artist.IsAdmin)
                     {
-                        return Ok();
+                        // You can add additional checks here if needed
+                        var rowsChanged = await CommentAccessService.DeleteComment(commentId);
+                        if (rowsChanged > 0) // If the comment has been deleted
+                        {
+                            return Ok();
+                        }
+                        else
+                        {
+                            throw new ArgumentException("Failed to edit comment.");
+                        }
                     }
                     else
                     {
-                        return BadRequest("Failed to delete Comment");
+                        throw new AuthenticationException("User does not have permissions for this action");
                     }
+
                 }
                 else
                 {
-                    return Unauthorized("User does not have permissions for this action");
+                    throw new ArgumentException("User is not logged in");
                 }
-
             }
-            else
+            catch (ArgumentException ex)
             {
-                return BadRequest("User is not logged in");
+                return BadRequest(ex.Message);
             }
-
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch(Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
         [HttpPost]
@@ -152,13 +165,16 @@ namespace MyTestVueApp.Server.Controllers
                         return Ok(result);
                     }
                 }
-                return BadRequest("User not logged in");
+                throw new AuthenticationException("User not logged in");
+            }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
                 return Problem(ex.Message);
             }
-
         }
     }
 }

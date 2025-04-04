@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Logging;
 using MyTestVueApp.Server.ServiceImplementations;
 using MyTestVueApp.Server.Entities;
+using System.Security.Authentication;
 
 namespace MyTestVueApp.Server.Controllers
 {
@@ -18,9 +19,9 @@ namespace MyTestVueApp.Server.Controllers
     [Route("[controller]")]
     public class LoginController : ControllerBase
     {
-        private IOptions<ApplicationConfiguration> AppConfig { get; }
-        private ILogger<ArtAccessController> Logger { get; }
-        private ILoginService LoginService { get; }
+        private readonly IOptions<ApplicationConfiguration> AppConfig;
+        private readonly ILogger<ArtAccessController> Logger;
+        private readonly ILoginService LoginService;
 
         public LoginController(IOptions<ApplicationConfiguration> appConfig, ILogger<ArtAccessController> logger, ILoginService loginService)
         {
@@ -69,7 +70,7 @@ namespace MyTestVueApp.Server.Controllers
         [HttpGet]
         [Route("IsLoggedIn")]
         public async Task<IActionResult> IsLoggedIn()
-        {
+        {   
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
             {
                 var artist = await LoginService.GetUserBySubId(userId);
@@ -82,12 +83,23 @@ namespace MyTestVueApp.Server.Controllers
         [Route("GetCurrentUser")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            try
             {
-                var artist = await LoginService.GetUserBySubId(userId);
-                return Ok(artist);
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    return Ok(artist);
+                }
+                throw new AuthenticationException("User is not logged in.");
             }
-            return BadRequest("User is not logged in.");
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
         [HttpGet]
@@ -101,7 +113,7 @@ namespace MyTestVueApp.Server.Controllers
                 {
                     var artist = await LoginService.GetUserBySubId(userId);
                     if(artist == null) { return Ok(false); }
-                    if (artist.isAdmin)
+                    if (artist.IsAdmin)
                     {
                         return Ok(true);
                     }
@@ -132,8 +144,12 @@ namespace MyTestVueApp.Server.Controllers
                 }
                 else
                 {
-                    return BadRequest("User is not logged in");
+                    throw new AuthenticationException("User is not logged in");
                 }
+            }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
@@ -141,30 +157,29 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-
         [HttpGet]
         [Route("DeleteArtist")]
         public async Task<IActionResult> DeleteArtist(string ArtistName)
         {
-
             try
             {
                 // If the user is logged in
                 if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
                     var artist = await LoginService.GetUserBySubId(userId);
-                    if(artist.name == ArtistName)
+                    if(artist.Name == ArtistName)
                     {
-                        await LoginService.DeleteArtist(artist.id);
+                        LoginService.DeleteArtist(artist.Id);
                         Response.Cookies.Delete("GoogleOAuth");
                         return Ok();
                     }
-                    else { return BadRequest("Username is incorrect"); }
-
+                    else { 
+                        return BadRequest("Username is incorrect"); 
+                    }
                 }
                 else
                 {
-                    return BadRequest("User is not logged in");
+                    throw new AuthenticationException("User is not logged in");
                 }
             }
             catch (Exception ex)
