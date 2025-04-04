@@ -1,3 +1,4 @@
+import type Artist from "../entities/Artist";
 import Art from "../entities/Art";
 import Comment from "../entities/Comment";
 import codec from "@/utils/codec";
@@ -22,70 +23,97 @@ export default class ArtAccessService {
       console.error;
       throw error;
     }
+  }
+
+  public static async getAllArtByUserID(id: number): Promise<Art[]> {
+    try {
+      const response = await fetch(`/artaccess/GetAllArtByUserID?id=${id}`);
+      const json = await response.json();
+
+      const allArt: Art[] = [];
+
+      for (const jsonArt of json) {
+        let art = new Art();
+        art = jsonArt as Art;
+
+        allArt.push(jsonArt as Art);
+      }
+
+      return allArt;
+    } catch (error) {
+      console.error;
+      throw error;
     }
+  }
 
-    public static async getArtByLikes(isAscending: boolean): Promise<Art[]> {
-        try {
-            const response = await fetch(`/artaccess/GetArtByLikes?isAscending=${isAscending}`);
-            const json = await response.json();
+  public static async getArtByLikes(isAscending: boolean): Promise<Art[]> {
+    try {
+      const response = await fetch(
+        `/artaccess/GetArtByLikes?isAscending=${isAscending}`
+      );
+      const json = await response.json();
 
-            const allArt: Art[] = [];
+      const allArt: Art[] = [];
 
-            for (const jsonArt of json) {
-                let art = new Art();
-                art = jsonArt as Art;
+      for (const jsonArt of json) {
+        let art = new Art();
+        art = jsonArt as Art;
 
-                allArt.push(art);
-            }
+        allArt.push(art);
+      }
 
-            return allArt;
-        } catch (error) {
-            console.error;
-            throw error;
-        }
+      return allArt;
+    } catch (error) {
+      console.error;
+      throw error;
     }
+  }
 
-    public static async getArtByComments(isAscending: boolean): Promise<Art[]> {
-        try {
-            const response = await fetch(`/artaccess/GetArtByComments?isAscending=${isAscending}`);
-            const json = await response.json();
+  public static async getArtByComments(isAscending: boolean): Promise<Art[]> {
+    try {
+      const response = await fetch(
+        `/artaccess/GetArtByComments?isAscending=${isAscending}`
+      );
+      const json = await response.json();
 
-            const allArt: Art[] = [];
+      const allArt: Art[] = [];
 
-            for (const jsonArt of json) {
-                let art = new Art();
-                art = jsonArt as Art;
+      for (const jsonArt of json) {
+        let art = new Art();
+        art = jsonArt as Art;
 
-                allArt.push(art);
-            }
+        allArt.push(art);
+      }
 
-            return allArt;
-        } catch (error) {
-            console.error;
-            throw error;
-        }
+      return allArt;
+    } catch (error) {
+      console.error;
+      throw error;
     }
+  }
 
-    public static async getArtByDate(isAscending: boolean): Promise<Art[]> {
-        try {
-            const response = await fetch(`/artaccess/GetArtByDate?isAscending=${isAscending}`);
-            const json = await response.json();
+  public static async getArtByDate(isAscending: boolean): Promise<Art[]> {
+    try {
+      const response = await fetch(
+        `/artaccess/GetArtByDate?isAscending=${isAscending}`
+      );
+      const json = await response.json();
 
-            const allArt: Art[] = [];
+      const allArt: Art[] = [];
 
-            for (const jsonArt of json) {
-                let art = new Art();
-                art = jsonArt as Art;
+      for (const jsonArt of json) {
+        let art = new Art();
+        art = jsonArt as Art;
 
-                allArt.push(art);
-            }
+        allArt.push(art);
+      }
 
-            return allArt;
-        } catch (error) {
-            console.error;
-            throw error;
-        }
+      return allArt;
+    } catch (error) {
+      console.error;
+      throw error;
     }
+  }
 
   public static async GetCurrentUsersArt(): Promise<Art[]> {
     try {
@@ -146,7 +174,7 @@ export default class ArtAccessService {
       let request = "/artaccess/SaveArt";
       console.log("#Artists: " + art.artistId.length);
       if (art.artistId.length > 1) {
-        request = "/artaccess/SaveArtCollab"
+        request = "/artaccess/SaveArtCollab";
       }
 
       const response = await fetch(request, {
@@ -176,30 +204,34 @@ export default class ArtAccessService {
       console.error;
       throw error;
     }
-    }
-    public static async DeleteContributingArtist(ArtistId: number): Promise<void> {
-        try {
-            const response = await fetch(`/artaccess/DeleteContributingArtist?ArtId=${ArtistId}`);
+  }
+  public static async DeleteContributingArtist(
+    ArtistId: number
+  ): Promise<void> {
+    try {
+      const response = await fetch(
+        `/artaccess/DeleteContributingArtist?ArtId=${ArtistId}`
+      );
 
-            if (!response.ok) {
-                throw new Error("Error: Bad response");
-            }
-        } catch (error) {
-            console.error;
-            throw error;
-        }
+      if (!response.ok) {
+        throw new Error("Error: Bad response");
+      }
+    } catch (error) {
+      console.error;
+      throw error;
     }
-    public static async GetArtists(ArtId: number): Promise<any> {
-        try {
-            const response = await fetch(`/artaccess/GetArtists?ArtId=${ArtId}`);
+  }
+  public static async GetArtists(ArtId: number): Promise<any> {
+    try {
+      const response = await fetch(`/artaccess/GetArtists?ArtId=${ArtId}`);
 
-            if (!response.ok) {
-                throw new Error("Error: Bad response");
-            }
-        } catch (error) {
-            console.error;
-            throw error;
-        }
-        return
+      if (!response.ok) {
+        throw new Error("Error: Bad response");
+      }
+    } catch (error) {
+      console.error;
+      throw error;
     }
+    return;
+  }
 }

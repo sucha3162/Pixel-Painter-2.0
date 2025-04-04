@@ -80,6 +80,14 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
+        [Route("GetAllArtists")]
+
+        public async Task<IEnumerable<Artist>> GetAllArtists()
+        {
+            return await LoginService.GetAllArtists();
+        }
+
+        [HttpGet]
         [Route("GetCurrentUser")]
         public async Task<IActionResult> GetCurrentUser()
         {
@@ -168,6 +176,7 @@ namespace MyTestVueApp.Server.Controllers
                 {
                     var artist = await LoginService.GetUserBySubId(userId);
                     if(artist.Name == ArtistName)
+                    if(artist.name == ArtistName || artist.isAdmin)//.Master Branch
                     {
                         LoginService.DeleteArtist(artist.Id);
                         Response.Cookies.Delete("GoogleOAuth");
@@ -180,6 +189,37 @@ namespace MyTestVueApp.Server.Controllers
                 else
                 {
                     throw new AuthenticationException("User is not logged in");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+
+        }
+
+        [HttpGet]
+        [Route("DeleteSelectedArtist")]
+        public async Task<IActionResult> DeleteSelectedArtist(int id)
+        {
+
+            try
+            {
+                // If the user is logged in
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    if (artist.id == id || artist.isAdmin)
+                    {
+                        await LoginService.DeleteArtist(id);
+                        return Ok();
+                    }
+                    else { return BadRequest("Current User does not have access tot his function"); }
+
+                }
+                else
+                {
+                    return BadRequest("User is not logged in");
                 }
             }
             catch (Exception ex)

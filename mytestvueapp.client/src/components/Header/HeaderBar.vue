@@ -57,4 +57,3 @@ onMounted(() => {
   background-color: transparent;
 }
 </style>
-

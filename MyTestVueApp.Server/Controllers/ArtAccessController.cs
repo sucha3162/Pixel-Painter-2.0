@@ -32,10 +32,43 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
-        [Route("GetArtists")]
-        public async Task<IEnumerable<Artist>> GetAllArtists(int artId)
+        [Route("GetAllArtByUserID")]
+        public IEnumerable<Art> GetAllArtByUserID(int id)
         {
-            return await ArtAccessService.GetArtists(artId);
+            return ArtAccessService.GetArtByArtist(id).Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
+        }
+
+        [HttpGet]
+        [Route("GetArtByLikes")]
+        public IEnumerable<Art> GetArtByLikes(bool isAscending)
+        {
+            if (isAscending)
+            {
+                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.numLikes);
+            }
+            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.numLikes);
+        }
+
+        [HttpGet]
+        [Route("GetArtByComments")]
+        public IEnumerable<Art> GetArtByComments(bool isAscending)
+        {
+            if (isAscending)
+            {
+                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.numComments);
+            }
+            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.numComments);
+        }
+
+        [HttpGet]
+        [Route("GetArtByDate")]
+        public IEnumerable<Art> GetArtByDate(bool isAscending)
+        {
+            if (isAscending)
+            {
+                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.creationDate);
+            }
+            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
         }
 
         [HttpGet]
@@ -53,9 +86,9 @@ namespace MyTestVueApp.Server.Controllers
                         throw new AuthenticationException("User does not have an account.");
                     }
 
-                    var result = await ArtAccessService.GetArtByArtist(artist.Id);
-
-                    return Ok(result.OrderByDescending(art => art.CreationDate));
+                    var result = ArtAccessService.GetAllArt();
+                    return Ok(result.Where(art => art.artistId.Contains(artist.id)).OrderByDescending(art => art.creationDate));
+                   
                 }
                 else
                 {
@@ -132,12 +165,14 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="art"></param>
-        /// <returns></returns>
-        [HttpPut]
+        [HttpGet]
+        [Route("GetArtists")]
+        public IEnumerable<Artist> GetAllArtists(int artId)
+        {
+            return ArtAccessService.GetArtists(artId);
+        }
+
+        [HttpPost]
         [Route("SaveArt")]
         public async Task<IActionResult> SaveArt(Art art)
         {
@@ -260,7 +295,7 @@ namespace MyTestVueApp.Server.Controllers
                     var artist = await LoginService.GetUserBySubId(userId);
                     var art = await ArtAccessService.GetArtById(artId);
 
-                    if (!art.ArtistId.Contains(artist.Id))
+                    if (!(art.artistId.Contains(artist.id)) && !artist.isAdmin)
                     {
                         throw new AuthenticationException("User does not have permissions for this artwork.");
                     }
@@ -298,20 +333,21 @@ namespace MyTestVueApp.Server.Controllers
                 {
                     var isAnArtist = false;
                     var artist = await LoginService.GetUserBySubId(userId);
-                    var artists = await ArtAccessService.GetArtists(artId);
+                    var artists = ArtAccessService.GetArtists(artId);
+
                     foreach (var item in artists)
                     {
-                        if(item.Id == artist.Id)
+                        if (item.id == artist.id || artist.isAdmin)
                         {
                             isAnArtist = true;
                         }
                     }
-                    if(isAnArtist == false) //// Check if user is an admin
+                    if ((!isAnArtist) && (!artist.isAdmin))
                     {
                         throw new AuthenticationException("User does not have permission to remove user.");
                     }
 
-                    ArtAccessService.DeleteContributingArtist(artId, artist.Id);
+                    await ArtAccessService.DeleteContributingArtist(artId, artist.id);
 
                     return Ok();
 

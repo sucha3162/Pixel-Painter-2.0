@@ -8,6 +8,8 @@ namespace MyTestVueApp.Server.Interfaces
     /// </summary>
     public interface ICommentAccessService
     {
+        Task<int> DeleteComment(int commentId);
+        Task<int> EditComment(int commentId, string newMessage);
 
         public Task<int> DeleteComment(int commentId);
         public Task<int> EditComment(int commentId, string newMessage);

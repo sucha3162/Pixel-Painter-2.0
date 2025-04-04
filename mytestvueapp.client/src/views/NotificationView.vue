@@ -2,36 +2,37 @@
   <div>
     <h1 class="flex align-items-center gap-3 ml-4">Notifications</h1>
 
-    <div v-if="notificationStore.notifications.length == 0" class="SadText">
-      <p>You do not have any notifications at this time</p>
-    </div>
-    <div v-if="store.Theme === 'light'">
+    <div style="overflow-y: auto; height: 60vh">
+        <div v-if="notificationStore.notifications.length == 0" class="SadText">
+            <p>You do not have any notifications at this time</p>
+        </div>
+        <div v-if="store.Theme === 'light'">
       <div
         v-for="(notification, index) in notifications"
-        v-bind:key="index"
-        :class="notification.viewed ? 'lCardV' : 'lCard'"
-        @click="MarkViewed(notification)">
-        {{ notification.user }} has
+                 v-bind:key="index"
+                 :class="notification.viewed ? 'lCardV' : 'lCard'"
+                 @click="MarkViewed(notification)">
+                {{ notification.user }} has
         <span v-if="notification.type == 1">liked</span
         ><span v-else>commented on</span> your
         <span v-if="notification.type == 3">comment</span
         ><span v-else>artwork, "{{ notification.artName }}"</span>
-      </div>
-    </div>
-    <div v-else>
+            </div>
+        </div>
+        <div v-else>
       <div
         v-for="(notification, index) in notifications"
-        v-bind:key="index"
-        :class="notification.viewed ? 'dCardV' : 'dCard'"
-        @click="MarkViewed(notification)">
-        {{ notification.user }} has
-        <span v-if="notification.type === 1">liked</span>
-        <span v-else-if="notification.type === 0">commented on</span>
-        <span v-else-if="notification.type === 3">replied to</span>
-        your
+                 v-bind:key="index"
+                 :class="notification.viewed ? 'dCardV' : 'dCard'"
+                 @click="MarkViewed(notification)">
+                {{ notification.user }} has
+                <span v-if="notification.type === 1">liked</span>
+                <span v-else-if="notification.type === 0">commented on</span>
+                <span v-else-if="notification.type === 3">replied to</span>
+                your
         <span v-if="notification.type == 3">comment</span
         ><span v-else>artwork, "{{ notification.artName }}"</span>
-      </div>
+        </div>
     </div>
   </div>
 </template>

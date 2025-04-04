@@ -18,7 +18,14 @@
       </template>
       <template #subtitle>
         <div class="text-sm m-0 px-2 max-w-11rem text-overflow-ellipsis">
-          @{{ art.artistName.toString() }}
+          <div
+            v-for="(artist, index) in art.artistName"
+            :key="index"
+            class="py-1 font-semibold"
+            onclick="//thing to route"
+          >
+            {{ artist }}
+          </div>
         </div>
       </template>
       <template #content>

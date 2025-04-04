@@ -15,7 +15,20 @@
           {{ art.title }}
         </h3>
 
-        <div>By {{ art.artistName.toString() }}</div>
+        <div>
+          By
+          <div
+            v-for="(artist, index) in art.artistName"
+            :key="index"
+            class="py-1 font-semibold"
+            onclick="//thing to route"
+          >
+            {{ artist }}
+          </div>
+          <RouterLink to="/accountpage">
+            <Button>Account Page</Button>
+          </RouterLink>
+        </div>
         <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
 
         <div class="flex flex-column gap-2 mt-4">
@@ -134,7 +147,7 @@ import { ref, onMounted, toRaw } from "vue";
 import Comment from "@/entities/Comment";
 import CommentOnArt from "@/components/Comment/CommentOnArt.vue";
 import ArtAccessService from "../services/ArtAccessService";
-import { useRoute } from "vue-router";
+import { useRoute, RouterLink } from "vue-router";
 import CommentAccessService from "../services/CommentAccessService";
 import NewComment from "@/components/Comment/NewComment.vue";
 import Card from "primevue/card";
@@ -158,11 +171,12 @@ const art = ref<Art>(new Art());
 const allComments = ref<Comment[]>([]);
 const id = Number(route.params.id);
 const uploadDate = ref(new Date());
-const Names = ref<String[]>([]);
 const user = ref<boolean>(false);
 var numberTotalComments = Number(0);
 const showFilters = ref(false);
 const ShowTones = ref(false);
+const Names = ref<String[]>([]);
+
 onMounted(() => {
   ArtAccessService.getArtById(id)
     .then((promise: Art) => {
@@ -184,6 +198,7 @@ onMounted(() => {
 });
 
 function updateComments() {
+  numberTotalComments = art.value.numComments;
   CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });
@@ -444,12 +459,13 @@ function GammaCorrection(OldColor: number): number {
   return NewColor;
 }
 function InverseGammaCorrection(OldColor: number): number {
+  // console.log(OldColor);
   if (OldColor < 0) {
     Math.abs(OldColor);
   }
   let expo = 1 / 2.2;
   let NewColor = Math.pow(OldColor, expo);
-  console.log(NewColor);
+  //console.log(NewColor);
   NewColor = NewColor * 255;
   return NewColor;
 }
@@ -497,8 +513,7 @@ function LMStoProtanopes(LMScolors: number[][]): number[][] {
       let sum = 0;
       for (let k = 0; k < PTPcolumns; k++) {
         sum += ProtanopeCalc[i][k] * LMScolors[k][j];
-        //console.log(ProtanopeCalc[i][k]);
-        //console.log(LMScolors[k][j]);
+        //console.log(j);
       }
       ProtanopeColors[i][j] = sum;
     }
@@ -524,6 +539,7 @@ function LMStoDeuteranopes(LMScolors: number[][]): number[][] {
         sum += DeuteranopesCalc[i][k] * LMScolors[k][j];
       }
       DeuteranopesColors[i][j] = sum;
+      //console.log(i, j, sum);
     }
   }
 
@@ -627,6 +643,9 @@ function FilterDeu(currentGrid: string): string {
       InverseGammaCorrection(newrgb[2])
     ];
     newhexcolor = rgbToHex(newrgb[0], newrgb[1], newrgb[2]);
+    if (newhexcolor.length != 6) {
+      console.error(`Found it! (${i}): ${newhexcolor}`);
+    }
     newGrid += newhexcolor;
   }
   return newGrid;

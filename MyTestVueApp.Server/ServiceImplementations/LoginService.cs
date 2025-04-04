@@ -174,6 +174,44 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return username;
         }
 
+        public async Task<IEnumerable<Artist>> GetAllArtists()
+        {
+            var artistList = new List<Artist>();
+            var connectionString = AppConfig.Value.ConnectionString;
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                var query =
+                    @"SELECT [Id]
+                        ,[SubId] 
+                        ,[Name] 
+                        ,[IsAdmin] 
+                        ,[CreationDate] 
+                    FROM [PixelPainter].[dbo].[Artist]
+                    ";
+                
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (reader.Read())
+                        {
+                            var artist = new Artist
+                            {
+                                id = reader.GetInt32(0),
+                                subId = reader.GetString(1),
+                                name = reader.GetString(2),
+                                isAdmin = reader.GetBoolean(3),
+                                creationDate = reader.GetDateTime(4)
+                            };
+                            artistList.Add(artist);
+                        }
+                    }
+                    return artistList;
+                }
+            }
+        }
         public async Task<bool> UpdateUsername(string newUsername, string subId)
         {
             try
@@ -313,7 +351,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 {
                     connection.Open();
 
-                    var deleteArtQuery = "DELETE artist where artist.id = @ArtistId";
+                    var deleteArtQuery = "DELETE artist where artist.id =  @ArtistId ";
                     using (SqlCommand deleteArtCommand = new SqlCommand(deleteArtQuery, connection))
                     {
                         deleteArtCommand.Parameters.AddWithValue("@ArtistId", ArtistId);

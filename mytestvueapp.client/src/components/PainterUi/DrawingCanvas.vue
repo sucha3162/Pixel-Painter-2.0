@@ -24,7 +24,7 @@ const props = defineProps<{
 }>();
 
 //exposes the recenter function to be called in parent component
-  defineExpose({ recenter, updateCursor, updateCanvas });
+  defineExpose({ recenter, updateCursor, updateCanvas, drawCanvas });
 
 //other variables
 const firstLoad = ref<boolean>(true);

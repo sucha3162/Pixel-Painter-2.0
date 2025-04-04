@@ -26,6 +26,27 @@ export default class LoginService {
     }
   }
 
+  public static async GetAllArtists(): Promise<Artist[]> {
+    try {
+      const response = await fetch(`/login/GetAllArtists`);
+      const json = await response.json();
+
+      const allArtists: Artist[] = [];
+
+      for (const jsonArt of json) {
+        let artist: Artist;
+        artist = jsonArt as Artist;
+
+        allArtists.push(artist);
+      }
+
+      return allArtists;
+    } catch (error) {
+      console.error;
+      throw error;
+    }
+  }
+
   public static async GetCurrentUser(): Promise<Artist> {
     try {
       const response = await fetch("/login/GetCurrentUser");
@@ -88,6 +109,18 @@ export default class LoginService {
       const response = await fetch(
         `/login/DeleteArtist?ArtistName=${ArtistName}`
       );
+
+      if (!response.ok) {
+        throw new Error("Error: Bad response");
+      }
+    } catch (error) {
+      console.error;
+      throw error;
+    }
+  }
+  public static async DeleteCurrentArtist(id: number): Promise<void> {
+    try {
+      const response = await fetch(`/login/DeleteCurrentArtist?id=${id}`);
 
       if (!response.ok) {
         throw new Error("Error: Bad response");
