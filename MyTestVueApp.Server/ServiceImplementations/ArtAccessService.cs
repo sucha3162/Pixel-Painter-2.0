@@ -9,9 +9,9 @@ namespace MyTestVueApp.Server.ServiceImplementations
 {
     public class ArtAccessService : IArtAccessService
     {
-        private IOptions<ApplicationConfiguration> AppConfig { get; }
-        private ILogger<ArtAccessService> Logger { get; }
-        private ILoginService LoginService { get; }
+        private readonly IOptions<ApplicationConfiguration> AppConfig; 
+        private readonly ILogger<ArtAccessService> Logger;
+        private readonly ILoginService LoginService;
         public ArtAccessService(IOptions<ApplicationConfiguration> appConfig, ILogger<ArtAccessService> logger, ILoginService loginService)
         {
             AppConfig = appConfig;
@@ -68,47 +68,13 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 PixelGrid = pixelGrid,
                             };
 
-                            painting.SetArtists((await GetArtists(painting.Id)).ToList());
+                            painting.SetArtists((await GetArtistsByArtId(painting.Id)).ToList());
                             paintings.Add(painting);
                         }
                     }
                 }
             }
             return paintings;
-        }
-
-        public Artist[] GetArtists(int id)
-        {
-            var ContributingArtists = new Artist();
-            var Artists = new List<Artist>();
-            var connectionString = AppConfig.Value.ConnectionString;
-
-            using (var connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-                //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                var query1 =
-                    @"
-                    Select ContributingArtists.ArtistId, Artist.Name from ContributingArtists
-                    left join Artist on ContributingArtists.ArtistId = Artist.Id where ContributingArtists.ArtId = @ArtId; ";
-                using (var command = new SqlCommand(query1, connection))
-                {
-                    command.Parameters.AddWithValue("@ArtId", id);
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            ContributingArtists = new Artist()
-                            {
-                                id = reader.GetInt32(0),
-                                name = reader.GetString(1)
-                            };
-                            Artists.Add(ContributingArtists);
-                        }
-                        return Artists.ToArray();
-                    }
-                }
-            }
         }
         public async Task<Art> GetArtById(int id)
         {
@@ -138,9 +104,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     GROUP BY Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
                     ";
 
-                //SQL INJECTION WHOOPS^
-                //Good thing we have type checking :p
-
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@artId", id);
@@ -165,7 +128,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 NumLikes = reader.GetInt32(7),
                                 NumComments = reader.GetInt32(8)
                             };
-                            painting.SetArtists((await GetArtists(painting.Id)).ToList());
+                            painting.SetArtists((await GetArtistsByArtId(painting.Id)).ToList());
                             return painting;
                         }
                     }
@@ -386,7 +349,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
-        public async Task<IEnumerable<Artist>> GetArtists(int id)
+        public async Task<IEnumerable<Artist>> GetArtistsByArtId(int id)
         {
             var contributingArtists = new Artist();
             var artists = new List<Artist>();

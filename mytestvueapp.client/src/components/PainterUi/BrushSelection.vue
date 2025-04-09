@@ -5,18 +5,15 @@
     width="13rem"
     button-icon="pi pi-pencil"
     button-label=""
-    :default-open="true"
-  >
+    :default-open="true">
     <div
       v-for="tool in PainterTool.getDefaults()"
       :key="tool.label"
-      class="flex"
-    >
+      class="flex">
       <Button
         class="w-full mb-2"
         :severity="tool.label !== model.label ? 'secondary' : 'primary'"
-        @click="model = tool"
-      >
+        @click="model = tool">
         <span :class="tool.icon" class="mr-2"></span>
         <span>
           {{ tool.label }}
@@ -33,9 +30,9 @@ import Button from "primevue/button";
 import Tag from "primevue/tag";
 import FloatingCard from "./FloatingCard.vue";
 import PainterTool from "@/entities/PainterTool";
-import DrawingCanvas from "@/components/PainterUi/DrawingCanvas.vue"
 
 const model = defineModel<PainterTool>({
-  default: PainterTool.getDefaults()[0],
+  default: PainterTool.getDefaults()[0]
 });
 </script>
+

@@ -13,9 +13,9 @@ namespace MyTestVueApp.Server.Controllers
     [Route("[controller]")]
     public class ArtAccessController : ControllerBase
     {
-        private ILogger<ArtAccessController> Logger { get; }
-        private IArtAccessService ArtAccessService { get; }
-        private ILoginService LoginService { get; }
+        private readonly ILogger<ArtAccessController> Logger; 
+        private readonly IArtAccessService ArtAccessService;
+        private readonly ILoginService LoginService;
 
         public ArtAccessController(ILogger<ArtAccessController> logger, IArtAccessService artAccessService, ILoginService loginService)
         {
@@ -26,49 +26,16 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("GetAllArt")]
-        public async Task<IEnumerable<Art>> GetAllArt()
+        public async Task<IActionResult> GetAllArt()
         {
-            return (await ArtAccessService.GetAllArt()).Where(art => art.IsPublic).OrderByDescending(art => art.CreationDate);
+            return Ok((await ArtAccessService.GetAllArt()).Where(art => art.IsPublic).OrderByDescending(art => art.CreationDate));
         }
 
         [HttpGet]
         [Route("GetAllArtByUserID")]
-        public IEnumerable<Art> GetAllArtByUserID(int id)
+        public async Task<IActionResult> GetAllArtByUserID(int id)
         {
-            return ArtAccessService.GetArtByArtist(id).Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
-        }
-
-        [HttpGet]
-        [Route("GetArtByLikes")]
-        public IEnumerable<Art> GetArtByLikes(bool isAscending)
-        {
-            if (isAscending)
-            {
-                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.numLikes);
-            }
-            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.numLikes);
-        }
-
-        [HttpGet]
-        [Route("GetArtByComments")]
-        public IEnumerable<Art> GetArtByComments(bool isAscending)
-        {
-            if (isAscending)
-            {
-                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.numComments);
-            }
-            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.numComments);
-        }
-
-        [HttpGet]
-        [Route("GetArtByDate")]
-        public IEnumerable<Art> GetArtByDate(bool isAscending)
-        {
-            if (isAscending)
-            {
-                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.creationDate);
-            }
-            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
+            return Ok((await ArtAccessService.GetArtByArtist(id)).Where(art => art.IsPublic).OrderByDescending(art => art.CreationDate));
         }
 
         [HttpGet]
@@ -86,8 +53,8 @@ namespace MyTestVueApp.Server.Controllers
                         throw new AuthenticationException("User does not have an account.");
                     }
 
-                    var result = ArtAccessService.GetAllArt();
-                    return Ok(result.Where(art => art.artistId.Contains(artist.id)).OrderByDescending(art => art.creationDate));
+                    var result = await ArtAccessService.GetAllArt();
+                    return Ok(result.Where(art => art.ArtistId.Contains(artist.Id)).OrderByDescending(art => art.CreationDate));
                    
                 }
                 else
@@ -167,9 +134,9 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("GetArtists")]
-        public IEnumerable<Artist> GetAllArtists(int artId)
+        public async Task<IActionResult> GetAllArtists(int artId)
         {
-            return ArtAccessService.GetArtists(artId);
+            return Ok(await ArtAccessService.GetArtistsByArtId(artId));
         }
 
         [HttpPost]
@@ -295,7 +262,7 @@ namespace MyTestVueApp.Server.Controllers
                     var artist = await LoginService.GetUserBySubId(userId);
                     var art = await ArtAccessService.GetArtById(artId);
 
-                    if (!(art.artistId.Contains(artist.id)) && !artist.isAdmin)
+                    if (!(art.ArtistId.Contains(artist.Id)) && !artist.IsAdmin)
                     {
                         throw new AuthenticationException("User does not have permissions for this artwork.");
                     }
@@ -303,7 +270,6 @@ namespace MyTestVueApp.Server.Controllers
                     ArtAccessService.DeleteArt(artId);
 
                     return Ok();
-
                 }
                 else
                 {
@@ -318,7 +284,6 @@ namespace MyTestVueApp.Server.Controllers
             {
                 return Problem(ex.Message);
             }
-
         }
 
         [HttpGet]
@@ -333,21 +298,21 @@ namespace MyTestVueApp.Server.Controllers
                 {
                     var isAnArtist = false;
                     var artist = await LoginService.GetUserBySubId(userId);
-                    var artists = ArtAccessService.GetArtists(artId);
+                    var artists = await ArtAccessService.GetArtistsByArtId(artId);
 
                     foreach (var item in artists)
                     {
-                        if (item.id == artist.id || artist.isAdmin)
+                        if (item.Id == artist.Id || artist.IsAdmin)
                         {
                             isAnArtist = true;
                         }
                     }
-                    if ((!isAnArtist) && (!artist.isAdmin))
+                    if ((!isAnArtist) && (!artist.IsAdmin))
                     {
                         throw new AuthenticationException("User does not have permission to remove user.");
                     }
 
-                    await ArtAccessService.DeleteContributingArtist(artId, artist.id);
+                    ArtAccessService.DeleteContributingArtist(artId, artist.Id);
 
                     return Ok();
 

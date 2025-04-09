@@ -8,7 +8,7 @@
         public string BackgroundColor { get; set; } = "#FFFFFF";
         public List<Artist> CurrentMembers { get; set; } = new();
         public List<Artist> MemberRecord { get; set; } = new();
-        public string[][] Pixels { get; set; } = new string[32][];
+        public string[][] Pixels { get; set; }
 
         
         public Group(string groupName, string[][] canvas, int canvasSize, string backgroundColor): this(groupName)

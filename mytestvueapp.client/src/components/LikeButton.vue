@@ -1,3 +1,11 @@
+<template>
+  <Button
+    rounded
+    :severity="liked ? 'primary' : 'secondary'"
+    :icon="liked ? 'pi pi-heart-fill' : 'pi pi-heart'"
+    :label="(likes + localLike).toString()"
+    @click.stop="likedClicked()" />
+</template>
 <script setup lang="ts">
 import Button from "primevue/button";
 import LoginService from "@/services/LoginService";
@@ -11,13 +19,13 @@ const props = defineProps<{
   artId: number;
 }>();
 
-const localLike = ref(0);
-const liked = ref(false);
-const loggedIn = ref(false);
+const localLike = ref<number>(0);
+const liked = ref<boolean>(false);
+const loggedIn = ref<boolean>(false);
 
 const toast = useToast();
 
-onMounted(() => {
+onMounted(async () => {
   LikeService.isLiked(props.artId).then((value) => (liked.value = value));
 
   LoginService.isLoggedIn().then((value) => (loggedIn.value = value));
@@ -25,18 +33,16 @@ onMounted(() => {
   localLike.value = 0;
 });
 
-const likedClicked = () => {
+async function likedClicked() {
   if (!loggedIn.value) {
     // Route to login page
     toast.add({
       severity: "error",
       summary: "Warning",
       detail: "User must be logged in to like art!",
-      life: 3000,
+      life: 3000
     });
-    return;
-  }
-  if (liked.value) {
+  } else if (liked.value) {
     // Try to unlike
     LikeService.removeLike(props.artId).then((value) => {
       if (value) {
@@ -58,15 +64,6 @@ const likedClicked = () => {
     });
   }
   // Calculate new number of likes
-};
+}
 </script>
 
-<template>
-  <Button
-    rounded
-    :severity="liked ? 'primary' : 'secondary'"
-    :icon="liked ? 'pi pi-heart-fill' : 'pi pi-heart'"
-    :label="(likes + localLike).toString()"
-    @click.stop="likedClicked()"
-  />
-</template>

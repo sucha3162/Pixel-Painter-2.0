@@ -1,7 +1,7 @@
 import Comment from "../entities/Comment";
 
 export default class CommentAccessService {
-  public static async getCommentsById(artId: number): Promise<any> {
+  public static async getCommentsByArtId(artId: number): Promise<Comment[]> {
     try {
       const response = await fetch(
         `/comment/GetCommentsByArtId?artId=${artId}`
@@ -18,10 +18,11 @@ export default class CommentAccessService {
       return allComments;
     } catch (error) {
       console.error;
+      return [];
     }
   }
 
-  public static async getCommentsByReplyId(ReplyId: number): Promise<any> {
+  public static async getCommentsByReplyId(ReplyId: number): Promise<Comment[]> {
     try {
       const response = await fetch(
         `/comment/GetCommentsByReplyId?replyId=${ReplyId}`
@@ -38,10 +39,11 @@ export default class CommentAccessService {
       return allComments;
     } catch (error) {
       console.error;
+      return [];
     }
   }
 
-  public static async PostComment(comment: Comment): Promise<Comment> {
+  public static async postComment(comment: Comment): Promise<Comment> {
     try {
       comment.creationDate = new Date().toISOString();
 
@@ -62,34 +64,22 @@ export default class CommentAccessService {
       throw error;
     }
   }
-  public static async EditComment(
+  public static async editComment(
     commentId: number,
     newMessage: string
-  ): Promise<any> {
+  ): Promise<void> {
     try {
-      const response = await fetch(
+      await fetch(
         `/comment/EditComment?commentId=${commentId}&newMessage=${newMessage}`
       );
     } catch (error) {
       console.error;
     }
   }
-  public static async DeleteComment(commentId: number): Promise<any> {
+  public static async deleteComment(commentId: number): Promise<void> {
     try {
-      const response = await fetch(
+      await fetch(
         `/comment/DeleteComment?commentId=${commentId}`
-      );
-    } catch (error) {
-      console.error;
-    }
-  }
-  public static async postComment(
-    comment: string,
-    ArtId: Number
-  ): Promise<any> {
-    try {
-      const response = await fetch(
-        `/comment/postComment?comment=${comment}&ArtId=${ArtId}`
       );
     } catch (error) {
       console.error;

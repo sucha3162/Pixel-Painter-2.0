@@ -16,8 +16,7 @@ namespace MyTestVueApp.Server.Interfaces
         public Task<IEnumerable<Art>> GetAllArt();
         public Task<Art> GetArtById(int id);
         public Task<IEnumerable<Art>> GetArtByArtist(int artistId);
-
-        public Task<IEnumerable<Artist>> GetArtists(int artId);
+        public Task<IEnumerable<Artist>> GetArtistsByArtId(int artId);
         public void DeleteArt(int artId);
         public void DeleteContributingArtist(int artid,int artistid);
         public Task<Art> SaveNewArt(Artist artist, Art art);

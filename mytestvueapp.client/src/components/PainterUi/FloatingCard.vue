@@ -4,14 +4,12 @@
     :label="buttonLabel"
     :severity="openDialog ? 'primary' : 'secondary'"
     :icon="buttonIcon"
-    class="mr-2"
-  ></Button>
+    class="mr-2"></Button>
   <Dialog
     :position="position"
     v-model:visible="openDialog"
     :header="header"
-    :style="{ width: width }"
-  >
+    :style="{ width: width }">
     <slot></slot>
   </Dialog>
 </template>
@@ -20,7 +18,7 @@ import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import { onMounted, ref } from "vue";
 
-const openDialog = ref(false);
+const openDialog = ref<boolean>(false);
 
 const props = defineProps<{
   position:
@@ -41,6 +39,7 @@ const props = defineProps<{
 }>();
 
 onMounted(() => {
-    openDialog.value = props.defaultOpen;
+  openDialog.value = props.defaultOpen;
 });
 </script>
+

@@ -30,7 +30,7 @@
   </Toolbar>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { RouterLink } from "vue-router";
 import { ref, onMounted } from "vue";
 import Button from "primevue/button";
@@ -40,9 +40,9 @@ import Toolbar from "primevue/toolbar";
 import Notification from "./NotificationRedirect.vue";
 import LoginService from "@/services/LoginService";
 
-const isLoggedIn = ref(false);
+const isLoggedIn = ref<boolean>(false);
 
-onMounted(() => {
+onMounted(async () => {
   LoginService.isLoggedIn().then((result) => {
     isLoggedIn.value = result;
   });
@@ -57,3 +57,4 @@ onMounted(() => {
   background-color: transparent;
 }
 </style>
+

@@ -9,7 +9,7 @@ import Button from "primevue/button";
 import { onMounted, ref, watch } from "vue";
 import { useThemeStore } from "@/store/ThemeStore";
 
-const checked = ref(false);
+const checked = ref<boolean>(false);
 const store = useThemeStore();
 
 watch(checked, () => {

@@ -9,12 +9,12 @@
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
               :severity="route.hash == '#settings' ? 'primary' : 'secondary'"
-              @click="ChangeHash('#settings')"
+              @click="changeHash('#settings')"
               >Account Settings</Button
             >
             <Button
               :severity="route.hash == '#art' ? 'primary' : 'secondary'"
-              @click="ChangeHash('#art')"
+              @click="changeHash('#art')"
               >Creator's Art</Button
             >
           </div>
@@ -33,32 +33,28 @@
                     :disabled="!isEditing"
                     class="mr-1"
                     v-model="newUsername"
-                    variant="filled"
-                  />
+                    variant="filled" />
                 </div>
                 <Button
                   v-if="!isEditing && (user || curArtist?.name == artist.name)"
                   severity="secondary"
                   rounded
                   icon="pi pi-pencil"
-                  @click="isEditing = true"
-                />
+                  @click="isEditing = true" />
                 <span v-else class="">
                   <Button
                     severity="danger"
                     text
                     rounded
                     icon="pi pi-times"
-                    @click="CancelEdit()"
-                  />
+                    @click="cancelEdit()" />
                   <Button
                     severity="success"
                     text
                     rounded
                     icon="pi pi-check"
-                    @click="UpdateUsername()"
-                    :disabled="errorMessage != ''"
-                  />
+                    @click="updateUsername()"
+                    :disabled="errorMessage != ''" />
                 </span>
               </div>
               <Message
@@ -75,14 +71,12 @@
                 class="block m-2"
                 label="logout"
                 icon="pi pi-sign-out"
-                @click="logout()"
-              />
+                @click="logout()" />
               <Button
                 class="block m-2"
                 label="Delete Artist"
                 severity="danger"
-                @click="ConfirmDelete()"
-              />
+                @click="confirmDelete()" />
             </div>
           </template>
         </Card>
@@ -95,8 +89,7 @@
             :key="art.id"
             :art="art"
             :size="10"
-            :position="art.id"
-          />
+            :position="art.id" />
         </div>
       </div>
     </div>
@@ -117,36 +110,35 @@ import Message from "primevue/message";
 import { useRoute } from "vue-router";
 import type Art from "@/entities/Art";
 import ArtCard from "@/components/Gallery/ArtCard.vue";
-import { RefSymbol } from "@vue/reactivity";
 
 const toast = useToast();
 const route = useRoute();
-const changeArtist = ref(false);
+const changeArtist = ref<boolean>(false);
 
 const artist = ref<Artist>(new Artist());
 const isEditing = ref<boolean>(false);
-const newUsername = ref("");
+const newUsername = ref<string>("");
 const user = ref<boolean>();
 const curArtist = ref<Artist>(new Artist());
 const artistList = ref<Artist[]>([]);
 
 var myArt = ref<Art[]>([]);
 
-onMounted(() => {
-  LoginService.GetCurrentUser().then((user: Artist) => {
+onMounted(async () => {
+  LoginService.getCurrentUser().then((user: Artist) => {
     if (user.id == 0) {
       router.push("/");
       toast.add({
         severity: "error",
         summary: "Warning",
         detail: "User must be logged in to view account page",
-        life: 3000,
+        life: 3000
       });
     }
     newUsername.value = user.name;
     artist.value = user;
   });
-  LoginService.GetAllArtists().then((newList: Artist[]) => {
+  LoginService.getAllArtists().then((newList: Artist[]) => {
     artistList.value = newList;
     curArtist.value = newList[5];
     ArtAccessService.getAllArtByUserID(curArtist?.value.id).then((art) => {
@@ -159,19 +151,19 @@ watch(changeArtist, () => {
   curArtist.value = artistList.value[0];
 });
 
-function logout() {
+async function logout() {
   LoginService.logout().then(() => {
     window.location.replace(`/`);
     toast.add({
       severity: "success",
       summary: "Success",
       detail: "User logged out",
-      life: 3000,
+      life: 3000
     });
   });
 }
 
-function CancelEdit() {
+function cancelEdit() {
   isEditing.value = false;
   newUsername.value = artist.value.name;
 }
@@ -188,7 +180,7 @@ const errorMessage = computed<string>(() => {
   return "";
 });
 
-function UpdateUsername() {
+async function updateUsername() {
   LoginService.updateUsername(newUsername.value)
     .then((success) => {
       if (success) {
@@ -196,7 +188,7 @@ function UpdateUsername() {
           severity: "success",
           summary: "Success",
           detail: "Username successfully changed",
-          life: 3000,
+          life: 3000
         });
         artist.value.name = newUsername.value;
         isEditing.value = false;
@@ -205,7 +197,7 @@ function UpdateUsername() {
           severity: "error",
           summary: "Error",
           detail: "Username is already taken. Try another",
-          life: 3000,
+          life: 3000
         });
       }
     })
@@ -214,20 +206,20 @@ function UpdateUsername() {
         severity: "error",
         summary: "Error",
         detail: "An error occurred. Please try again later",
-        life: 3000,
+        life: 3000
       });
     });
 }
 
-function ConfirmDelete() {
-  LoginService.DeleteCurrentArtist(curArtist.value.id)
+async function confirmDelete() {
+  LoginService.deleteArtist(curArtist.value.id)
     .then(() => {
       window.location.href = "/";
       toast.add({
         severity: "success",
         summary: "User Deleted",
         detail: "The User has been deleted successfully",
-        life: 3000,
+        life: 3000
       });
     })
     .catch(() => {
@@ -236,17 +228,13 @@ function ConfirmDelete() {
         summary: "Error",
         detail:
           "error deleting user, please make sure you have spelt it correctly",
-        life: 3000,
+        life: 3000
       });
     });
 }
 
-function ChangeHash(hash: string) {
+function changeHash(hash: string) {
   window.location.hash = hash;
 }
-function getIsAdmin() {
-  LoginService.GetIsAdmin().then((promise: boolean) => {
-    user.value = promise;
-  });
-}
 </script>
+

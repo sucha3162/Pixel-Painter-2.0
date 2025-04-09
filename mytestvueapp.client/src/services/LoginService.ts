@@ -26,18 +26,15 @@ export default class LoginService {
     }
   }
 
-  public static async GetAllArtists(): Promise<Artist[]> {
+  public static async getAllArtists(): Promise<Artist[]> {
     try {
       const response = await fetch(`/login/GetAllArtists`);
       const json = await response.json();
 
       const allArtists: Artist[] = [];
 
-      for (const jsonArt of json) {
-        let artist: Artist;
-        artist = jsonArt as Artist;
-
-        allArtists.push(artist);
+      for (const jsonArtist of json) {
+        allArtists.push(jsonArtist as Artist);
       }
 
       return allArtists;
@@ -47,7 +44,7 @@ export default class LoginService {
     }
   }
 
-  public static async GetCurrentUser(): Promise<Artist> {
+  public static async getCurrentUser(): Promise<Artist> {
     try {
       const response = await fetch("/login/GetCurrentUser");
 
@@ -65,7 +62,7 @@ export default class LoginService {
     }
   }
 
-  public static async GetIsAdmin(): Promise<boolean> {
+  public static async getIsAdmin(): Promise<boolean> {
     try {
       const response = await fetch("/login/GetIsAdmin");
 
@@ -104,10 +101,10 @@ export default class LoginService {
     }
   }
 
-  public static async DeleteArtist(ArtistName: string): Promise<void> {
+  public static async deleteArtist(id: number): Promise<void> {
     try {
       const response = await fetch(
-        `/login/DeleteArtist?ArtistName=${ArtistName}`
+        `/login/DeleteArtist?ArtistId=${id}`
       );
 
       if (!response.ok) {
@@ -118,16 +115,16 @@ export default class LoginService {
       throw error;
     }
   }
-  public static async DeleteCurrentArtist(id: number): Promise<void> {
-    try {
-      const response = await fetch(`/login/DeleteCurrentArtist?id=${id}`);
+  // public static async DeleteCurrentArtist(id: number): Promise<void> {
+  //   try {
+  //     const response = await fetch(`/login/DeleteCurrentArtist?id=${id}`);
 
-      if (!response.ok) {
-        throw new Error("Error: Bad response");
-      }
-    } catch (error) {
-      console.error;
-      throw error;
-    }
-  }
+  //     if (!response.ok) {
+  //       throw new Error("Error: Bad response");
+  //     }
+  //   } catch (error) {
+  //     console.error;
+  //     throw error;
+  //   }
+  // }
 }

@@ -16,19 +16,16 @@
           <InputText
             v-model:="newMessage"
             placeholder="Add a comment..."
-            class="w-full mt-2"
-          ></InputText>
+            class="w-full mt-2"></InputText>
           <div class="flex flex-row-reverse mt-2 gap-2">
             <Button
               label="Submit"
-              @click="SubmitEdit"
-              :disabled="newMessage == ''"
-            ></Button>
+              @click="submitEdit"
+              :disabled="newMessage == ''"></Button>
             <Button
               label="Cancel"
               severity="secondary"
-              @click="editing = false"
-            ></Button>
+              @click="editing = false"></Button>
           </div>
         </div>
       </div>
@@ -40,23 +37,20 @@
           rounded
           text
           label="Reply"
-          severity="secondary"
-        ></Button>
+          severity="secondary"></Button>
         <Button
           v-if="comment.currentUserIsOwner || user"
           icon="pi pi-ellipsis-h"
           rounded
           text
           severity="secondary"
-          @click="openMenu()"
-        />
+          @click="openMenu()" />
         <NewComment
           v-if="showReply == true"
           class="ml-4 mb-2"
           :parent-comment="comment"
           @new-comment="emit('deleteComment'), (showReply = false)"
-          @close-reply="showReply = false"
-        ></NewComment>
+          @close-reply="showReply = false"></NewComment>
 
         <!-- Show replies to comments -->
         <!-- <Button class="ml-3 mb-2" @click="">Show Replies</Button> -->
@@ -71,8 +65,7 @@
       v-for="Comment in comment.replies"
       :key="Comment.id"
       :comment="Comment"
-      @delete-comment="emit('deleteComment')"
-    ></CommentOnArt>
+      @delete-comment="emit('deleteComment')"></CommentOnArt>
   </div>
 </template>
 
@@ -90,13 +83,13 @@ import LoginService from "../../services/LoginService";
 
 const emit = defineEmits(["deleteComment", "updateComments"]);
 
-const editing = ref(false);
-const newMessage = ref("");
+const editing = ref<boolean>(false);
+const newMessage = ref<string>("");
 const toast = useToast();
-const showReply = ref(false);
-const menu = ref();
+const showReply = ref<boolean>(false);
+const menu = ref<any>();
 const user = ref<boolean>(false);
-const dateFormatted = ref();
+const dateFormatted = ref<string>("");
 
 function openMenu() {
   menu.value.toggle(event);
@@ -107,62 +100,25 @@ const items = ref([
     label: "Delete",
     icon: "pi pi-trash",
     command: () => {
-      DeleteComment();
-    },
+      deleteComment();
+    }
   },
   {
     label: "Edit",
     icon: "pi pi-pencil",
     command: () => {
       editing.value = true;
-    },
-  },
+    }
+  }
 ]);
 
 watch(editing, () => {
   newMessage.value = props.comment.message ?? "";
 });
 
-onMounted(() => {
+onMounted(async () => {
   getIsAdmin();
-});
-const props = defineProps<{
-    comment: Comment;
-}>();
 
-function getIsAdmin() {
-  LoginService.GetIsAdmin().then((promise: boolean) => {
-    user.value = promise;
-  });
-}
-
-const SubmitEdit = () => {
-  if (props.comment.id != null) {
-    CommentAccessService.EditComment(props.comment.id, newMessage.value)
-      .then(() => {
-        emit("deleteComment");
-        editing.value = false;
-      })
-      .catch(() => {
-        toast.add({
-          severity: "error",
-          summary: "Error",
-          detail: "Failed to edit comment",
-          life: 3000,
-        });
-      });
-  }
-};
-
-const DeleteComment = () => {
-  if (props.comment.id != null) {
-    CommentAccessService.DeleteComment(props.comment.id).then(() => {
-      emit("deleteComment");
-    });
-  }
-};
-
-onMounted(() => {
   const creationDate = adjustForTimezone(new Date(props.comment.creationDate));
   const today = new Date();
 
@@ -172,25 +128,70 @@ onMounted(() => {
   dateFormatted.value = getRelativeTime(differenceMinutes);
 });
 
-function adjustForTimezone(date: Date): Date{
+const props = defineProps<{
+  comment: Comment;
+}>();
+
+async function getIsAdmin() {
+  LoginService.getIsAdmin().then((promise: boolean) => {
+    user.value = promise;
+  });
+}
+
+async function submitEdit() {
+  if (props.comment.id != null) {
+    CommentAccessService.editComment(props.comment.id, newMessage.value)
+      .then(() => {
+        emit("deleteComment");
+        editing.value = false;
+      })
+      .catch(() => {
+        toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: "Failed to edit comment",
+          life: 3000
+        });
+      });
+  }
+}
+
+async function deleteComment() {
+  if (props.comment.id != null) {
+    CommentAccessService.deleteComment(props.comment.id).then(() => {
+      emit("deleteComment");
+    });
+  }
+}
+
+function adjustForTimezone(date: Date): Date {
   var timeOffsetInMS: number = date.getTimezoneOffset() * 60000;
   date.setTime(date.getTime() - timeOffsetInMS);
   return date;
 }
 
-function getRelativeTime(minutes: number): string {  
+function getRelativeTime(minutes: number): string {
   if (minutes === 0) return `Just now`;
   if (minutes < 60) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-  if (minutes < 1440) return `${Math.floor(minutes / 60)} hour${Math.floor(minutes / 60) > 1 ? "s" : ""} ago`;
+  if (minutes < 1440)
+    return `${Math.floor(minutes / 60)} hour${
+      Math.floor(minutes / 60) > 1 ? "s" : ""
+    } ago`;
 
   const days = Math.round(minutes / (60 * 24));
 
   if (days < 7) return `${days} day${days > 1 ? "s" : ""} ago`;
-  if (days < 30) return `${Math.floor(days / 7)} week${Math.floor(days / 7)>1 ? "s" : ""} ago`;
-  if (days < 365) return `${Math.floor(days / 30.437)} month${Math.floor(days / 30.437) > 1 ? "s" : ""} ago`;
-
+  if (days < 30)
+    return `${Math.floor(days / 7)} week${
+      Math.floor(days / 7) > 1 ? "s" : ""
+    } ago`;
+  if (days < 365)
+    return `${Math.floor(days / 30.437)} month${
+      Math.floor(days / 30.437) > 1 ? "s" : ""
+    } ago`;
 
   const years = Math.floor(days / 365);
   return `${years} year${years > 1 ? "s" : ""} ago`;
 }
 </script>
+

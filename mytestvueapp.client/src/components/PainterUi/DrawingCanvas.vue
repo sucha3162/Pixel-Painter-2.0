@@ -24,7 +24,7 @@ const props = defineProps<{
 }>();
 
 //exposes the recenter function to be called in parent component
-  defineExpose({ recenter, updateCursor, updateCanvas, drawCanvas });
+defineExpose({ recenter, updateCursor, updateCanvas, drawCanvas });
 
 //other variables
 const firstLoad = ref<boolean>(true);
@@ -35,8 +35,8 @@ const cursor = defineModel<Cursor>({
     new Vector2(0, 0),
     PainterTool.getDefaults()[1],
     1,
-    "#000000",
-  ),
+    "#000000"
+  )
 });
 
 //Runs on mounted, creates the canvas
@@ -51,7 +51,7 @@ onMounted(() => {
 //initialize the canvas
 const app = new Application({
   resizeTo: window,
-  backgroundAlpha: 0,
+  backgroundAlpha: 0
 });
 
 // creates the viewport
@@ -59,7 +59,7 @@ var viewport = new Viewport({
   screenWidth: window.innerWidth,
   screenHeight: window.innerHeight,
   worldWidth: 100,
-  worldHeight: 100,
+  worldHeight: 100
 });
 
 // add the viewport to the stage
@@ -70,12 +70,12 @@ viewport.drag().pinch().wheel().decelerate({ friction: 0.7 });
 
 function updateCanvas() {
   //dropshadow and background are idx 0 and 1 respectively
+  console.log(viewport);
   let idx = 2;
 
   if (viewport.children[1].tint !== props.pixelGrid.backgroundColor) {
     viewport.children[1].tint = props.pixelGrid.backgroundColor;
-  }
-  else { 
+  } else {
     for (var i = 0; i < props.pixelGrid.height; i++) {
       for (var j = 0; j < props.pixelGrid.width; j++) {
         //tint of erased values doesn't matter since we look at the grid
@@ -115,7 +115,7 @@ function drawCanvas() {
 
   for (var i = 0; i < props.pixelGrid.height; i++) {
     for (var j = 0; j < props.pixelGrid.width; j++) {
-      const sprite = viewport.addChild(new Sprite(Texture.WHITE));  
+      const sprite = viewport.addChild(new Sprite(Texture.WHITE));
       if (props.pixelGrid.grid[i][j] === "empty") {
         sprite.tint = props.pixelGrid.backgroundColor;
         sprite.alpha = 0;
@@ -145,10 +145,10 @@ function updateCursor() {
     cursor.value.selectedTool.label == "Eraser"
   ) {
     cursor.value.position.x = Math.floor(
-      (pos.value.x - ((cursor.value.size - 1) / 2) * PIXEL_SIZE) / PIXEL_SIZE,
+      (pos.value.x - ((cursor.value.size - 1) / 2) * PIXEL_SIZE) / PIXEL_SIZE
     );
     cursor.value.position.y = Math.floor(
-      (pos.value.y - ((cursor.value.size - 1) / 2) * PIXEL_SIZE) / PIXEL_SIZE,
+      (pos.value.y - ((cursor.value.size - 1) / 2) * PIXEL_SIZE) / PIXEL_SIZE
     );
   } else {
     cursor.value.position.x = Math.floor(pos.value.x / PIXEL_SIZE);
@@ -176,14 +176,14 @@ function updateCursor() {
     cursorBox.height = cursor.value.size * PIXEL_SIZE;
     cursorBox.position.set(
       cursor.value.position.x * PIXEL_SIZE,
-      cursor.value.position.y * PIXEL_SIZE,
+      cursor.value.position.y * PIXEL_SIZE
     );
   } else {
     cursorBox.width = PIXEL_SIZE;
     cursorBox.height = PIXEL_SIZE;
     cursorBox.position.set(
       cursor.value.position.x * PIXEL_SIZE,
-      cursor.value.position.y * PIXEL_SIZE,
+      cursor.value.position.y * PIXEL_SIZE
     );
   }
 
@@ -197,11 +197,11 @@ function recenter() {
   viewport.setZoom(40 / props.pixelGrid.width);
   viewport.moveCenter(
     (props.pixelGrid.width * PIXEL_SIZE) / 2,
-    (props.pixelGrid.height * PIXEL_SIZE) / 2 + props.pixelGrid.height * 2.5,
+    (props.pixelGrid.height * PIXEL_SIZE) / 2 + props.pixelGrid.height * 2.5
   );
 }
 
-watch(props.pixelGrid, (prev, next) => {
+watch(props.pixelGrid, () => {
   if (firstLoad.value) {
     drawCanvas();
     updateCanvas();
@@ -218,7 +218,7 @@ watch(
     //disable viewport drag if the tool is not the pan tool
     //but keep the .on click event
     checkIfPan();
-  },
+  }
 );
 
 function checkIfPan() {
@@ -229,3 +229,4 @@ function checkIfPan() {
   }
 }
 </script>
+

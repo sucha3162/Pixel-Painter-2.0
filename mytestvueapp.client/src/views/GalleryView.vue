@@ -68,28 +68,27 @@ import Art from "@/entities/Art";
 import ArtAccessService from "@/services/ArtAccessService";
 import InputText from "primevue/inputtext";
 import Dropdown from "primevue/dropdown";
-import Checkbox from "primevue/checkbox";
 import ToggleButton from "primevue/togglebutton";
-import Button from "primevue/button";
 import ArtPaginator from "@/components/Gallery/ArtPaginator.vue";
 
 const publicArt = ref<Art[]>([]);
 const displayArt = ref<Art[]>([]);
-const search = ref("");
-const filter = ref("");
-const loading = ref(true);
+const search = ref<string>("");
+const filter = ref<string>("");
+const loading = ref<boolean>(true);
 const sortBy = ref([
   { sort: "Likes", code: "L" },
   { sort: "Comments", code: "C" },
   { sort: "Date", code: "D" }
 ]);
 const paginationOptions = ref<Number[]>([12, 24, 36]);
-const sortType = ref("D"); // Value binded to sort drop down
-const isSortedByDate = ref(true);
-const checkAscending = ref(false);
-const isModified = ref(false);
+const sortType = ref<string>("D"); // Value binded to sort drop down
+const isSortedByDate = ref<boolean>(true);
+const checkAscending = ref<boolean>(false);
+const isModified = ref<boolean>(false);
 const currentPage = ref<number>(1);
 const perPage = ref<number>(12);
+const flicker = ref<boolean>(true);
 const pages = computed(() => {
   return Math.ceil(displayArt.value.length / perPage.value);
 });
@@ -103,14 +102,13 @@ const displayAmount = computed(() => {
 const offset = computed(() => {
   return perPage.value * (currentPage.value - 1) - 1;
 });
-const flicker = ref<boolean>(true);
 watch(perPage, () => {
   flicker.value = false;
   changePage(1);
   flicker.value = true;
 });
 
-onMounted(() => {
+onMounted(async () => {
   ArtAccessService.getAllArt() // Get All Art
     .then((data) => {
       publicArt.value = data;
@@ -161,20 +159,20 @@ function changePage(page: number) {
   currentPage.value = page;
 }
 
-function searchAndFilter() {
-  if (displayArt.value) {
-    displayArt.value = displayArt.value.filter((Art) =>
-      Art.artistName
-        .toString()
-        .toLowerCase()
-        .includes(filter.value.toLowerCase())
-    );
+// function searchAndFilter() {
+//   if (displayArt.value) {
+//     displayArt.value = displayArt.value.filter((Art) =>
+//       Art.artistName
+//         .toString()
+//         .toLowerCase()
+//         .includes(filter.value.toLowerCase())
+//     );
 
-    displayArt.value = displayArt.value.filter((Art) =>
-      Art.title.toLowerCase().includes(search.value.toLowerCase())
-    );
-  }
-}
+//     displayArt.value = displayArt.value.filter((Art) =>
+//       Art.title.toLowerCase().includes(search.value.toLowerCase())
+//     );
+//   }
+// }
 
 function handleCheckBox() {
   // Gets called when the ascending checkbox is clicked
@@ -213,44 +211,6 @@ function sortGallery() {
           new Date(artA.creationDate).getTime() -
           new Date(artB.creationDate).getTime()
       ); // Sort to Ascending
-    }
-  }
-
-  switch (sortCode) {
-    case "L": {
-      // Likes
-      publicArt.value.sort((art) => art.numLikes); //Fix
-      break;
-    }
-    case "C": {
-      // Commments
-      ArtAccessService.getArtByComments(checkAscending.value)
-        .then((data) => {
-          publicArt.value = data;
-          displayArt.value = data;
-        })
-        .finally(() => {
-          loading.value = false;
-          if (publicArt.value) {
-            searchAndFilter();
-          }
-        });
-      break;
-    }
-    case "D": {
-      // Date
-      ArtAccessService.getArtByDate(checkAscending.value)
-        .then((data) => {
-          publicArt.value = data;
-          displayArt.value = data;
-        })
-        .finally(() => {
-          loading.value = false;
-          if (publicArt.value) {
-            searchAndFilter();
-          }
-        });
-      break;
     }
   }
 }

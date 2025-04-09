@@ -1,5 +1,5 @@
 <template>
-    <Button label="Download" icon="pi pi-save" @click="handleClick()"></Button>
+  <Button label="Download" icon="pi pi-save" @click="handleClick()"></Button>
 </template>
 <script setup lang="ts">
 import Art from "@/entities/Art";
@@ -15,11 +15,11 @@ function handleClick() {
   if (props.art.pixelGrid.isGif) {
     saveGIF();
   } else {
-    SaveToFile();
+    saveToFile();
   }
 }
 
-function SaveToFile() {
+function saveToFile() {
   console.log(props.art.pixelGrid.grid);
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
@@ -49,7 +49,7 @@ function SaveToFile() {
           parseInt(pixelHex.substring(0, 2), 16),
           parseInt(pixelHex.substring(2, 4), 16),
           parseInt(pixelHex.substring(4, 6), 16),
-          255,
+          255
         ],
         index
       );
@@ -72,23 +72,27 @@ function SaveToFile() {
   link.download = "image.png";
   link.href = upsizedCanvas.toDataURL("image/png");
   link.click();
-    }
+}
 
 function saveGIF() {
   let i = 1;
   let workingGrid: PixelGrid;
   let urls = [];
 
-  while ((workingGrid = JSON.parse(localStorage.getItem(`frame${i}`) as string) as PixelGrid) !== null) {
+  while (
+    (workingGrid = JSON.parse(
+      localStorage.getItem(`frame${i}`) as string
+    ) as PixelGrid) !== null
+  ) {
     console.log(workingGrid.grid);
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
     if (!context) {
-        throw new Error("Could not get context");
+      throw new Error("Could not get context");
     }
     const image = context.createImageData(
-        workingGrid.width,
-        workingGrid.height
+      workingGrid.width,
+      workingGrid.height
     );
 
     canvas.width = workingGrid.width;
@@ -109,7 +113,7 @@ function saveGIF() {
             parseInt(pixelHex.substring(0, 2), 16),
             parseInt(pixelHex.substring(2, 4), 16),
             parseInt(pixelHex.substring(4, 6), 16),
-            255,
+            255
           ],
           index
         );
@@ -122,7 +126,7 @@ function saveGIF() {
     upsizedCanvas.height = 1080;
     var upsizedContext = upsizedCanvas.getContext("2d");
     if (!upsizedContext) {
-        throw new Error("Could not get context");
+      throw new Error("Could not get context");
     }
     upsizedContext.imageSmoothingEnabled = false;
     upsizedContext.drawImage(canvas, 0, 0, 1080, 1080);
@@ -135,3 +139,4 @@ function saveGIF() {
   GIFCreationService.createGIF(urls);
 }
 </script>
+

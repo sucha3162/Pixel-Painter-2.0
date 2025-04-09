@@ -8,8 +8,7 @@
           class="w-auto p-2"
           v-model="backgroundColor"
           id="backgroundColorPick"
-          format="hex"
-        ></ColorPicker>
+          format="hex"></ColorPicker>
         <br />
         <label for="resolution">Resolution: </label>
         <InputNumber
@@ -20,8 +19,7 @@
           buttonLayout="horizontal"
           suffix=" px"
           :min="1"
-          :max="64"
-        >
+          :max="64">
           <template #incrementbuttonicon>
             <span class="pi pi-plus" />
           </template>
@@ -39,20 +37,17 @@
           onIcon="pi pi-image"
           offLabel="GIF"
           offIcon="pi pi-images"
-          @click=""
-        />
+          @click="" />
       </template>
     </Card>
   </div>
   <div
-    class="absolute bottom-0 bg-primary flex align-items-center justify-content-center w-full h-10rem"
-  >
+    class="absolute bottom-0 bg-primary flex align-items-center justify-content-center w-full h-10rem">
     <Button
       rounded
       label="Start Painting"
       icon="pi pi-pencil"
-      @click="updateLocalStorage()"
-    ></Button>
+      @click="updateLocalStorage()"></Button>
   </div>
 </template>
 <script setup lang="ts">
@@ -67,14 +62,14 @@ import ToggleButton from "primevue/togglebutton";
 
 const resolution = ref<number>(32);
 const backgroundColor = ref<string>("#ffffff");
-const isImage = ref(true);
+const isImage = ref<boolean>(true);
 
 function updateLocalStorage() {
   var pixelGrid = new PixelGrid(
     resolution.value,
     resolution.value,
     backgroundColor.value,
-    !isImage.value, // Constructor wants isGif so pass in !isImage
+    !isImage.value // Constructor wants isGif so pass in !isImage
   );
 
   localStorage.setItem("working-art", JSON.stringify(pixelGrid));
@@ -96,3 +91,4 @@ onMounted(() => {
   border: solid 1px !important;
 }
 </style>
+

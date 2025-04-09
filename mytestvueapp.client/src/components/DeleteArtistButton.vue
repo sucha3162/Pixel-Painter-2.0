@@ -4,16 +4,14 @@
     icon=""
     @click="visible = !visible"
     severity="danger"
-    class="block m-2"
-  ></Button>
+    class="block m-2"></Button>
 
   <Dialog
     v-model:visible="visible"
     modal
     :closable="false"
     :style="{ width: '25rem' }"
-    :header="'Delete Account'"
-  >
+    :header="'Delete Account'">
     <Message icon="pi pi-times-circle" severity="error">
       This action cannot be undone.
     </Message>
@@ -23,17 +21,15 @@
       placeholder="Username"
       class="w-full"
       v-model="confirmText"
-      autofocus
-    ></InputText>
+      autofocus></InputText>
 
     <template #footer>
       <Button
         label="Cancel"
         text
         severity="secondary"
-        @click="visible = false"
-      />
-      <Button label="Confirm" severity="danger" @click="ConfirmDelete()" />
+        @click="visible = false" />
+      <Button label="Confirm" severity="danger" @click="confirmDelete()" />
     </template>
   </Dialog>
 </template>
@@ -44,8 +40,6 @@ import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import { ref, watch } from "vue";
 import { useToast } from "primevue/usetoast";
-import router from "@/router";
-import { useRoute } from "vue-router";
 
 import Message from "primevue/message";
 import LoginService from "@/services/LoginService";
@@ -60,15 +54,15 @@ watch(visible, (newVal) => {
   }
 });
 
-function ConfirmDelete() {
-  LoginService.DeleteArtist(confirmText.value)
+async function confirmDelete() {
+  LoginService.deleteArtist(confirmText.value)
     .then(() => {
       window.location.href = "/";
       toast.add({
         severity: "success",
         summary: "User Deleted",
         detail: "The User has been deleted successfully",
-        life: 3000,
+        life: 3000
       });
     })
     .catch(() => {
@@ -77,8 +71,9 @@ function ConfirmDelete() {
         summary: "Error",
         detail:
           "error deleting user, please make sure you have spelt it correctly",
-        life: 3000,
+        life: 3000
       });
     });
 }
 </script>
+

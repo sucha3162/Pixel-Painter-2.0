@@ -41,13 +41,13 @@ const router = createRouter({
     {
       path: "/notifications",
       name: "Notifications",
-      component: () => import("../views/NotificationView.vue"),
+      component: () => import("../views/NotificationView.vue")
     },
     {
       path: "/accountpage",
       name: "AccountPage",
-      component: () => import("../views/AccountPage.vue"),
-    },
-  ],
+      component: () => import("../views/AccountPage.vue")
+    }
+  ]
 });
 export default router;

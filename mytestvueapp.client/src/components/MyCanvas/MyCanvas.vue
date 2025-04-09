@@ -22,14 +22,14 @@ const ctx = ref<CanvasRenderingContext2D | null>(null);
 // Computed property for syncing v-model
 const localGrid = computed({
   get: () => props.modelValue, // Get the color from the parent
-  set: (newGrid) => emit("update:modelValue", newGrid), // Send update to parent
+  set: (newGrid) => emit("update:modelValue", newGrid) // Send update to parent
 });
 const canvasId = computed(() => {
   return `viewer-page-canavs-${props.canvasNumber}`;
 });
-    watch(props, () => {
-        updateCanvas();
-    });
+watch(props, () => {
+  updateCanvas();
+});
 
 onMounted(() => {
   if (canvas.value) {
@@ -61,7 +61,7 @@ function updateCanvas() {
       canvas.value.height = 32 * props.pixelSize;
       ctx.value.scale(
         32 / props.art.pixelGrid.width,
-        32 / props.art.pixelGrid.width,
+        32 / props.art.pixelGrid.width
       );
     }
   }
@@ -116,3 +116,4 @@ function renderfilter() {
   }
 }
 </script>
+

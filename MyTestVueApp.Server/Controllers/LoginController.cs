@@ -82,9 +82,17 @@ namespace MyTestVueApp.Server.Controllers
         [HttpGet]
         [Route("GetAllArtists")]
 
-        public async Task<IEnumerable<Artist>> GetAllArtists()
+        public async Task<IActionResult> GetAllArtists()
         {
-            return await LoginService.GetAllArtists();
+            try
+            {
+                var artist = await LoginService.GetAllArtists();
+                return Ok(artist);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
         [HttpGet]
@@ -167,7 +175,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("DeleteArtist")]
-        public async Task<IActionResult> DeleteArtist(string ArtistName)
+        public async Task<IActionResult> DeleteArtist(int id)
         {
             try
             {
@@ -175,15 +183,19 @@ namespace MyTestVueApp.Server.Controllers
                 if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
                     var artist = await LoginService.GetUserBySubId(userId);
-                    if(artist.Name == ArtistName)
-                    if(artist.name == ArtistName || artist.isAdmin)//.Master Branch
+                    if(artist.Id == id)
                     {
                         LoginService.DeleteArtist(artist.Id);
                         Response.Cookies.Delete("GoogleOAuth");
                         return Ok();
                     }
-                    else { 
-                        return BadRequest("Username is incorrect"); 
+                    else if (artist.IsAdmin)
+                    {
+                        LoginService.DeleteArtist(artist.Id);
+                        return Ok();
+                    }
+                    else {
+                        throw new InvalidCredentialException("User is not allowed to preform this action");
                     }
                 }
                 else
@@ -191,36 +203,13 @@ namespace MyTestVueApp.Server.Controllers
                     throw new AuthenticationException("User is not logged in");
                 }
             }
-            catch (Exception ex)
+            catch (InvalidCredentialException ex)
             {
-                return Problem(ex.Message);
+                return Forbid(ex.Message);
             }
-
-        }
-
-        [HttpGet]
-        [Route("DeleteSelectedArtist")]
-        public async Task<IActionResult> DeleteSelectedArtist(int id)
-        {
-
-            try
+            catch (AuthenticationException ex)
             {
-                // If the user is logged in
-                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
-                {
-                    var artist = await LoginService.GetUserBySubId(userId);
-                    if (artist.id == id || artist.isAdmin)
-                    {
-                        await LoginService.DeleteArtist(id);
-                        return Ok();
-                    }
-                    else { return BadRequest("Current User does not have access tot his function"); }
-
-                }
-                else
-                {
-                    return BadRequest("User is not logged in");
-                }
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {

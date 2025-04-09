@@ -2,8 +2,7 @@
   <Button
     :label="isEditing ? 'Save Changes' : 'Upload'"
     :icon="isEditing ? 'pi pi-save' : 'pi pi-upload'"
-    @click="ToggleModal()"
-  ></Button>
+    @click="toggleModal()"></Button>
 
   <Dialog v-model:visible="visible" modal :style="{ width: '26rem' }">
     <template #header>
@@ -17,8 +16,7 @@
         <InputText
           v-model="newName"
           placeholder="Title"
-          class="w-full"
-        ></InputText>
+          class="w-full"></InputText>
       </div>
       <div class="flex align-items-center gap-3">
         <span>Privacy:</span>
@@ -29,8 +27,7 @@
           offLabel="Private"
           offIcon="pi pi-lock"
           class="w-36"
-          aria-label="Do you confirm"
-        />
+          aria-label="Do you confirm" />
         <span class="font-italic">*Visibility on gallery page*</span>
       </div>
     </div>
@@ -40,14 +37,12 @@
         text
         severity="secondary"
         @click="visible = false"
-        autofocus
-      />
+        autofocus />
       <Button
         :label="isEditing ? 'Save' : 'Upload'"
         severity="secondary"
-        @click="Upload()"
-        autofocus
-      />
+        @click="upload()"
+        autofocus />
     </template>
   </Dialog>
 </template>
@@ -63,7 +58,7 @@ import ArtAccessService from "@/services/ArtAccessService";
 import { useToast } from "primevue/usetoast";
 import router from "@/router";
 import LoginService from "@/services/LoginService";
-import { HubConnection, HubConnectionState } from "@microsoft/signalr";
+import { HubConnectionState } from "@microsoft/signalr";
 import Artist from "@/entities/Artist";
 
 const toast = useToast();
@@ -94,23 +89,26 @@ watch(visible, () => {
 
 // WHY CANT I JUST WATCH props.connection.state !!!!!!!
 // I even tried using computed and {deep: true}!!!!
-watch(() => props.connected, () => {
-  if (props.connection.state == HubConnectionState.Connected) {
-    props.connection.invoke("GetContributingArtists", props.groupName);
-  } 
-});
+watch(
+  () => props.connected,
+  () => {
+    if (props.connection.state == HubConnectionState.Connected) {
+      props.connection.invoke("GetContributingArtists", props.groupName);
+    }
+  }
+);
 
 onMounted(() => {
-  if (props.connection.state == HubConnectionState.Connected){
+  if (props.connection.state == HubConnectionState.Connected) {
     props.connection.invoke("GetContributingArtists", props.groupName);
-  } 
+  }
 });
 
 props.connection.on("ContributingArtists", (allArtists: Artist[]) => {
   contributors.value = allArtists;
 });
 
-function ToggleModal() {
+function toggleModal() {
   visible.value = !visible.value;
   newName.value = props.art.title;
   if (newName.value == "") {
@@ -131,7 +129,7 @@ function flattenArt(): string {
   return encode;
 }
 
-function Upload() {
+async function upload() {
   loading.value = true;
 
   LoginService.isLoggedIn().then((isLoggedIn) => {
@@ -139,22 +137,22 @@ function Upload() {
       const newArt = new Art();
       newArt.title = newName.value;
       newArt.isPublic = newPrivacy.value;
-      newArt.pixelGrid.DeepCopy(props.art.pixelGrid);
+      newArt.pixelGrid.deepCopy(props.art.pixelGrid);
       newArt.id = props.art.id;
-      newArt.encodedGrid = flattenArt();
-      if (props.connected){
+      newArt.pixelGrid.encodedGrid = flattenArt();
+      if (props.connected) {
         newArt.artistName = contributors.value.map((artist) => artist.name);
         newArt.artistId = contributors.value.map((artist) => artist.id);
       }
 
-      ArtAccessService.SaveArt(newArt)
+      ArtAccessService.saveArt(newArt)
         .then((data: Art) => {
           if (data.id != undefined) {
             toast.add({
               severity: "success",
               summary: "Success",
               detail: "Art uploaded successfully",
-              life: 3000,
+              life: 3000
             });
             localStorage.clear();
             router.push("/art/" + data.id);
@@ -163,7 +161,7 @@ function Upload() {
               severity: "error",
               summary: "Error",
               detail: "Failed to upload art",
-              life: 3000,
+              life: 3000
             });
           }
         })
@@ -173,7 +171,7 @@ function Upload() {
             severity: "error",
             summary: "Error",
             detail: "Failed to upload art",
-            life: 3000,
+            life: 3000
           });
         })
         .finally(() => {
@@ -184,7 +182,7 @@ function Upload() {
       toast.add({
         severity: "error",
         summary: "Error",
-        detail: "You must be logged in to upload art",
+        detail: "You must be logged in to upload art"
       });
       loading.value = false;
       visible.value = false;
@@ -193,3 +191,4 @@ function Upload() {
   });
 }
 </script>
+

@@ -27,13 +27,13 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("GetNotifications")]
-        public IActionResult GetNotifications([FromQuery] string userId){
+        public async Task<IActionResult> GetNotifications([FromQuery] string userId){
             try
             {
                 int uid;
                 if (int.TryParse(userId, out uid))
                 {
-                    var notifications = NotificationService.GetNotificationsForArtist(uid);
+                    var notifications = await NotificationService.GetNotificationsForArtist(uid);
                     return Ok(notifications);
                 }
                 else
@@ -45,7 +45,8 @@ namespace MyTestVueApp.Server.Controllers
             {
                 return BadRequest(ex.Message);
             }
-              {
+            catch (Exception ex) 
+            {
                 return StatusCode(500);
             }
         }
@@ -59,7 +60,7 @@ namespace MyTestVueApp.Server.Controllers
                 Comment comment = await CommentService.GetCommentByCommentId(commentId);
                 if (comment != null)
                 {
-                    if(await NotificationService.MarkComment(comment.id))
+                    if(await NotificationService.MarkComment(comment.Id))
                     {
                         return Ok();
                     } else

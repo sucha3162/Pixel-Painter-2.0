@@ -9,12 +9,12 @@
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
               :severity="route.hash == '#settings' ? 'primary' : 'secondary'"
-              @click="ChangeHash('#settings')"
+              @click="changeHash('#settings')"
               >Account Settings</Button
             >
             <Button
               :severity="route.hash == '#art' ? 'primary' : 'secondary'"
-              @click="ChangeHash('#art')"
+              @click="changeHash('#art')"
               >My Art</Button
             >
           </div>
@@ -33,32 +33,28 @@
                     :disabled="!isEditing"
                     class="mr-1"
                     v-model="newUsername"
-                    variant="filled"
-                  />
+                    variant="filled" />
                 </div>
                 <Button
                   v-if="!isEditing"
                   severity="secondary"
                   rounded
                   icon="pi pi-pencil"
-                  @click="isEditing = true"
-                />
+                  @click="isEditing = true" />
                 <span v-else class="">
                   <Button
                     severity="danger"
                     text
                     rounded
                     icon="pi pi-times"
-                    @click="CancelEdit()"
-                  />
+                    @click="cancelEdit()" />
                   <Button
                     severity="success"
                     text
                     rounded
                     icon="pi pi-check"
-                    @click="UpdateUsername()"
-                    :disabled="errorMessage != ''"
-                  />
+                    @click="updateUsername()"
+                    :disabled="errorMessage != ''" />
                 </span>
               </div>
               <Message
@@ -75,8 +71,7 @@
                 class="block m-2"
                 label="logout"
                 icon="pi pi-sign-out"
-                @click="logout()"
-              />
+                @click="logout()" />
               <DeleteArtistButton></DeleteArtistButton>
             </div>
           </template>
@@ -86,7 +81,12 @@
       <div v-if="route.hash == '#art'">
         <h2>My Art</h2>
         <div class="flex flex-wrap">
-          <ArtCard v-for="art in myArt" :key="art.id" :art="art" :size="10" :position="art.id" />
+          <ArtCard
+            v-for="art in myArt"
+            :key="art.id"
+            :art="art"
+            :size="10"
+            :position="art.id" />
         </div>
       </div>
     </div>
@@ -119,22 +119,22 @@ var newUsername = ref("");
 
 var myArt = ref<Art[]>([]);
 
-onMounted(() => {
-  LoginService.GetCurrentUser().then((user: Artist) => {
+onMounted(async () => {
+  LoginService.getCurrentUser().then((user: Artist) => {
     if (user.id == 0) {
       router.push("/");
       toast.add({
         severity: "error",
         summary: "Warning",
         detail: "User must be logged in to view account page",
-        life: 3000,
+        life: 3000
       });
     }
     newUsername.value = user.name;
     artist.value = user;
   });
 
-  ArtAccessService.GetCurrentUsersArt().then((art) => {
+  ArtAccessService.getCurrentUsersArt().then((art) => {
     myArt.value = art;
   });
 
@@ -143,19 +143,19 @@ onMounted(() => {
   }
 });
 
-function logout() {
+async function logout() {
   LoginService.logout().then(() => {
     window.location.replace(`/`);
     toast.add({
       severity: "success",
       summary: "Success",
       detail: "User logged out",
-      life: 3000,
+      life: 3000
     });
   });
 }
 
-function CancelEdit() {
+function cancelEdit() {
   isEditing.value = false;
   newUsername.value = artist.value.name;
 }
@@ -172,7 +172,7 @@ const errorMessage = computed<string>(() => {
   return "";
 });
 
-function UpdateUsername() {
+async function updateUsername() {
   LoginService.updateUsername(newUsername.value)
     .then((success) => {
       if (success) {
@@ -180,7 +180,7 @@ function UpdateUsername() {
           severity: "success",
           summary: "Success",
           detail: "Username successfully changed",
-          life: 3000,
+          life: 3000
         });
         artist.value.name = newUsername.value;
         isEditing.value = false;
@@ -189,7 +189,7 @@ function UpdateUsername() {
           severity: "error",
           summary: "Error",
           detail: "Username is already taken. Try another",
-          life: 3000,
+          life: 3000
         });
       }
     })
@@ -198,12 +198,13 @@ function UpdateUsername() {
         severity: "error",
         summary: "Error",
         detail: "An error occurred. Please try again later",
-        life: 3000,
+        life: 3000
       });
     });
 }
 
-function ChangeHash(hash: string) {
+function changeHash(hash: string) {
   window.location.hash = hash;
 }
 </script>
+

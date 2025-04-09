@@ -4,7 +4,7 @@ import { DoublyLinkedList }  from "@/utils/DoublyLinkedList";
 export const useTempStore = defineStore('storeId', {
   state: () => {
     return {
-      temp: DoublyLinkedList,
+      temp: DoublyLinkedList
     }
   }
 })

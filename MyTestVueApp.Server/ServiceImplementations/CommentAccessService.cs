@@ -19,8 +19,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
 {
     public class CommentAccessService : ICommentAccessService
     {
-        private IOptions<ApplicationConfiguration> AppConfig { get; }
-        private ILogger<CommentAccessService> Logger { get; }
+        private readonly IOptions<ApplicationConfiguration> AppConfig;
+        private readonly ILogger<CommentAccessService> Logger;
         public CommentAccessService(IOptions<ApplicationConfiguration> appConfig, ILogger<CommentAccessService> logger)
         {
             AppConfig = appConfig;
@@ -195,7 +195,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     }
                 }
             }
-
         }
 
         public async Task<Comment> CreateComment(Artist commenter, Comment comment)
@@ -231,7 +230,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     throw;
                 }
             }
-
         }
 
         public async Task<Comment> CreateReply(Artist commenter, Comment comment1, Comment comment2)
@@ -268,7 +266,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     throw;
                 }
             }
-
         }
 
         public async Task<IEnumerable<Comment>> GetCommentByReplyId(int replyId)
@@ -376,14 +373,13 @@ namespace MyTestVueApp.Server.ServiceImplementations
             catch (Exception ex)
             {
                 Logger.LogCritical(ex, "Error retrieving comments");
-                throw;
+                throw ex;
             }
         }
         public async Task<IEnumerable<Comment>> GetCommentByUserId(int id)
         {
             try
             {
-
                 List<Comment> comments = new List<Comment>();
                 var connectionString = AppConfig.Value.ConnectionString;
 

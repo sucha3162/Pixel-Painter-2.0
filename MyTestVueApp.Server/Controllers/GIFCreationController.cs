@@ -10,7 +10,7 @@ namespace MyTestVueApp.Server.Controllers
     [ApiController]
     public class GIFCreationController : ControllerBase
     {
-        private ILogger<GIFCreationController> Logger { get; }
+        private readonly ILogger<GIFCreationController> Logger;
 
         public GIFCreationController(ILogger<GIFCreationController> logger)
         {

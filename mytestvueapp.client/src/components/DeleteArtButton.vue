@@ -4,16 +4,14 @@
     icon=""
     @click="visible = !visible"
     severity="danger"
-    class="block"
-  ></Button>
+    class="block"></Button>
 
   <Dialog
     v-model:visible="visible"
     modal
     :closable="false"
     :style="{ width: '25rem' }"
-    :header="'Delete ' + art.title + '?'"
-  >
+    :header="'Delete ' + art.title + '?'">
     <Message icon="pi pi-times-circle" severity="error">
       This action cannot be undone.
     </Message>
@@ -23,22 +21,19 @@
       placeholder="Title"
       class="w-full"
       v-model="confirmText"
-      autofocus
-    ></InputText>
+      autofocus></InputText>
 
     <template #footer>
       <Button
         label="Cancel"
         text
         severity="secondary"
-        @click="visible = false"
-      />
+        @click="visible = false" />
       <Button
         label="Confirm"
         severity="danger"
-        @click="ConfirmDelete()"
-        :disabled="confirmText != art.title"
-      />
+        @click="confirmDelete()"
+        :disabled="confirmText != art.title" />
     </template>
   </Dialog>
 </template>
@@ -67,15 +62,15 @@ watch(visible, (newVal) => {
   }
 });
 
-function ConfirmDelete() {
-  ArtAccessService.DeleteContributingArtist(props.art.id)
+async function confirmDelete() {
+  ArtAccessService.deleteContributingArtist(props.art.id)
     .then(() => {
       router.push("/account#art");
       toast.add({
         severity: "success",
         summary: "Art Deleted",
         detail: "The art has been deleted successfully",
-        life: 3000,
+        life: 3000
       });
     })
     .catch(() => {
@@ -83,8 +78,9 @@ function ConfirmDelete() {
         severity: "error",
         summary: "Error",
         detail: "An error occurred while deleting the art",
-        life: 3000,
+        life: 3000
       });
     });
 }
 </script>
+

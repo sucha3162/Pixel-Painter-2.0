@@ -12,7 +12,8 @@
     @mouseup="
       mouseButtonHeldDown = false;
       setEndVector();
-      onMouseUp()"
+      onMouseUp();
+    "
     @contextmenu.prevent />
   <Toolbar class="fixed bottom-0 left-0 right-0 m-2">
     <template #start>
@@ -21,29 +22,43 @@
           icon="pi pi-ban"
           label="Quit"
           severity="secondary"
-          @click="ResetArt()">
+          @click="resetArt()">
         </Button>
-        <UploadButton :art="art" :connection="connection" :connected="connected" :group-name="groupName" @OpenModal="ToggleKeybinds" />
+        <UploadButton
+          :art="art"
+          :connection="connection"
+          :connected="connected"
+          :group-name="groupName"
+          @OpenModal="toggleKeybinds" />
         <SaveImageToFile :art="art"></SaveImageToFile>
-        <ConnectButton @OpenModal="ToggleKeybinds" @Connect="connect" @Disconnect="disconnect" :connected="connected" :isGif="art.pixelGrid.isGif" />
+        <ConnectButton
+          @OpenModal="toggleKeybinds"
+          @Connect="connect"
+          @Disconnect="disconnect"
+          :connected="connected"
+          :isGif="art.pixelGrid.isGif" />
       </div>
     </template>
 
     <template #center>
-      <ColorSelection 
-      v-model:color="cursor.color"
-      v-model:size="cursor.size"
-      @enable-key-binds="keyBindActive = true"
-      @disable-key-binds="keyBindActive = false" />
+      <ColorSelection
+        v-model:color="cursor.color"
+        v-model:size="cursor.size"
+        @enable-key-binds="keyBindActive = true"
+        @disable-key-binds="keyBindActive = false" />
       <BrushSelection v-model="cursor.selectedTool" />
-      <ColorSelection 
-      v-model:color="art.pixelGrid.backgroundColor"
-      v-model:size="cursor.size"
-      isBackground="true"
-      @enable-key-binds="keyBindActive = true"
-      @disable-key-binds="keyBindActive = false" />
-      <FrameSelection v-if="art.pixelGrid.isGif" v-model:selFrame="selectedFrame" v-model:lastFrame="lastFrame" v-model:frameIndex="index"/>
-      <LayerSelection v-if="!art.pixelGrid.isGif"/>
+      <ColorSelection
+        v-model:color="art.pixelGrid.backgroundColor"
+        v-model:size="cursor.size"
+        :isBackground="true"
+        @enable-key-binds="keyBindActive = true"
+        @disable-key-binds="keyBindActive = false" />
+      <FrameSelection
+        v-if="art.pixelGrid.isGif"
+        v-model:selFrame="selectedFrame"
+        v-model:lastFrame="lastFrame"
+        v-model:frameIndex="index" />
+      <LayerSelection v-if="!art.pixelGrid.isGif" />
     </template>
     <template #end>
       <Button
@@ -62,8 +77,7 @@
         icon="pi pi-lightbulb"
         class="Rainbow"
         label="Give Me Color!"
-        @click="
-        art.pixelGrid.randomizeGrid();"/>
+        @click="art.pixelGrid.randomizeGrid()" />
     </template>
   </Toolbar>
 </template>
@@ -102,126 +116,139 @@ import { useToast } from "primevue/usetoast";
 //scripts
 import ArtAccessService from "@/services/ArtAccessService";
 import Art from "@/entities/Art";
-import fallingSand from "@/utils/fallingSand";
+import fallingSand from "@/utils/FallingSand";
 import ConnectButton from "@/components/PainterUi/ConnectButton.vue";
 
 //Other
 import * as SignalR from "@microsoft/signalr";
-import { FillStyle } from "pixi.js";
 
 //variables
 const route = useRoute();
-const canvas = ref();
+const canvas = ref<any>();
 const toast = useToast();
 const intervalId = ref<number>(-1);
 const keyBindActive = ref<boolean>(true);
-const artist = ref<Artist>(new Artist);
+const artist = ref<Artist>(new Artist());
 
 // Connection Information
-const connected = ref(false);
-const groupName = ref("");
+const connected = ref<boolean>(false);
+const groupName = ref<string>("");
 let connection = new SignalR.HubConnectionBuilder()
-            .withUrl("https://localhost:7154/signalhub", {
-                skipNegotiation: true,
-                transport: SignalR.HttpTransportType.WebSockets
-            })
-            .build();
+  .withUrl("https://localhost:7154/signalhub", {
+    skipNegotiation: true,
+    transport: SignalR.HttpTransportType.WebSockets
+  })
+  .build();
 
 connection.on("Send", (user: string, msg: string) => {
-        console.log("Received Message", user + " " + msg);
+  console.log("Received Message", user + " " + msg);
 });
 
 connection.on("NewMember", (newartist: Artist) => {
-  console.log("New Member: "+ newartist.name);
-  if (!art.value.artistId.includes(newartist.id)){
+  console.log("New Member: " + newartist.name);
+  if (!art.value.artistId.includes(newartist.id)) {
     art.value.artistId.push(newartist.id);
     art.value.artistName.push(newartist.name);
   }
-  console.log("NewMember-Members: " +  art.value.artistName.join(" "))
+  console.log("NewMember-Members: " + art.value.artistName.join(" "));
 });
 
 connection.on("Members", (artists: Artist[]) => {
   console.log("Recieved All Members");
-  artists.forEach(artist => {
-    if (!art.value.artistId.includes(artist.id)){
+  artists.forEach((artist) => {
+    if (!art.value.artistId.includes(artist.id)) {
       art.value.artistId.push(artist.id);
       art.value.artistName.push(artist.name);
     }
-  })
-  console.log("Members-Members: " +  art.value.artistName.join(" "))
+  });
+  console.log("Members-Members: " + art.value.artistName.join(" "));
 });
 
-connection.onclose(error => {
+connection.onclose((error) => {
   if (error) {
     toast.add({
-            severity: "error",
-            summary: "Error",
-            detail: "You have disconnected!",
-            life: 3000,
-          });
+      severity: "error",
+      summary: "Error",
+      detail: "You have disconnected!",
+      life: 3000
+    });
     connected.value = false;
-    }
+  }
 });
 
 connection.on("ReceivePixel", (color: string, coord: Vector2) => {
-        DrawPixel(color, coord);
+  drawPixel(color, coord);
 });
 
 connection.on("ReceivePixels", (color: string, coords: Vector2[]) => {
-        DrawPixels(color, coords);
+  drawPixels(color, coords);
 });
 
 connection.on("ReceiveBucket", (color: string, coord: Vector2) => {
-        fill(coord.x, coord.y, color);
+  fill(coord.x, coord.y, color);
 });
 
-connection.on("GroupConfig", (canvasSize: number, backgroundColor: string, pixels: Pixel[]) => {
-  art.value.pixelGrid.width = canvasSize;
-  art.value.pixelGrid.height = canvasSize;
-  art.value.pixelGrid.backgroundColor = backgroundColor;
-  art.value.pixelGrid.grid = art.value.pixelGrid.createGrid(canvasSize, canvasSize, backgroundColor);
-  canvas.value?.drawCanvas();
-  canvas.value?.recenter();
-  ReplaceCanvas(pixels);
-});
+connection.on(
+  "GroupConfig",
+  (canvasSize: number, backgroundColor: string, pixels: Pixel[]) => {
+    art.value.pixelGrid.width = canvasSize;
+    art.value.pixelGrid.height = canvasSize;
+    art.value.pixelGrid.backgroundColor = backgroundColor;
+    art.value.pixelGrid.grid = art.value.pixelGrid.createGrid(
+      canvasSize,
+      canvasSize
+    );
+    canvas.value?.drawCanvas();
+    canvas.value?.recenter();
+    replaceCanvas(pixels);
+  }
+);
 
 connection.on("BackgroundColor", (backgroundColor: string) => {
   art.value.pixelGrid.backgroundColor = backgroundColor;
 });
 
 const connect = (groupname: string) => {
-
-  if (artist.value.id != 0){
-    connection.start()
-        .then(
-            () => {
-                console.log("Connected to SignalR!");
-                connection.invoke("CreateOrJoinGroup", groupname, artist.value, art.value.pixelGrid.grid, art.value.pixelGrid.width, art.value.pixelGrid.backgroundColor);
-                groupName.value = groupname;
-                connected.value = !connected.value;
-            }
-        ).catch(err => console.error("Error connecting to Hub:",err));
+  if (artist.value.id != 0) {
+    connection
+      .start()
+      .then(() => {
+        console.log("Connected to SignalR!");
+        connection.invoke(
+          "CreateOrJoinGroup",
+          groupname,
+          artist.value,
+          art.value.pixelGrid.grid,
+          art.value.pixelGrid.width,
+          art.value.pixelGrid.backgroundColor
+        );
+        groupName.value = groupname;
+        connected.value = !connected.value;
+      })
+      .catch((err) => console.error("Error connecting to Hub:", err));
   } else {
     toast.add({
-          severity: "error",
-          summary: "Error",
-          detail: "Please log in before collaborating!",
-          life: 3000,
-        });
+      severity: "error",
+      summary: "Error",
+      detail: "Please log in before collaborating!",
+      life: 3000
+    });
   }
-}
-
+};
 
 const disconnect = (groupname: string) => {
-  connection.invoke("LeaveGroup", groupname, artist.value)
+  connection
+    .invoke("LeaveGroup", groupname, artist.value)
     .then(() => {
-      connection.stop()
+      connection
+        .stop()
         .then(() => {
           connected.value = !connected.value;
-        }).catch(err => console.error("Error Disconnecting:", err));
-    }
-    ).catch(err => console.error("Error Leaving Group:",err));
-}
+        })
+        .catch((err) => console.error("Error Disconnecting:", err));
+    })
+    .catch((err) => console.error("Error Leaving Group:", err));
+};
 //End of Connection Information
 const cursor = ref<Cursor>(
   new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "000000")
@@ -231,22 +258,20 @@ const mouseButtonHeldDown = ref<boolean>(false);
 
 const startPix = ref<Vector2>(new Vector2(0, 0));
 const endPix = ref<Vector2>(new Vector2(0, 0));
-let tempGrid: string[][] = [];
+const tempGrid = ref<string[][]>([]);
 
 const art = ref<Art>(new Art());
+const selectedFrame = ref<number>(1);
+const lastFrame = ref<number>(1);
+const index = ref<number>(1);
 
-let selectedFrame = ref(1);
-let lastFrame = ref(1);
-let index = ref(1);
-
-
-let currentPallet: string[];
+const currentPallet = ref<string[]>([]);
 function updatePallet() {
   let temp = localStorage.getItem("currentPallet");
-  if (temp) currentPallet = JSON.parse(temp);
-  for (let i = 0; i < currentPallet.length; i++)
-    if (currentPallet[i] === null || currentPallet[i] === "") {
-      currentPallet[i] = "000000";
+  if (temp) currentPallet.value = JSON.parse(temp);
+  for (let i = 0; i < currentPallet.value.length; i++)
+    if (currentPallet.value[i] === null || currentPallet.value[i] === "") {
+      currentPallet.value[i] = "000000";
     }
 }
 const cursorPositionComputed = computed(
@@ -265,24 +290,24 @@ const cursorPositionComputed = computed(
 //lifecycle hooks
 onBeforeRouteLeave((to, from, next) => {
   if (to.path != "/new" && !to.path.includes("/art")) {
-      if (art.value.pixelGrid.isGif) {
-          LocalSaveGif();
-      } else {
-          LocalSave();
-      }
+    if (art.value.pixelGrid.isGif) {
+      localSaveGif();
+    } else {
+      localSave();
     }
+  }
   next();
 });
 
-onMounted(() => {
+onMounted(async () => {
   document.addEventListener("keydown", handleKeyDown);
   window.addEventListener("beforeunload", handleBeforeUnload);
 
   //Get the current user
-  LoginService.GetCurrentUser().then((user: Artist) => {
+  LoginService.getCurrentUser().then((user: Artist) => {
     if (user.id == 0) {
       artist.value.id = 0;
-      artist.value.name = "Guest"
+      artist.value.name = "Guest";
     }
     artist.value = user;
   });
@@ -296,7 +321,7 @@ onMounted(() => {
     const id: number = parseInt(route.params.id as string);
     ArtAccessService.getArtById(id)
       .then((data) => {
-        art.value.pixelGrid.DeepCopy(data.pixelGrid);
+        art.value.pixelGrid.deepCopy(data.pixelGrid);
         art.value.id = data.id;
         art.value.title = data.title;
         art.value.isPublic = data.isPublic;
@@ -308,14 +333,14 @@ onMounted(() => {
           severity: "error",
           summary: "Error",
           detail: "You cannot edit this art",
-          life: 3000,
+          life: 3000
         });
         router.push("/new");
       });
   } else if (workingGrid == null) {
     router.push("/new");
   } else {
-    art.value.pixelGrid.DeepCopy(workingGrid);
+    art.value.pixelGrid.deepCopy(workingGrid);
     canvas.value?.recenter();
 
     tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
@@ -327,20 +352,21 @@ onUnmounted(() => {
   window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 
-const ToggleKeybinds = (disable: boolean) => {
+function toggleKeybinds(disable: boolean) {
   if (disable) {
     document.removeEventListener("keydown", handleKeyDown);
   } else {
     document.addEventListener("keydown", handleKeyDown);
   }
-};
+}
 
+//Convert to ref on beforeunload
 function handleBeforeUnload(event: BeforeUnloadEvent) {
-    if (art.value.pixelGrid.isGif) {
-        LocalSaveGif();
-    } else { 
-        LocalSave();
-    }
+  if (art.value.pixelGrid.isGif) {
+    localSaveGif();
+  } else {
+    localSave();
+  }
 }
 
 watch(
@@ -349,56 +375,67 @@ watch(
     if (cursor.value.selectedTool.label === "Rectangle") {
       if (mouseButtonHeldDown.value) {
         setEndVector();
-        DrawAtCoords(GetRectanglePixels(startPix.value, endPix.value));
+        drawAtCoords(getRectanglePixels(startPix.value, endPix.value));
       }
     } else if (cursor.value.selectedTool.label === "Ellipse") {
       if (mouseButtonHeldDown.value) {
         setEndVector();
-        DrawAtCoords(GetEllipsePixels(startPix.value, endPix.value));
+        drawAtCoords(getEllipsePixels(startPix.value, endPix.value));
       }
     } else {
-      DrawAtCoords(GetLinePixels(start, end));
+      drawAtCoords(getLinePixels(start, end));
     }
   },
   { deep: true }
 );
 
 watch(mouseButtonHeldDown, async () => {
-  DrawAtCoords([cursor.value.position]);
+  drawAtCoords([cursor.value.position]);
 });
 
-watch(() => art.value.pixelGrid.backgroundColor, (newColor, oldColor) => {
-  ChangeBackgroundColor(newColor);
-});
-    
+watch(
+  () => art.value.pixelGrid.backgroundColor,
+  (newColor) => {
+    changeBackgroundColor(newColor);
+  }
+);
+
 watch(selectedFrame, () => {
   if (lastFrame.value <= index.value) {
-      localStorage.setItem(`frame${lastFrame.value}`, JSON.stringify(art.value.pixelGrid));
+    localStorage.setItem(
+      `frame${lastFrame.value}`,
+      JSON.stringify(art.value.pixelGrid)
+    );
   }
 
   const workingGrid = JSON.parse(
-      localStorage.getItem(`frame${selectedFrame.value}`) as string
+    localStorage.getItem(`frame${selectedFrame.value}`) as string
   ) as PixelGrid;
 
   if (workingGrid == null) {
-      const newGrid = new PixelGrid(
-          art.value.pixelGrid.width,
-          art.value.pixelGrid.height,
-          art.value.pixelGrid.backgroundColor,
-          art.value.pixelGrid.isGif
-      );
-      art.value.pixelGrid.DeepCopy(newGrid);
-      canvas.value?.updateCanvas();
+    const newGrid = new PixelGrid(
+      art.value.pixelGrid.width,
+      art.value.pixelGrid.height,
+      art.value.pixelGrid.backgroundColor,
+      art.value.pixelGrid.isGif
+    );
+    art.value.pixelGrid.deepCopy(newGrid);
+    canvas.value?.updateCanvas();
 
-      canvas.value?.recenter();
-      localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
-
+    canvas.value?.recenter();
+    localStorage.setItem(
+      `frame${selectedFrame.value}`,
+      JSON.stringify(art.value.pixelGrid)
+    );
   } else {
-      art.value.pixelGrid.DeepCopy(workingGrid);
-      canvas.value?.updateCanvas();
+    art.value.pixelGrid.deepCopy(workingGrid);
+    canvas.value?.updateCanvas();
 
-      canvas.value?.recenter();
-      localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+    canvas.value?.recenter();
+    localStorage.setItem(
+      `frame${selectedFrame.value}`,
+      JSON.stringify(art.value.pixelGrid)
+    );
   }
 });
 
@@ -412,7 +449,7 @@ function runGravity() {
   }
 }
 
-function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
+function getLinePixels(start: Vector2, end: Vector2): Vector2[] {
   const pixels: Vector2[] = [];
 
   const dx = Math.abs(end.x - start.x);
@@ -449,47 +486,38 @@ function GetLinePixels(start: Vector2, end: Vector2): Vector2[] {
   return pixels;
 }
 
-function DrawPixel(color: string, coord: Vector2) {
+function drawPixel(color: string, coord: Vector2) {
   art.value.pixelGrid.grid[coord.x][coord.y] = color;
 }
 
-function ReplaceCanvas(pixels: Pixel[]) {
-  pixels.forEach(pixel => {
+function replaceCanvas(pixels: Pixel[]) {
+  pixels.forEach((pixel) => {
     art.value.pixelGrid.grid[pixel.x][pixel.y] = pixel.color;
-  })
+  });
 }
 
-function DrawPixels(color: string, coords: Vector2[]) {
+function drawPixels(color: string, coords: Vector2[]) {
   for (const coord of coords) {
     art.value.pixelGrid.grid[coord.x][coord.y] = color;
   }
 }
 
-function SendPixels(color: string, coords: Vector2[]) {
+function sendPixels(color: string, coords: Vector2[]) {
   if (connected.value) {
-    connection.invoke(
-      "SendPixels",
-      groupName.value,
-      color,
-      coords
-    )
+    connection.invoke("SendPixels", groupName.value, color, coords);
   }
 }
 
-function ChangeBackgroundColor(color: string) {
+function changeBackgroundColor(color: string) {
   if (connected.value) {
-    connection.invoke(
-      "ChangeBackgroundColor",
-      groupName.value,
-      color
-    )
+    connection.invoke("ChangeBackgroundColor", groupName.value, color);
   }
 }
 
-function DrawAtCoords(coords: Vector2[]) {
-    let coordinates: Vector2[] = [];
+function drawAtCoords(coords: Vector2[]) {
+  let coordinates: Vector2[] = [];
 
-    if (
+  if (
     cursor.value.selectedTool.label === "Rectangle" ||
     cursor.value.selectedTool.label === "Ellipse"
   ) {
@@ -518,7 +546,7 @@ function DrawAtCoords(coords: Vector2[]) {
             }
           }
         }
-        SendPixels(cursor.value.color, coordinates);
+        sendPixels(cursor.value.color, coordinates);
       } else if (cursor.value.selectedTool.label === "Eraser") {
         for (let i = 0; i < cursor.value.size; i++) {
           for (let j = 0; j < cursor.value.size; j++) {
@@ -530,13 +558,12 @@ function DrawAtCoords(coords: Vector2[]) {
             ) {
               if (art.value.pixelGrid.backgroundColor != null) {
                 coordinates.push(new Vector2(coord.x + i, coord.y + j));
-                art.value.pixelGrid.grid[coord.x + i][coord.y + j] =
-                  "empty";
+                art.value.pixelGrid.grid[coord.x + i][coord.y + j] = "empty";
               }
             }
           }
         }
-        SendPixels("empty", coordinates);
+        sendPixels("empty", coordinates);
       } else if (
         coord.x >= 0 &&
         coord.x < art.value.pixelGrid.width &&
@@ -552,8 +579,11 @@ function DrawAtCoords(coords: Vector2[]) {
           if (
             art.value.pixelGrid.grid[coord.x][coord.y] != cursor.value.color
           ) {
-            coordinates = fill(cursor.value.position.x, cursor.value.position.y);
-            SendPixels(cursor.value.color, coordinates);
+            coordinates = fill(
+              cursor.value.position.x,
+              cursor.value.position.y
+            );
+            sendPixels(cursor.value.color, coordinates);
           }
         } else if (
           cursor.value.selectedTool.label === "Rectangle" ||
@@ -566,12 +596,16 @@ function DrawAtCoords(coords: Vector2[]) {
   });
 }
 
-function fill(x: number, y: number, color: string = cursor.value.color) : Vector2[] {
+function fill(
+  x: number,
+  y: number,
+  color: string = cursor.value.color
+): Vector2[] {
   let vectors: Vector2[] = [];
   if (y >= 0 && y < art.value.pixelGrid.height) {
     const oldColor = art.value.pixelGrid.grid[x][y];
     art.value.pixelGrid.grid[x][y] = color;
-    vectors.push(new Vector2(x,y));
+    vectors.push(new Vector2(x, y));
     if (oldColor != color) {
       if (x + 1 < art.value.pixelGrid.width) {
         if (art.value.pixelGrid.grid[x + 1][y] == oldColor) {
@@ -599,7 +633,7 @@ function fill(x: number, y: number, color: string = cursor.value.color) : Vector
   return vectors;
 }
 
-function GetRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
+function getRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
   let coords: Vector2[] = [];
   let leftBound = Math.min(start.x, end.x);
   let rightBound = Math.max(start.x, end.x);
@@ -614,7 +648,7 @@ function GetRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
       lowerBound + i <= upperBound
     ) {
       coords = coords.concat(
-        CalculateRectangle(
+        calculateRectangle(
           new Vector2(leftBound + i, lowerBound + i),
           new Vector2(rightBound - i, upperBound - i)
         )
@@ -625,7 +659,7 @@ function GetRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
   return coords;
 }
 
-function CalculateRectangle(start: Vector2, end: Vector2): Vector2[] {
+function calculateRectangle(start: Vector2, end: Vector2): Vector2[] {
   let coords: Vector2[] = [];
 
   // generate x coordinates
@@ -651,7 +685,7 @@ function CalculateRectangle(start: Vector2, end: Vector2): Vector2[] {
   coords.push(end);
   return coords;
 }
-function GetEllipsePixels(start: Vector2, end: Vector2): Vector2[] {
+function getEllipsePixels(start: Vector2, end: Vector2): Vector2[] {
   let coords: Vector2[] = [];
 
   let leftBound = Math.min(start.x, end.x);
@@ -667,7 +701,7 @@ function GetEllipsePixels(start: Vector2, end: Vector2): Vector2[] {
       lowerBound + i <= upperBound
     ) {
       coords = coords.concat(
-        CalculateEllipse(
+        calculateEllipse(
           new Vector2(leftBound + i, lowerBound + i),
           new Vector2(rightBound - i, upperBound - i)
         )
@@ -678,7 +712,7 @@ function GetEllipsePixels(start: Vector2, end: Vector2): Vector2[] {
   return coords;
 }
 
-function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
+function calculateEllipse(start: Vector2, end: Vector2): Vector2[] {
   let coords: Vector2[] = [];
   if (start.x == end.x && start.y == end.y) {
     coords.push(start);
@@ -693,7 +727,6 @@ function CalculateEllipse(start: Vector2, end: Vector2): Vector2[] {
   let yOffset = upperBound - lowerBound;
 
   let center = new Vector2(leftBound + xOffset / 2, lowerBound + yOffset / 2);
-
 
   let a = Math.max(xOffset, yOffset) / 2; //Major Axis length
   let b = Math.min(xOffset, yOffset) / 2; //Minor Axis length
@@ -772,38 +805,32 @@ function setEndVector() {
   }
 }
 
-function ResetArt() {
+function resetArt() {
   localStorage.removeItem("working-art");
   localStorage.removeItem("working-list");
 
-    if (art.value.pixelGrid.isGif) {
-        let tempCount = 1;
-        while (localStorage.getItem(`frame${tempCount}`) != null) {
-            localStorage.removeItem(`frame${tempCount}`);
-            tempCount++;    
-        }
+  if (art.value.pixelGrid.isGif) {
+    let tempCount = 1;
+    while (localStorage.getItem(`frame${tempCount}`) != null) {
+      localStorage.removeItem(`frame${tempCount}`);
+      tempCount++;
     }
+  }
 
   router.push("/new");
 }
 
 function onMouseUp() {
-  if (
-    cursor.value.selectedTool.label == "Rectangle"
-  ) {
-    SendPixels(
+  if (cursor.value.selectedTool.label == "Rectangle") {
+    sendPixels(
       cursor.value.color,
-      GetRectanglePixels(startPix.value, endPix.value)
+      getRectanglePixels(startPix.value, endPix.value)
     );
   }
-  if (
-    cursor.value.selectedTool.label == "Ellipse"
-  ) {
-    CalculateEllipse(startPix.value, endPix.value).forEach((vector) => {
-    });
-    SendPixels(
+  if (cursor.value.selectedTool.label == "Ellipse") {
+    sendPixels(
       cursor.value.color,
-      GetEllipsePixels(startPix.value, endPix.value)
+      getEllipsePixels(startPix.value, endPix.value)
     );
   }
 }
@@ -894,19 +921,21 @@ function handleKeyDown(event: KeyboardEvent) {
   }
 }
 
-function LocalSave() {
+function localSave() {
   localStorage.setItem("working-art", JSON.stringify(art.value.pixelGrid));
 }
 
-function LocalSaveGif() {
+function localSaveGif() {
   const workingGrid = JSON.parse(
     localStorage.getItem("frame1") as string
   ) as PixelGrid;
 
   localStorage.setItem("working-art", JSON.stringify(workingGrid));
-  localStorage.setItem(`frame${selectedFrame.value}`, JSON.stringify(art.value.pixelGrid));
+  localStorage.setItem(
+    `frame${selectedFrame.value}`,
+    JSON.stringify(art.value.pixelGrid)
+  );
 }
-
 </script>
 <style scoped>
 .Rainbow,
@@ -947,3 +976,4 @@ function LocalSaveGif() {
   }
 }
 </style>
+

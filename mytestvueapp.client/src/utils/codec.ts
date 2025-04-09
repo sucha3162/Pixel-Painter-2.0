@@ -1,6 +1,6 @@
 import { PixelGrid } from "@/entities/PixelGrid";
 
-export default class codec {
+export default class Codec {
   public static Encode(inputGrid: PixelGrid): string {
     let EncodedPicture: string = "";
 
@@ -34,9 +34,10 @@ export default class codec {
     }
 
     const decodedPicture: PixelGrid = new PixelGrid(
-      height,
       width,
-      backgroundColor
+      height,
+      backgroundColor,
+      false
     );
     decodedPicture.createGrid(height, width);
     let k = 0;

@@ -1,7 +1,6 @@
 import type Artist from "../entities/Artist";
 import Art from "../entities/Art";
-import Comment from "../entities/Comment";
-import codec from "@/utils/codec";
+import Codec from "@/utils/Codec";
 
 export default class ArtAccessService {
   public static async getAllArt(): Promise<Art[]> {
@@ -12,10 +11,7 @@ export default class ArtAccessService {
       const allArt: Art[] = [];
 
       for (const jsonArt of json) {
-        let art = new Art();
-        art = jsonArt as Art;
-
-        allArt.push(art);
+        allArt.push(jsonArt as Art);
       }
 
       return allArt;
@@ -33,9 +29,6 @@ export default class ArtAccessService {
       const allArt: Art[] = [];
 
       for (const jsonArt of json) {
-        let art = new Art();
-        art = jsonArt as Art;
-
         allArt.push(jsonArt as Art);
       }
 
@@ -46,76 +39,7 @@ export default class ArtAccessService {
     }
   }
 
-  public static async getArtByLikes(isAscending: boolean): Promise<Art[]> {
-    try {
-      const response = await fetch(
-        `/artaccess/GetArtByLikes?isAscending=${isAscending}`
-      );
-      const json = await response.json();
-
-      const allArt: Art[] = [];
-
-      for (const jsonArt of json) {
-        let art = new Art();
-        art = jsonArt as Art;
-
-        allArt.push(art);
-      }
-
-      return allArt;
-    } catch (error) {
-      console.error;
-      throw error;
-    }
-  }
-
-  public static async getArtByComments(isAscending: boolean): Promise<Art[]> {
-    try {
-      const response = await fetch(
-        `/artaccess/GetArtByComments?isAscending=${isAscending}`
-      );
-      const json = await response.json();
-
-      const allArt: Art[] = [];
-
-      for (const jsonArt of json) {
-        let art = new Art();
-        art = jsonArt as Art;
-
-        allArt.push(art);
-      }
-
-      return allArt;
-    } catch (error) {
-      console.error;
-      throw error;
-    }
-  }
-
-  public static async getArtByDate(isAscending: boolean): Promise<Art[]> {
-    try {
-      const response = await fetch(
-        `/artaccess/GetArtByDate?isAscending=${isAscending}`
-      );
-      const json = await response.json();
-
-      const allArt: Art[] = [];
-
-      for (const jsonArt of json) {
-        let art = new Art();
-        art = jsonArt as Art;
-
-        allArt.push(art);
-      }
-
-      return allArt;
-    } catch (error) {
-      console.error;
-      throw error;
-    }
-  }
-
-  public static async GetCurrentUsersArt(): Promise<Art[]> {
+  public static async getCurrentUsersArt(): Promise<Art[]> {
     try {
       const response = await fetch("/artaccess/GetCurrentUsersArt");
 
@@ -127,10 +51,7 @@ export default class ArtAccessService {
       const allArt: Art[] = [];
 
       for (const jsonArt of json) {
-        let art = new Art();
-        art = jsonArt as Art;
-
-        allArt.push(art);
+        allArt.push(jsonArt as Art);
       }
 
       return allArt;
@@ -153,7 +74,7 @@ export default class ArtAccessService {
       const artpiece = json as Art;
 
       artpiece.pixelGrid.backgroundColor = "#ffffff";
-      artpiece.pixelGrid.grid = codec.Decode(
+      artpiece.pixelGrid.grid = Codec.Decode(
         artpiece.pixelGrid.encodedGrid || "",
         artpiece.pixelGrid.height,
         artpiece.pixelGrid.width,
@@ -167,15 +88,11 @@ export default class ArtAccessService {
     }
   }
 
-  public static async SaveArt(art: Art): Promise<Art> {
+  public static async saveArt(art: Art): Promise<Art> {
     try {
       art.creationDate = new Date().toISOString();
 
-      let request = "/artaccess/SaveArt";
-      console.log("#Artists: " + art.artistId.length);
-      if (art.artistId.length > 1) {
-        request = "/artaccess/SaveArtCollab";
-      }
+      const request = art.artistId.length > 1? "/artaccess/SaveArtCollab" : "/artaccess/SaveArt";
 
       const response = await fetch(request, {
         method: "POST",
@@ -193,7 +110,7 @@ export default class ArtAccessService {
     }
   }
 
-  public static async DeleteArt(ArtId: number): Promise<void> {
+  public static async deleteArt(ArtId: number): Promise<void> {
     try {
       const response = await fetch(`/artaccess/DeleteArt?ArtId=${ArtId}`);
 
@@ -205,7 +122,7 @@ export default class ArtAccessService {
       throw error;
     }
   }
-  public static async DeleteContributingArtist(
+  public static async deleteContributingArtist(
     ArtistId: number
   ): Promise<void> {
     try {
@@ -221,7 +138,7 @@ export default class ArtAccessService {
       throw error;
     }
   }
-  public static async GetArtists(ArtId: number): Promise<any> {
+  public static async getArtists(ArtId: number): Promise<any> {
     try {
       const response = await fetch(`/artaccess/GetArtists?ArtId=${ArtId}`);
 

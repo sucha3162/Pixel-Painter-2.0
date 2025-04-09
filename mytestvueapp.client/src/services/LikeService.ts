@@ -1,5 +1,5 @@
 export default class LikeService {
-  public static async insertLike(artId: number): Promise<any> {
+  public static async insertLike(artId: number): Promise<boolean> {
     try {
       const response = await fetch(`/like/InsertLike?artId=${artId}`);
       if (!response.ok) {
@@ -11,7 +11,7 @@ export default class LikeService {
       return false;
     }
   }
-  public static async removeLike(artId: number): Promise<any> {
+  public static async removeLike(artId: number): Promise<boolean> {
     try {
       const response = await fetch(`/like/RemoveLike?artId=${artId}`);
       if (!response.ok) {
@@ -23,7 +23,7 @@ export default class LikeService {
       return false;
     }
   }
-  public static async isLiked(artId: number): Promise<any> {
+  public static async isLiked(artId: number): Promise<boolean> {
     try {
       const response = await fetch(`/like/IsLiked?artId=${artId}`);
       if (!response.ok) {
