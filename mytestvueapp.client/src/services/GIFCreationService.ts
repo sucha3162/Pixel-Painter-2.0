@@ -1,10 +1,10 @@
 export default class GIFCreationService {
-    public static async createGIF(frames: string[]) {
+    public static async createGIF(frames: string[], fps: number) {
         try {
             const response = await fetch("/GIFCreation/CreateGif", {
-                 method: "POST",
-                 body: JSON.stringify(frames),
-                 headers: { "Content-Type": "application/json" }
+                method: "POST",
+                body: JSON.stringify({ "frames": frames, "fps": fps }),
+                headers: { "Content-Type": "application/json" }
             });
 
             if (!response.ok) {

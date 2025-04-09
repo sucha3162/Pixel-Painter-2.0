@@ -5,7 +5,7 @@
         <template #content>
           <Avatar icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
           <div class="text-3xl p-font-bold">{{ curArtist?.name }}</div>
-          <div class="">{{ artist?.email }}</div>
+          <div class="">{{ curArtist?.email }}</div>
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
               :severity="route.hash == '#settings' ? 'primary' : 'secondary'"
@@ -139,7 +139,6 @@ onMounted(async () => {
     artist.value = user;
   });
   LoginService.getAllArtists().then((newList: Artist[]) => {
-    artistList.value = newList;
     curArtist.value = newList[5];
     ArtAccessService.getAllArtByUserID(curArtist?.value.id).then((art) => {
       myArt.value = art;

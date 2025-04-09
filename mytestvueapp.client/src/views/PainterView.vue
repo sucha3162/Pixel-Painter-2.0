@@ -30,7 +30,7 @@
           :connected="connected"
           :group-name="groupName"
           @OpenModal="toggleKeybinds" />
-        <SaveImageToFile :art="art"></SaveImageToFile>
+        <SaveImageToFile :art="art" :fps="fps"></SaveImageToFile>
         <ConnectButton
           @OpenModal="toggleKeybinds"
           @Connect="connect"
@@ -95,6 +95,7 @@ import UploadButton from "@/components/PainterUi/UploadButton.vue";
 import SaveImageToFile from "@/components/PainterUi/SaveImageToFile.vue";
 import FrameSelection from "@/components/PainterUi/FrameSelection.vue";
 import LayerSelection from "@/components/PainterUi/LayerSelection.vue";
+import FPSSlider from "@/components/PainterUi/FPSSlider.vue";
 
 //entities
 import { PixelGrid } from "@/entities/PixelGrid";
@@ -265,6 +266,7 @@ const selectedFrame = ref<number>(1);
 const lastFrame = ref<number>(1);
 const index = ref<number>(1);
 
+const fps = ref<number>(4);
 const currentPallet = ref<string[]>([]);
 function updatePallet() {
   let temp = localStorage.getItem("currentPallet");
