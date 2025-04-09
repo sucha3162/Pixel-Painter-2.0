@@ -33,24 +33,31 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("GetCommentsByArtId")]
-        public async Task<IEnumerable<Comment>> GetCommentsByArtId(int artId)
+        public async Task<IActionResult> GetCommentsByArtId(int artId)
         {
-            var comments = await CommentAccessService.GetCommentsByArtId(artId);
-
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            try
             {
-                var artist = await LoginService.GetUserBySubId(userId);
-                if(artist == null)
-                {
-                    return comments;
-                }
-                foreach (var comment in comments)
-                {
-                    comment.CurrentUserIsOwner = comment.ArtistId == artist.Id;
-                }
-            }
+                var comments = await CommentAccessService.GetCommentsByArtId(artId);
 
-            return comments;
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    if (artist == null)
+                    {
+                        return Ok(comments);
+                    }
+                    foreach (var comment in comments)
+                    {
+                        comment.CurrentUserIsOwner = comment.ArtistId == artist.Id;
+                    }
+                }
+
+                return Ok(comments);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
         [HttpGet]

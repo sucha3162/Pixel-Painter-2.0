@@ -35,11 +35,11 @@ import Button from "primevue/button";
 import FloatingCard from "./FloatingCard.vue";
 import { ref, onBeforeMount } from "vue";
 
-let selectedFrame = defineModel<number>("selFrame", { default: 1 });
-let oldFrame = defineModel<number>("lastFrame", { default: 1 });
-let index = defineModel<number>("frameIndex", { default: 2 });
+const selectedFrame = ref<number>(1);
+const oldFrame = ref<number>(1);
+const index = ref<number>(2);
 
-let frameCount = 1;
+const frameCount = ref<number>(1);
 const frames = ref([
   { id: 1, icon: "pi pi-image", class: "m-1", severity: "secondary" }
 ]);
@@ -54,7 +54,7 @@ onBeforeMount(() => {
       severity: "secondary"
     });
 
-    frameCount++;
+    frameCount.value++;
     count++;
     index.value++;
   }
@@ -62,10 +62,10 @@ onBeforeMount(() => {
 });
 
 function addFrame() {
-  frameCount++;
+  frameCount.value++;
   index.value++;
   frames.value.push({
-    id: frameCount,
+    id: frameCount.value,
     icon: "pi pi-image",
     class: "mr-1",
     severity: "secondary"
@@ -75,16 +75,16 @@ function addFrame() {
 function removeFrame() {
   if (frames.value.length > 1) {
     frames.value.pop();
-    frameCount--;
+    frameCount.value--;
     index.value--;
 
-    if (selectedFrame.value == frameCount + 1) {
-      localStorage.getItem(`frame${frameCount}`);
+    if (selectedFrame.value == frameCount.value + 1) {
+      localStorage.getItem(`frame${frameCount.value}`);
     }
   }
 
-  if (localStorage.getItem(`frame${frameCount + 1}`) != null) {
-    localStorage.removeItem(`frame${frameCount + 1}`);
+  if (localStorage.getItem(`frame${frameCount.value + 1}`) != null) {
+    localStorage.removeItem(`frame${frameCount.value + 1}`);
   }
 }
 
@@ -104,3 +104,4 @@ function switchFrame(frameID: number) {
   margin-bottom: 75px !important;
 }
 </style>
+

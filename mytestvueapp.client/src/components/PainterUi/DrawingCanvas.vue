@@ -55,7 +55,7 @@ const app = new Application({
 });
 
 // creates the viewport
-var viewport = new Viewport({
+const viewport = new Viewport({
   screenWidth: window.innerWidth,
   screenHeight: window.innerHeight,
   worldWidth: 100,

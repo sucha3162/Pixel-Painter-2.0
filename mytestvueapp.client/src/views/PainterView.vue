@@ -117,7 +117,7 @@ import { useToast } from "primevue/usetoast";
 //scripts
 import ArtAccessService from "@/services/ArtAccessService";
 import Art from "@/entities/Art";
-import fallingSand from "@/utils/FallingSand";
+import fallingSand from "@/utils/FallingSand1";
 import ConnectButton from "@/components/PainterUi/ConnectButton.vue";
 
 //Other

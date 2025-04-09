@@ -1,6 +1,5 @@
-import type Artist from "../entities/Artist";
 import Art from "../entities/Art";
-import Codec from "@/utils/Codec";
+import Codec from "@/utils/Codec1";
 
 export default class ArtAccessService {
   public static async getAllArt(): Promise<Art[]> {
@@ -122,7 +121,7 @@ export default class ArtAccessService {
       throw error;
     }
   }
-  public static async deleteContributingArtist(
+  public static async deleteContributingArtist: Promise<void>(
     ArtistId: number
   ): Promise<void> {
     try {
@@ -137,18 +136,5 @@ export default class ArtAccessService {
       console.error;
       throw error;
     }
-  }
-  public static async getArtists(ArtId: number): Promise<any> {
-    try {
-      const response = await fetch(`/artaccess/GetArtists?ArtId=${ArtId}`);
-
-      if (!response.ok) {
-        throw new Error("Error: Bad response");
-      }
-    } catch (error) {
-      console.error;
-      throw error;
-    }
-    return;
   }
 }

@@ -28,16 +28,35 @@ namespace MyTestVueApp.Server.Controllers
         [Route("GetAllArt")]
         public async Task<IActionResult> GetAllArt()
         {
-            return Ok((await ArtAccessService.GetAllArt()).Where(art => art.IsPublic).OrderByDescending(art => art.CreationDate));
+            try
+            {
+                var art = await ArtAccessService.GetAllArt();
+                var artList = art.Where(art => art.IsPublic).OrderByDescending(art => art.CreationDate);
+                return Ok(artList);
+            } 
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
         [HttpGet]
         [Route("GetAllArtByUserID")]
         public async Task<IActionResult> GetAllArtByUserID(int id)
         {
-            return Ok((await ArtAccessService.GetArtByArtist(id)).Where(art => art.IsPublic).OrderByDescending(art => art.CreationDate));
+            try
+            {
+                var artistArt = await ArtAccessService.GetArtByArtist(id);
+                var artistArtList = artistArt.Where(art => art.IsPublic).OrderByDescending(art => art.CreationDate);
+                return Ok(artistArtList);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
+        //Remove
         [HttpGet]
         [Route("GetCurrentUsersArt")]
         public async Task<IActionResult> GetCurrentUsersArt()
@@ -131,13 +150,13 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
-
-        [HttpGet]
+        
+        /*[HttpGet]
         [Route("GetArtists")]
         public async Task<IActionResult> GetAllArtists(int artId)
         {
             return Ok(await ArtAccessService.GetArtistsByArtId(artId));
-        }
+        }*/
 
         [HttpPost]
         [Route("SaveArt")]
