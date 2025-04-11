@@ -36,8 +36,7 @@
           onLabel="Image"
           onIcon="pi pi-image"
           offLabel="GIF"
-          offIcon="pi pi-images"
-          @click="" />
+          offIcon="pi pi-images" />
       </template>
     </Card>
   </div>
