@@ -250,7 +250,7 @@ function updateColors(id: string, index: number) {
 }
 
 function deleteColor(id: string, index: number) {
-  customColors[index] = "";
+  customColors.value[index] = "";
   const currentCustom = document.getElementById(id);
   if (currentCustom) {
     currentCustom.style.backgroundColor = "transparent";

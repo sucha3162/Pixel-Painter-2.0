@@ -117,7 +117,7 @@ import { useToast } from "primevue/usetoast";
 //scripts
 import ArtAccessService from "@/services/ArtAccessService";
 import Art from "@/entities/Art";
-import fallingSand from "@/utils/FallingSand1";
+import FallingSand from "@/utils/FallingSand";
 import ConnectButton from "@/components/PainterUi/ConnectButton.vue";
 
 //Other
@@ -134,7 +134,7 @@ const artist = ref<Artist>(new Artist());
 // Connection Information
 const connected = ref<boolean>(false);
 const groupName = ref<string>("");
-let connection = new SignalR.HubConnectionBuilder()
+const connection = new SignalR.HubConnectionBuilder()
   .withUrl("https://localhost:7154/signalhub", {
     skipNegotiation: true,
     transport: SignalR.HttpTransportType.WebSockets
@@ -345,7 +345,7 @@ onMounted(async () => {
     art.value.pixelGrid.deepCopy(workingGrid);
     canvas.value?.recenter();
 
-    tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
+    tempGrid.value = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
   }
 });
 
@@ -447,7 +447,7 @@ function runGravity() {
     clearInterval(intervalId.value);
     intervalId.value = -1;
   } else {
-    intervalId.value = setInterval(fallingSand, 30, art.value.pixelGrid);
+    intervalId.value = setInterval(FallingSand, 30, art.value.pixelGrid);
   }
 }
 
@@ -523,10 +523,10 @@ function drawAtCoords(coords: Vector2[]) {
     cursor.value.selectedTool.label === "Rectangle" ||
     cursor.value.selectedTool.label === "Ellipse"
   ) {
-    if (tempGrid) {
+    if (tempGrid.value) {
       for (let i = 0; i < art.value.pixelGrid.height; i++) {
         for (let j = 0; j < art.value.pixelGrid.width; j++) {
-          art.value.pixelGrid.grid[i][j] = tempGrid[i][j];
+          art.value.pixelGrid.grid[i][j] = tempGrid.value[i][j];
         }
       }
     }
@@ -794,7 +794,7 @@ function setStartVector() {
     cursor.value.position.x,
     cursor.value.position.y
   );
-  tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
+  tempGrid.value = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
 }
 function setEndVector() {
   if (mouseButtonHeldDown.value) {
@@ -803,7 +803,7 @@ function setEndVector() {
       cursor.value.position.y
     );
   } else {
-    tempGrid = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
+    tempGrid.value = JSON.parse(JSON.stringify(art.value.pixelGrid.grid));
   }
 }
 
@@ -874,51 +874,51 @@ function handleKeyDown(event: KeyboardEvent) {
     } else if (event.key === "1") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[0];
+      cursor.value.color = currentPallet.value[0];
     } else if (event.key === "2") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[1];
+      cursor.value.color = currentPallet.value[1];
     } else if (event.key === "3") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[2];
+      cursor.value.color = currentPallet.value[2];
     } else if (event.key === "4") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[3];
+      cursor.value.color = currentPallet.value[3];
     } else if (event.key === "5") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[4];
+      cursor.value.color = currentPallet.value[4];
     } else if (event.key === "6") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[5];
+      cursor.value.color = currentPallet.value[5];
     } else if (event.key === "7") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[6];
+      cursor.value.color = currentPallet.value[6];
     } else if (event.key === "8") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[7];
+      cursor.value.color = currentPallet.value[7];
     } else if (event.key === "9") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[8];
+      cursor.value.color = currentPallet.value[8];
     } else if (event.key === "0") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[9];
+      cursor.value.color = currentPallet.value[9];
     } else if (event.key === "-") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[10];
+      cursor.value.color = currentPallet.value[10];
     } else if (event.key === "=") {
       event.preventDefault();
       updatePallet();
-      cursor.value.color = currentPallet[11];
+      cursor.value.color = currentPallet.value[11];
     }
   }
 }

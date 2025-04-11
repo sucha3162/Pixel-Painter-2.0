@@ -3,7 +3,7 @@
     :label="isLoggedIn ? 'Account' : 'Login'"
     rounded
     @click="buttonClick()"
-    icon="pi pi-google"></Button>
+    icon="pi pi-google" />
 </template>
 <script setup lang="ts">
 import Button from "primevue/button";

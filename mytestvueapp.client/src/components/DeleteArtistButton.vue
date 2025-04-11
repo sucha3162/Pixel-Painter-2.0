@@ -45,8 +45,8 @@ import Message from "primevue/message";
 import LoginService from "@/services/LoginService";
 
 const toast = useToast();
-const visible = ref(false);
-const confirmText = ref("");
+const visible = ref<boolean>(false);
+const confirmText = ref<string>("");
 
 watch(visible, (newVal) => {
   if (newVal) {

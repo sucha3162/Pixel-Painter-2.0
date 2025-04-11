@@ -62,11 +62,11 @@ import { HubConnectionState } from "@microsoft/signalr";
 import Artist from "@/entities/Artist";
 
 const toast = useToast();
-const visible = ref(false);
-const loading = ref(false);
+const visible = ref<boolean>(false);
+const loading = ref<boolean>(false);
 
-const newName = ref("");
-const newPrivacy = ref(false);
+const newName = ref<string>("");
+const newPrivacy = ref<boolean>(false);
 
 const contributors = ref<Artist[]>([]);
 

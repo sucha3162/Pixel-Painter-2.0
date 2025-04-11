@@ -53,8 +53,8 @@ const toast = useToast();
 const props = defineProps<{
   art: Art;
 }>();
-const visible = ref(false);
-const confirmText = ref("");
+const visible = ref<boolean>(false);
+const confirmText = ref<string>("");
 
 watch(visible, (newVal) => {
   if (newVal) {

@@ -114,8 +114,8 @@ const toast = useToast();
 const route = useRoute();
 
 var artist = ref<Artist>(new Artist());
-var isEditing = ref(false);
-var newUsername = ref("");
+var isEditing = ref<boolean>(false);
+var newUsername = ref<string>("");
 
 var myArt = ref<Art[]>([]);
 

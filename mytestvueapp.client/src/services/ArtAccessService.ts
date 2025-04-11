@@ -1,5 +1,5 @@
 import Art from "../entities/Art";
-import Codec from "@/utils/Codec1";
+import Codec from "@/utils/Codec";
 
 export default class ArtAccessService {
   public static async getAllArt(): Promise<Art[]> {
@@ -121,7 +121,7 @@ export default class ArtAccessService {
       throw error;
     }
   }
-  public static async deleteContributingArtist: Promise<void>(
+  public static async deleteContributingArtist(
     ArtistId: number
   ): Promise<void> {
     try {

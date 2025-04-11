@@ -33,11 +33,9 @@
 
 <script setup lang="ts">
 import Button from "primevue/button";
-import Tag from "primevue/tag";
 import FloatingCard from "./FloatingCard.vue";
-import { ref, onBeforeMount } from "vue";
+import { ref } from "vue";
 import Slider from "primevue/slider";
-import InputText from "primevue/inputtext";
 
 const fps = ref<number>(4);
 
@@ -46,7 +44,6 @@ function increaseFPS() {
     fps.value++;
   }
 }
-
 function decreaseFPS() {
   if (fps.value > 1) {
     fps.value--;

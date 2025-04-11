@@ -5,18 +5,16 @@
         <template #content>
           <Avatar icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
           <div class="text-3xl p-font-bold">{{ curArtist?.name }}</div>
-          <div class="">{{ curArtist?.email }}</div>
+          <div class="">{{ artist?.email }}</div>
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
+              label="Account Settings"
               :severity="route.hash == '#settings' ? 'primary' : 'secondary'"
-              @click="changeHash('#settings')"
-              >Account Settings</Button
-            >
+              @click="changeHash('#settings')" />
             <Button
+              label="Creator's Art"
               :severity="route.hash == '#art' ? 'primary' : 'secondary'"
-              @click="changeHash('#art')"
-              >Creator's Art</Button
-            >
+              @click="changeHash('#art')" />
           </div>
         </template>
       </Card>
@@ -58,13 +56,12 @@
                 </span>
               </div>
               <Message
+                :label="errorMessage"
                 v-if="errorMessage != ''"
                 severity="error"
                 variant="simple"
                 size="small"
-                class="mt-2"
-                >{{ errorMessage }}</Message
-              >
+                class="mt-2" />
             </div>
             <div class="align-items-stretch flex">
               <Button
@@ -119,7 +116,7 @@ const artist = ref<Artist>(new Artist());
 const isEditing = ref<boolean>(false);
 const newUsername = ref<string>("");
 const user = ref<boolean>();
-const curArtist = ref<Artist>(new Artist());
+const curArtist = ref<Artist>(new Artist()); // Selected Artist page to view
 const artistList = ref<Artist[]>([]);
 
 var myArt = ref<Art[]>([]);
@@ -139,6 +136,7 @@ onMounted(async () => {
     artist.value = user;
   });
   LoginService.getAllArtists().then((newList: Artist[]) => {
+    artistList.value = newList;
     curArtist.value = newList[5];
     ArtAccessService.getAllArtByUserID(curArtist?.value.id).then((art) => {
       myArt.value = art;
