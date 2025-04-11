@@ -180,8 +180,8 @@ const props = defineProps<{
   isBackground?: boolean;
 }>();
 
-const selectedColor = ref<string>("000000");
-const size = ref<number>(1);
+const selectedColor = defineModel<string>("color", { default: "000000" });
+const size = defineModel<number>("size", { default: 1 });
 const hexColor = ref<string>("#000000");
 const emit = defineEmits(["DisableKeyBinds", "EnableKeyBinds"]);
 

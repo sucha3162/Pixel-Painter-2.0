@@ -58,6 +58,7 @@
         v-model:selFrame="selectedFrame"
         v-model:lastFrame="lastFrame"
         v-model:frameIndex="index" />
+      <FPSSlider v-if="art.pixelGrid.isGif" v-model:fps="fps" />
       <LayerSelection v-if="!art.pixelGrid.isGif" />
     </template>
     <template #end>
