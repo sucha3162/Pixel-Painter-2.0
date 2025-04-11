@@ -39,6 +39,20 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
+        [HttpGet]
+        [Route("GetAllArtByUserID")]
+        public IEnumerable<Art> GetAllArtByUserID(int id)
+        {
+            return ArtAccessService.GetArtByArtist(id).Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
+        }
+
+        [HttpGet]
+        [Route("GetLikedArt")]
+
+        public async Task<IEnumerable<Art>> GetLikedArt(int artistId)
+        {
+            return await ArtAccessService.GetLikedArt(artistId);
+        }
 
         [HttpGet]
         [Route("GetAllArtByUserID")]

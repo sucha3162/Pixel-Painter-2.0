@@ -37,10 +37,32 @@ export default class ArtAccessService {
       throw error;
     }
   }
+       
+  public static async getLikedArt(artistId: number): Promise<Art[]> {
+        try {
+            const response = await fetch(
+                `/artaccess/GetLikedArt?artistId=${artistId}`
+            );
+            const json = await response.json();
 
-  public static async getCurrentUsersArt(): Promise<Art[]> {
-    try {
-      const response = await fetch("/artaccess/GetCurrentUsersArt");
+            const allArt: Art[] = [];
+
+            for (const jsonArt of json) {
+                let art = new Art();
+                art = jsonArt as Art;
+
+                allArt.push(art);
+            }
+
+            return allArt;
+        } catch (error) {
+            console.error;
+            throw error;
+        }
+    }
+    public static async getCurrentUsersArt(): Promise<Art[]> {
+        try { 
+        const response = await fetch("/artaccess/GetCurrentUsersArt");
 
       if (!response.ok) {
         throw new Error("Error: Bad response");

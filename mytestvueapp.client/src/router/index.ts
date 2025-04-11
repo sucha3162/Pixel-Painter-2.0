@@ -44,7 +44,7 @@ const router = createRouter({
       component: () => import("../views/NotificationView.vue")
     },
     {
-      path: "/accountpage",
+      path: "/accountpage/:artist",
       name: "AccountPage",
       component: () => import("../views/AccountPage.vue")
     }

@@ -67,12 +67,14 @@
         class="mr-2"
         severity="primary"
         label="Recenter"
-        @click="canvas?.recenter()" />
+        @click="canvas?.recenter()"
+      />
       <Button
         :icon="intervalId != -1 ? 'pi pi-stop' : 'pi pi-play'"
         class="mr-2 Rainbow"
         label="Gravity"
-        @click="runGravity()" />
+        @click="runGravity()"
+      />
 
       <Button
         icon="pi pi-lightbulb"

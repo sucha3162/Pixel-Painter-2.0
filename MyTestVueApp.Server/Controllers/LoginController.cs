@@ -119,6 +119,13 @@ namespace MyTestVueApp.Server.Controllers
         }
 
         [HttpGet]
+        [Route("GetArtistByName")]
+        public async Task<Artist> GetArtistByName(string name)
+        {
+            return await LoginService.GetArtistByName(name);
+        }
+
+        [HttpGet]
         [Route("GetIsAdmin")]
         public async Task<IActionResult> GetIsAdmin()
         {

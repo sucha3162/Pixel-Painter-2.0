@@ -150,7 +150,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     $@"
                       Select	
                         Art.ID,
-                        Art.Title
+                        Art.Title,
+                        Art.Width, 
+	                    Art.Height, 
+	                    Art.Encode, 
+	                    Art.CreationDate,
+	                    Art.isPublic
                       FROM ART
                       left join  ContributingArtists as CA on CA.ArtId = Art.Id
                       WHERE CA.ArtistId = @ArtistID
@@ -162,10 +167,19 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     {
                         while (reader.Read())
                         {
+                            var pixelGrid = new PixelGrid()
+                            {
+                                width = reader.GetInt32(2),
+                                height = reader.GetInt32(3),
+                                encodedGrid = reader.GetString(4)
+                            };
                             var painting = new Art
                             {   //ArtId, ArtName
                                 Id = reader.GetInt32(0),
-                                Title = reader.GetString(1)
+                                Title = reader.GetString(1),
+                                PixelGrid = pixelGrid,
+                                CreationDate = reader.GetDateTime(5),
+                                IsPublic = reader.GetBoolean(6)
                             };
                             paintings.Add(painting);
                         }
@@ -175,6 +189,64 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
 
+        public async Task<IEnumerable<Art>> GetLikedArt(int artistId)
+        {
+            var paintings = new List<Art>();
+            var connectionString = AppConfig.Value.ConnectionString;
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                var query =
+                    $@"
+                    SELECT
+	                      Likes.ArtId,
+                          Art.Title,
+	                      Art.Width, 
+	                      Art.Height, 
+	                      Art.Encode, 
+	                      Art.CreationDate,
+	                      Art.isPublic,
+	                      COUNT(distinct Likes.ArtistId) as Likes, 
+	                      Count(distinct Comment.Id) as Comments
+                      FROM Likes
+                      left join Art on Art.Id = Likes.ArtId
+                      LEFT JOIN Comment ON Art.ID = Comment.ArtID
+                      where Likes.ArtistId = @ArtistId
+                      GROUP BY Likes.ArtistId, Likes.ArtId, Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
+                        ";
+
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@ArtistID", artistId);
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (reader.Read())
+                        {
+                            var pixelGrid = new PixelGrid()
+                            {
+                                width = reader.GetInt32(2),
+                                height = reader.GetInt32(3),
+                                encodedGrid = reader.GetString(4)
+                            };
+                            var painting = new Art
+                            {   //ArtId, ArtName
+                                id = reader.GetInt32(0),
+                                title = reader.GetString(1),
+                                pixelGrid = pixelGrid,
+                                creationDate = reader.GetDateTime(5),
+                                isPublic = reader.GetBoolean(6),
+                                numLikes = reader.GetInt32(7),
+                                numComments = reader.GetInt32(8)
+                            };
+                            paintings.Add(painting);
+                        }
+                    }
+                    return paintings;
+                }
+            }
+        }
         public async Task<Art> SaveNewArt(Artist artist, Art art) //Single Artist
         {
             try
