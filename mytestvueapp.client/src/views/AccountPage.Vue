@@ -5,7 +5,6 @@
         <template #content>
           <Avatar icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
           <div class="text-3xl p-font-bold">{{ curArtist.name }}</div>
-          <div class="">{{ curArtist.privateProfile }}</div>
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
               :severity="route.hash == '#settings' ? 'primary' : 'secondary'"
