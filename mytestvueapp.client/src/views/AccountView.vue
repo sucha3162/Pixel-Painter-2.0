@@ -6,6 +6,7 @@
           <Avatar icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
           <div class="text-3xl p-font-bold">{{ artist.name }}</div>
           <div class="">{{ artist.email }}</div>
+          <div class="">{{ artist.privateProfile }}</div>
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
               :severity="route.hash == '#settings' ? 'primary' : 'secondary'"
@@ -86,7 +87,13 @@
       <div v-if="route.hash == '#art'">
         <h2>My Art</h2>
         <div class="flex flex-wrap">
-          <ArtCard v-for="art in myArt" :key="art.id" :art="art" :size="10" :position="art.id" />
+          <ArtCard
+            v-for="art in myArt"
+            :key="art.id"
+            :art="art"
+            :size="10"
+            :position="art.id"
+          />
         </div>
       </div>
     </div>
