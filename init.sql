@@ -20,6 +20,7 @@ BEGIN
         Email VARCHAR(40),
         IsAdmin BIT DEFAULT 0, -- this is a bool, 0 = 0 1 = 1
         CreationDate DATETIME DEFAULT GETDATE(),
+        PrivateProfile BIT DEFAULT 0,
         PRIMARY KEY (Id)
     );
 END

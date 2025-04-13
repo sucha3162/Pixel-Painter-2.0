@@ -186,7 +186,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     @"SELECT [Id]
                         ,[SubId] 
                         ,[Name] 
-                        ,[IsAdmin] 
+                        ,[IsAdmin]
+						,[PrivateProfile]
                         ,[CreationDate] 
                     FROM [PixelPainter].[dbo].[Artist]
                     ";
@@ -203,7 +204,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 subId = reader.GetString(1),
                                 name = reader.GetString(2),
                                 isAdmin = reader.GetBoolean(3),
-                                creationDate = reader.GetDateTime(4)
+                                privateProfile = reader.GetBoolean(4),
+                                creationDate = reader.GetDateTime(5)
                             };
                             artistList.Add(artist);
                         }
@@ -274,6 +276,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     ,[Name]
                     ,[IsAdmin]
                     ,[CreationDate]
+                    ,[PrivateProfile]
                 FROM [PixelPainter].[dbo].[Artist]
                 where Artist.Name = @Name
                     ";
@@ -292,8 +295,10 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 name = reader.GetString(2),
                                 isAdmin = reader.GetBoolean(3),
                                 creationDate = reader.GetDateTime(4),
+                                privateProfile = reader.GetBoolean(5),
+
                             };
-                            Console.WriteLine(artist);
+                            
                             return artist;
                         }
                     }
@@ -317,6 +322,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                           ,[Name]
                           ,[IsAdmin]
                           ,[CreationDate]
+                          ,[PrivateProfile]
                           ,[Email]
                       FROM [PixelPainter].[dbo].[Artist]
                       WHERE SubId = @SubId
@@ -336,7 +342,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 name = reader.GetString(2),
                                 isAdmin = reader.GetBoolean(3),
                                 creationDate = reader.GetDateTime(4),
-                                email = reader.GetString(5),
+                                privateProfile = reader.GetBoolean(5),
+                                email = reader.GetString(6),
                             };
                             return artist;
                         }
