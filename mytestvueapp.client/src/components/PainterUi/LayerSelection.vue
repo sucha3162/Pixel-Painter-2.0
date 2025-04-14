@@ -65,9 +65,7 @@ const greyscale = defineModel<boolean>("greyscale", { default: false });
 const isSingleLayer = computed(() => layers.value.length === 1)
 
 const showLayersSeverity = computed(() => {
-  if (layers.value.length === 1) {
-    return 'secondary';
-  } else if (showLayers.value) {
+  if (showLayers.value && layers.value.length !== 1) {
     return 'primary';
   } else {
     return 'secondary';
@@ -75,9 +73,7 @@ const showLayersSeverity = computed(() => {
 })
 
 const greyscaleSeverity = computed(() => {
-  if (layers.value.length === 1) {
-    return 'secondary';
-  } else if (!showLayers.value) {
+  if (layers.value.length === 1 || !showLayers.value) {
     return 'secondary';
   } else if (greyscale.value) {
     return 'primary';
