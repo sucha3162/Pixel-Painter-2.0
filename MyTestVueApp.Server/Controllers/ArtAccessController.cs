@@ -285,7 +285,7 @@ namespace MyTestVueApp.Server.Controllers
         }*/
 
 
-        [HttpGet]
+        [HttpDelete]
         [Route("DeleteArt")]
         public async Task<IActionResult> DeleteArt(int artId)
         {
@@ -321,7 +321,7 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpDelete]
         [Route("DeleteContributingArtist")]
         public async Task<IActionResult> DeleteContrbutingArtist(int artId)
         {

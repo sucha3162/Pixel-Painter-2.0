@@ -75,7 +75,7 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpDelete]
         [Route("RemoveLike")]
         public async Task<IActionResult> RemoveLike(int artId)
         {
@@ -122,7 +122,7 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("IsLiked")]
         public async Task<IActionResult> IsLiked(int artId)
         {

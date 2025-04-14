@@ -60,7 +60,7 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("EditComment")]
         public async Task<IActionResult> EditComment(int commentId, String newMessage)
         {
@@ -107,7 +107,7 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpDelete]
         [Route("DeleteComment")]
         public async Task<IActionResult> DeleteComment(int commentId)
         {
