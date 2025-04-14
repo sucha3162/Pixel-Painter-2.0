@@ -6,18 +6,18 @@
   button-label=""
   width=""
   :default-open="false">
-    <Button class="mr-1" :disabled="layers.length == 1 || props.connected" icon="pi pi-minus" size="small" rounded @click="popLayer()" />
-
-    <template v-for="layer in layers">
-      <Button icon="pi pi-stop"
-              :class="['m-1', { 'selected-layer': layer === selectedLayer } ]"
-              severity="secondary"
-              @click="switchLayer(layer)"
-              @contextmenu.prevent="deleteLayer(layer)"
-      />
-    </template>
-
-    <Button class="ml-1" :disabled="(layers.length==8 || props.connected)" icon="pi pi-plus" size="small" rounded @click="pushLayer()" />
+    <div class="flex align-items-center justify-content-center">
+      <Button class="mr-1" :disabled="layers.length == 1 || props.connected" icon="pi pi-minus" size="small" rounded @click="popLayer()" />
+      <template v-for="layer in layers">
+        <Button icon="pi pi-stop"
+                :class="['m-1', { 'selected-layer': layer === selectedLayer } ]"
+                severity="secondary"
+                @click="switchLayer(layer)"
+                @contextmenu.prevent="deleteLayer(layer)"
+        />
+      </template>
+      <Button class="ml-1" :disabled="(layers.length==8 || props.connected)" icon="pi pi-plus" size="small" rounded @click="pushLayer()" />
+    </div>
     <div class="mt-4 space-y-2">
       <Button
         :label="showLayers ? 'Hide Layers' : 'Show Layers'"
@@ -144,7 +144,7 @@ function switchLayer(layer: number) {
   layerStore.layer = layer;
 }
 
-const changeGreyscale = () => {
+function changeGreyscale() {
   if (!showLayers.value) {
     greyscale.value = false;
   }
