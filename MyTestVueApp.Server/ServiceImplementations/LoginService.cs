@@ -155,7 +155,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         #endregion
         /// <summary>
-        /// 
+        /// Used for grabbing a certain adjextive in the array of adjectives
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
@@ -163,12 +163,20 @@ namespace MyTestVueApp.Server.ServiceImplementations
         {
             return Adjectives[index];
         }
-
+        /// <summary>
+        /// Similar to getAdjective, but used for grabbing specfic a specfic noun
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         private string getNoun(int index)
         {
             return Nouns[index];
         }
-
+        /// <summary>
+        /// Generates a random username for the user 
+        /// through random number generation
+        /// </summary>
+        /// <returns></returns>
         private string generateUsername()
         {
             Random rnd = new Random();
@@ -177,7 +185,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
             return username;
         }
-
+        /// <summary>
+        /// Queues all artists in the database and returns them
+        /// as a list of artists
+        /// </summary>
+        /// <returns></returns>
         public async Task<IEnumerable<Artist>> GetAllArtists()
         {
             var artistList = new List<Artist>();
@@ -216,6 +228,14 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
+        /// <summary>
+        /// This command is executed whenever
+        /// a user tries to change their 
+        /// Username on the account page
+        /// </summary>
+        /// <param name="newUsername"></param>
+        /// <param name="subId"></param>
+        /// <returns></returns>
         public async Task<bool> UpdateUsername(string newUsername, string subId)
         {
             try
@@ -263,7 +283,13 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
-
+        /// <summary>
+        /// Grabs a specfic artist from 
+        /// the database by taking in
+        /// a name and returning the artist
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public async Task<Artist> GetArtistByName(string name)
         {
             var artist = new Artist();
@@ -305,7 +331,13 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-
+        /// <summary>
+        /// Similar to GetUserByName, but
+        /// instead uses the subid value to
+        /// grab the artist from the database
+        /// </summary>
+        /// <param name="subId"></param>
+        /// <returns></returns>
         public async Task<Artist> GetUserBySubId(string subId)
         {
             var artist = new Artist();
@@ -350,7 +382,14 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
             return null;
         }
-
+        /// <summary>
+        /// This command is used to check
+        /// if the current user aan admin
+        /// accout and returns true/false 
+        /// based on their status in the database
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         public async Task<bool> IsUserAdmin(string userId)
         {
             var artist = new Artist();
@@ -388,6 +427,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
             return false;
         }
+        /// <summary>
+        /// This command allows for the user or an
+        /// admin to delete a user or themselves 
+        /// from the database
+        /// </summary>
+        /// <param name="ArtistId"></param>
         public async void DeleteArtist(int ArtistId)
         {
             try
@@ -412,6 +457,13 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
+        /// <summary>
+        /// Grabs an artist from the Artist
+        /// by taking in the artistId and
+        /// returning the artist object
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<Artist> GetArtistById(int id)
         {
             var artist = new Artist();
