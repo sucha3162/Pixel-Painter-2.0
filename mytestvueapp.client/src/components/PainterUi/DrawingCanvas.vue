@@ -94,9 +94,9 @@ function init() {
 }
 
 function drawLayers(layer: number) {
-  let from = 0;
+  let index = 0;
   if (!props.showLayers) {
-    from = layerStore.layer; //for showing only the selected layer
+    index = layer; //for showing only the selected layer
   }
 
   if (viewport.children.length > 2) {
@@ -117,16 +117,16 @@ function drawLayers(layer: number) {
     background.height = layerStore.grids[0].width * PIXEL_SIZE;
   }
 
-  for (let length = from; length <= layerStore.layer; length++) {
+  for (index; index <= layer; index++) {
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
         const sprite = viewport.addChild(new Sprite(Texture.WHITE));
-        if (layerStore.grids[length].grid[i][j] === "empty") {
-          sprite.tint = layerStore.grids[length].backgroundColor;
+        if (layerStore.grids[index].grid[i][j] === "empty") {
+          sprite.tint = layerStore.grids[index].backgroundColor;
           sprite.alpha = 0;
         } else {
-          let tmp = layerStore.grids[length].grid[i][j];
-          if (length < layerStore.layer && props.greyscale) { 
+          let tmp = layerStore.grids[index].grid[i][j];
+          if (index < layerStore.layer && props.greyscale) { 
             tmp = filterGreyScale(tmp); 
           }
           sprite.tint = tmp;
@@ -134,7 +134,7 @@ function drawLayers(layer: number) {
         }
         sprite.width = sprite.height = PIXEL_SIZE;
         sprite.position.set(i * PIXEL_SIZE, j * PIXEL_SIZE);
-        sprite.interactive = (length === layer) ? true : false; //reduce lag
+        sprite.interactive = (index === layer) ? true : false; //reduce lag
       }
     }
   }
@@ -167,44 +167,23 @@ function updateCell(layer: number, x: number, y: number, color: string) {
 }
 
 function filterGreyScale(hex: string): string {
-  let newrgb: number[] = [];
-  newrgb = rgbToGrayscale(hexToRgb(hex));
-  return rgbToHex(newrgb[0], newrgb[1], newrgb[2]);
-}
-
-function hexToRgb(hex: string): number[] {
   let rgb: number[] = [];
   let r = parseInt(hex.slice(0, 2), 16),
     g = parseInt(hex.slice(2, 4), 16),
     b = parseInt(hex.slice(4, 6), 16);
 
-  rgb[0] = r;
-  rgb[1] = g;
-  rgb[2] = b;
-
-  return rgb;
-}
-
-function rgbToGrayscale(rgb: number[]): number[] {
-  let r = rgb[0] * 0.3; 
-  let g = rgb[1] * 0.59;
-  let b = rgb[2] * 0.11; 
-  r = Math.round(r);
-  g = Math.round(g);
-  b = Math.round(b);
+  r = Math.round(r * 0.3);
+  g = Math.round(g * 0.59);
+  b = Math.round(b * 0.11);
 
   let gray = r + g + b;
 
-  return [gray, gray, gray];
-}
+  let newrgb = [gray, gray, gray];
 
-function rgbToHex (r: number, g: number, b: number): string {
-  let val = [Math.round(r), Math.round(g), Math.round(b)].map((x) => {
-    const hex = x.toString(16);
-    return hex.length === 1 ? "0" + hex : hex;
-  }).join("");
+  let val = newrgb.map(x => x.toString(16).padStart(2, '0')).join("");
   return val;
 }
+
 
 const pos = ref<any>();
 
@@ -284,11 +263,7 @@ watch(() => props.grid.backgroundColor, (prev, next) => {
   }
 });
 
-watch(() => props.showLayers, () => {
-  drawLayers(layerStore.layer);
-});
-
-watch(() => props.greyscale, () => {
+watch([() => props.showLayers, () => props.greyscale], () => {
   drawLayers(layerStore.layer);
 });
 

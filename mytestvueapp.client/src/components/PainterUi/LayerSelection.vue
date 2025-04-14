@@ -14,7 +14,6 @@
               severity="secondary"
               @click="switchLayer(layer)"
               @contextmenu.prevent="deleteLayer(layer)"
-              v-tooltip.bottom="(layers.length > 1 && !props.connected) ? `Right click to delete layer ${layer+1}.` : null"
       />
     </template>
 
@@ -23,17 +22,17 @@
       <Button
         :label="showLayers ? 'Hide Layers' : 'Show Layers'"
         :icon="showLayers ? 'pi pi-eye-slash' : 'pi pi-eye'"
-        :severity="showLayers ? 'primary' : 'secondary'"
-        :disabled="layers.length==1"
+        :severity="showLayersSeverity"
+        :disabled="layers.length == 1"
         size="small"
         class="w-full"
         @click="showLayers = !showLayers; changeGreyscale()"
       />
       <Button
-        :label="greyscale ? 'Disable Greyscale' : 'Enable Greyscale'"
+        :label="greyscale ? 'Full color layers' : 'Greyscale layers'"
         :icon="'pi pi-palette'"
-        :severity="greyscale ? 'primary' : 'secondary'"
-        :disabled="(layers.length==1 || !showLayers)"
+        :severity="greyscaleSeverity "
+        :disabled="(layers.length == 1 || !showLayers)"
         size="small"
         class="w-full"
         @click="greyscale = !greyscale"
@@ -49,7 +48,7 @@ import { useLayerStore } from "@/store/LayerStore"
 import { PixelGrid } from "@/entities/PixelGrid"
 import { Tooltip } from "primevue";
 
-import { ref, onBeforeMount, watch } from 'vue';
+import { computed, ref, onBeforeMount, watch } from 'vue';
 
 const props = defineProps<{
   updateLayers: number;
@@ -62,6 +61,30 @@ const layers = ref<number[]>([0]);
 
 const showLayers = defineModel<boolean>("showLayers", { default: true });
 const greyscale = defineModel<boolean>("greyscale", { default: false });
+
+const isSingleLayer = computed(() => layers.value.length === 1)
+
+const showLayersSeverity = computed(() => {
+  if (layers.value.length === 1) {
+    return 'secondary';
+  } else if (showLayers.value) {
+    return 'primary';
+  } else {
+    return 'secondary';
+  }
+})
+
+const greyscaleSeverity = computed(() => {
+  if (layers.value.length === 1) {
+    return 'secondary';
+  } else if (!showLayers.value) {
+    return 'secondary';
+  } else if (greyscale.value) {
+    return 'primary';
+  } else {
+    return 'secondary';
+  }
+})
 
 onBeforeMount(() => {
   for (let i = 1; i < layerStore.grids.length; i++)
@@ -130,6 +153,12 @@ const changeGreyscale = () => {
     greyscale.value = false;
   }
 };
+
+watch(() => layers.value.length, () => {
+  if (layers.value.length === 1) {
+    greyscale.value = false;
+  }
+});
 
 watch(() => props.updateLayers, () => {
   layers.value.splice(0, layers.value.length);
