@@ -40,7 +40,7 @@ namespace MyTestVueApp.Server.Controllers
             return Redirect(url);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("LoginRedirect")]
         public async Task<IActionResult> RedirectLogin(string code, string scope, string authuser, string prompt)
         {
@@ -59,7 +59,7 @@ namespace MyTestVueApp.Server.Controllers
             return Redirect(AppConfig.Value.HomeUrl);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("Logout")]
         public IActionResult Logout()
         {
@@ -154,7 +154,7 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPut]
         [Route("UpdateUsername")]
         public async Task<IActionResult> UpdateUsername(string newUsername)
         {
@@ -180,7 +180,7 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpDelete]
         [Route("DeleteArtist")]
         public async Task<IActionResult> DeleteArtist(int id)
         {

@@ -154,7 +154,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
         }
 
         #endregion
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         private string getAdjective(int index)
         {
             return Adjectives[index];
