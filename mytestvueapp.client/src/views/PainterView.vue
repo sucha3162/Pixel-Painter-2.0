@@ -67,14 +67,12 @@
         class="mr-2"
         severity="primary"
         label="Recenter"
-        @click="canvas?.recenter()"
-      />
+        @click="canvas?.recenter()" />
       <Button
         :icon="intervalId != -1 ? 'pi pi-stop' : 'pi pi-play'"
         class="mr-2 Rainbow"
         label="Gravity"
-        @click="runGravity()"
-      />
+        @click="runGravity()" />
 
       <Button
         icon="pi pi-lightbulb"
@@ -111,7 +109,14 @@ import Artist from "@/entities/Artist";
 import LoginService from "@/services/LoginService";
 
 //vue
-import { ref, watch, computed, onMounted, onUnmounted } from "vue";
+import {
+  ref,
+  watch,
+  computed,
+  onMounted,
+  onUnmounted,
+  onBeforeUnmount
+} from "vue";
 import router from "@/router";
 import { onBeforeRouteLeave } from "vue-router";
 import { useRoute } from "vue-router";
@@ -306,7 +311,6 @@ onBeforeRouteLeave((to, from, next) => {
 
 onMounted(async () => {
   document.addEventListener("keydown", handleKeyDown);
-  window.addEventListener("beforeunload", handleBeforeUnload);
 
   //Get the current user
   LoginService.getCurrentUser().then((user: Artist) => {
@@ -352,9 +356,16 @@ onMounted(async () => {
   }
 });
 
+onBeforeUnmount(() => {
+  if (art.value.pixelGrid.isGif) {
+    localSaveGif();
+  } else {
+    localSave();
+  }
+});
+
 onUnmounted(() => {
   document.removeEventListener("keydown", handleKeyDown);
-  window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 
 function toggleKeybinds(disable: boolean) {
@@ -362,15 +373,6 @@ function toggleKeybinds(disable: boolean) {
     document.removeEventListener("keydown", handleKeyDown);
   } else {
     document.addEventListener("keydown", handleKeyDown);
-  }
-}
-
-//Convert to ref on beforeunload
-function handleBeforeUnload(event: BeforeUnloadEvent) {
-  if (art.value.pixelGrid.isGif) {
-    localSaveGif();
-  } else {
-    localSave();
   }
 }
 

@@ -8,11 +8,9 @@ import { PixelGrid } from "@/entities/PixelGrid";
 import GIFCreationService from "@/services/GIFCreationService";
 
 const props = defineProps<{
-    art: Art;
-    fps: number;
+  art: Art;
+  fps: number;
 }>();
-
-
 
 function handleClick() {
   if (props.art.pixelGrid.isGif) {

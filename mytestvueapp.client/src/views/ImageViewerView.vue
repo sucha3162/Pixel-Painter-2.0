@@ -23,8 +23,7 @@
             class="py-1 font-semibold"
             @click="router.push(`/accountpage/${artist}`)"
             v-on:mouseover="hover = true"
-            v-on:mouseleave="hover = false"
-          >
+            v-on:mouseleave="hover = false">
             {{ artist }}
           </div>
           <div v-if="hover == true">
@@ -152,7 +151,7 @@ import { ref, onMounted } from "vue";
 import Comment from "@/entities/Comment";
 import CommentOnArt from "@/components/Comment/CommentOnArt.vue";
 import ArtAccessService from "../services/ArtAccessService";
-import { useRoute, RouterLink } from "vue-router";
+import { useRoute } from "vue-router";
 import CommentAccessService from "../services/CommentAccessService";
 import NewComment from "@/components/Comment/NewComment.vue";
 import Card from "primevue/card";
@@ -161,8 +160,6 @@ import Button from "primevue/button";
 import router from "@/router";
 import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
-import type { Color } from "pixi.js";
-
 //filters
 const greyscale = ref<boolean>(false);
 const filtered = ref<boolean>(false);

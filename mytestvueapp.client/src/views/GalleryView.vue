@@ -187,29 +187,29 @@ function sortGallery() {
   if (sortCode == "L") {
     // Sort By Likes
     if (checkAscending.value) {
-      publicArt.value.sort((artA, artB) => artB.numLikes - artA.numLikes); // Sort to Descending
+      publicArt.value.sort((artA, artB) => artA.numLikes - artB.numLikes); // Sort to Descending
     } else {
-      publicArt.value.sort((artA, artB) => artA.numLikes - artB.numLikes); // Sort to Ascending
+      publicArt.value.sort((artA, artB) => artB.numLikes - artA.numLikes); // Sort to Ascending
     }
   } else if (sortCode == "C") {
     // Sort By Comments
     if (checkAscending.value) {
-      publicArt.value.sort((artA, artB) => artB.numComments - artA.numComments); // Sort to Descending
+      publicArt.value.sort((artA, artB) => artA.numComments - artB.numComments); // Sort to Descending
     } else {
-      publicArt.value.sort((artA, artB) => artA.numComments - artB.numComments); // Sort to Ascending
+      publicArt.value.sort((artA, artB) => artB.numComments - artA.numComments); // Sort to Ascending
     }
   } else if (sortCode == "D") {
     if (checkAscending.value) {
       publicArt.value.sort(
         (artA, artB) =>
-          new Date(artB.creationDate).getTime() -
-          new Date(artA.creationDate).getTime()
+          new Date(artA.creationDate).getTime() -
+          new Date(artB.creationDate).getTime()
       ); // Sort to Descending
     } else {
       publicArt.value.sort(
         (artA, artB) =>
-          new Date(artA.creationDate).getTime() -
-          new Date(artB.creationDate).getTime()
+          new Date(artB.creationDate).getTime() -
+          new Date(artA.creationDate).getTime()
       ); // Sort to Ascending
     }
   }
