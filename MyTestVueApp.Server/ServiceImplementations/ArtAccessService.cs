@@ -169,9 +169,9 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         {
                             var pixelGrid = new PixelGrid()
                             {
-                                width = reader.GetInt32(2),
-                                height = reader.GetInt32(3),
-                                encodedGrid = reader.GetString(4)
+                                Width = reader.GetInt32(2),
+                                Height = reader.GetInt32(3),
+                                EncodedGrid = reader.GetString(4)
                             };
                             var painting = new Art
                             {   //ArtId, ArtName
@@ -226,19 +226,19 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         {
                             var pixelGrid = new PixelGrid()
                             {
-                                width = reader.GetInt32(2),
-                                height = reader.GetInt32(3),
-                                encodedGrid = reader.GetString(4)
+                                Width = reader.GetInt32(2),
+                                Height = reader.GetInt32(3),
+                                EncodedGrid = reader.GetString(4)
                             };
                             var painting = new Art
                             {   //ArtId, ArtName
-                                id = reader.GetInt32(0),
-                                title = reader.GetString(1),
-                                pixelGrid = pixelGrid,
-                                creationDate = reader.GetDateTime(5),
-                                isPublic = reader.GetBoolean(6),
-                                numLikes = reader.GetInt32(7),
-                                numComments = reader.GetInt32(8)
+                                Id = reader.GetInt32(0),
+                                Title = reader.GetString(1),
+                                PixelGrid = pixelGrid,
+                                CreationDate = reader.GetDateTime(5),
+                                IsPublic = reader.GetBoolean(6),
+                                NumLikes = reader.GetInt32(7),
+                                NumComments = reader.GetInt32(8)
                             };
                             paintings.Add(painting);
                         }

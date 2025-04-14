@@ -287,11 +287,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
                             artist = new Artist
                             {
-                                id = reader.GetInt32(0),
-                                subId = reader.GetString(1),
-                                name = reader.GetString(2),
-                                isAdmin = reader.GetBoolean(3),
-                                creationDate = reader.GetDateTime(4),
+                                Id = reader.GetInt32(0),
+                                SubId = reader.GetString(1),
+                                Name = reader.GetString(2),
+                                IsAdmin = reader.GetBoolean(3),
+                                CreationDate = reader.GetDateTime(4),
                             };
                             Console.WriteLine(artist);
                             return artist;
