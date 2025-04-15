@@ -59,6 +59,12 @@
     </template>
     <template #end>
       <Button
+        icon="pi pi-times"
+      class="mr-2"
+      severity="primary"
+      label="Clear"
+      @click="clear()"/>
+      <Button
         icon="pi pi-expand"
         class="mr-2"
         severity="primary"
@@ -687,6 +693,21 @@ function fallingSand() {
         }
       }
     }
+  }
+}
+
+function clear(): void {
+  let coords: Vector2[] = [];
+  for (let i = 0; i < layerStore.grids[layerStore.layer].width; i++) {
+    for (let j = 0; j < layerStore.grids[layerStore.layer].height; j++) {
+      layerStore.grids[layerStore.layer].grid[i][j] = "empty";
+      canvas.value?.updateCell(layerStore.layer, i, j, "empty");
+      coords.push(new Vector2(i,j));
+    }
+  }
+
+  if (connected.value) {
+    SendPixels(layerStore.layer, "empty", coords);
   }
 }
 
