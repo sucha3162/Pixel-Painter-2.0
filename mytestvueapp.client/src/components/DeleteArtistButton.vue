@@ -21,7 +21,7 @@
       placeholder="Username"
       class="w-full"
       v-model="confirmText"
-      autofocus></InputText>
+      autofocus />
 
     <template #footer>
       <Button
@@ -38,11 +38,15 @@
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
-import { ref, watch } from "vue";
+import { ref, watch, defineProps } from "vue";
 import { useToast } from "primevue/usetoast";
-
+import Artist from "@/entities/Artist";
 import Message from "primevue/message";
 import LoginService from "@/services/LoginService";
+
+const props = defineProps<{
+  artist: Artist;
+}>();
 
 const toast = useToast();
 const visible = ref<boolean>(false);
@@ -55,13 +59,22 @@ watch(visible, (newVal) => {
 });
 
 async function confirmDelete() {
-  LoginService.deleteArtist(confirmText.value)
+  if (confirmText.value != props.artist.name) {
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: "Username's do not match",
+      life: 3000
+    });
+    return;
+  }
+  LoginService.deleteArtist(props.artist.id)
     .then(() => {
       window.location.href = "/";
       toast.add({
         severity: "success",
         summary: "User Deleted",
-        detail: "The User has been deleted successfully",
+        detail: `The user: ${props.artist.name} has been deleted successfully`,
         life: 3000
       });
     })
@@ -69,8 +82,7 @@ async function confirmDelete() {
       toast.add({
         severity: "error",
         summary: "Error",
-        detail:
-          "error deleting user, please make sure you have spelt it correctly",
+        detail: "Error deleting user, please try again later",
         life: 3000
       });
     });

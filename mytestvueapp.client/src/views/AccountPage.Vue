@@ -12,12 +12,12 @@
               @click="changeHash('#settings')" />
             <Button
               :severity="route.hash == '#created_art' ? 'primary' : 'secondary'"
-              @click="ChangeHash('#created_art')"
+              @click="changeHash('#created_art')"
               >Creator's Art</Button
             >
             <Button
               :severity="route.hash == '#liked_art' ? 'primary' : 'secondary'"
-              @click="ChangeHash('#liked_art')"
+              @click="changeHash('#liked_art')"
               >Liked Art</Button
             >
           </div>
@@ -91,8 +91,7 @@
             :key="art.id"
             :art="art"
             :size="7"
-            :position="art.id"
-          />
+            :position="art.id" />
         </div>
       </div>
       <div v-if="route.hash == '#liked_art'">
@@ -103,15 +102,14 @@
             :key="art.id"
             :art="art"
             :size="7"
-            :position="art.id"
-          />
+            :position="art.id" />
         </div>
       </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed } from "vue";
 import LoginService from "@/services/LoginService";
 import ArtAccessService from "@/services/ArtAccessService";
 import router from "@/router";

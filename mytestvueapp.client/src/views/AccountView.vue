@@ -72,7 +72,7 @@
                 label="logout"
                 icon="pi pi-sign-out"
                 @click="logout()" />
-              <DeleteArtistButton></DeleteArtistButton>
+              <DeleteArtistButton :artist="artist" />
             </div>
           </template>
         </Card>
