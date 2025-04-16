@@ -3,7 +3,7 @@ export default class Artist {
   id: number;
   name: string;
   isAdmin: boolean;
-  privateProfile;
+  privateProfile: boolean;
   creationDate: string;
   email: string;
 
