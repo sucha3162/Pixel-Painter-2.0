@@ -18,7 +18,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
             Logger = logger;
             LoginService = loginService;
         }
-
+        /// <summary>
+        /// This function grabs all art from
+        /// the database and returns them as
+        /// a list to be used on the frontend
+        /// </summary>
+        /// <returns></returns>
         public async Task<IEnumerable<Art>> GetAllArt()
         {
             var paintings = new List<Art>();
