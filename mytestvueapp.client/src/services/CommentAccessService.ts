@@ -65,12 +65,20 @@ export default class CommentAccessService {
     }
   }
   public static async editComment(
-    commentId: number,
+    comment: Comment,
     newMessage: string
   ): Promise<void> {
     try {
+      const altComment: Comment = {
+        ...comment,
+        message: newMessage
+      }
       await fetch(
-        `/comment/EditComment?commentId=${commentId}&newMessage=${newMessage}`
+        '/comment/EditComment?commentId', {
+          method: "PUT",
+          body: JSON.stringify(altComment),
+          headers: { "Content-Type": "application/json" }
+        }
       );
     } catch (error) {
       console.error;

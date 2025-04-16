@@ -16,6 +16,7 @@ export default class Art {
   numLikes: number;
   numComments: number;
   currentUserIsOwner: boolean;
+  isLiked: boolean;
 
   constructor() {
     this.id = 0;
@@ -29,5 +30,6 @@ export default class Art {
     this.numComments = 0;
     this.pixelGrid = new PixelGrid(1, 1, "FF0000", false);
     this.currentUserIsOwner = false;
+    this.isLiked = false;
   }
 }

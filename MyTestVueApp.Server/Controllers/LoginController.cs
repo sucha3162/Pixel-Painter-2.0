@@ -30,7 +30,7 @@ namespace MyTestVueApp.Server.Controllers
             LoginService = loginService;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("Login")]
         public IActionResult Login()
         {
@@ -120,7 +120,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("GetArtistByName")]
-        public async Task<Artist> GetArtistByName(string name)
+        public async Task<Artist> GetArtistByName([FromQuery] string name)
         {
             return await LoginService.GetArtistByName(name);
         }
@@ -156,7 +156,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpPut]
         [Route("UpdateUsername")]
-        public async Task<IActionResult> UpdateUsername(string newUsername)
+        public async Task<IActionResult> UpdateUsername([FromBody] string newUsername)
         {
             try
             {
@@ -182,7 +182,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpDelete]
         [Route("DeleteArtist")]
-        public async Task<IActionResult> DeleteArtist(int id)
+        public async Task<IActionResult> DeleteArtist([FromQuery] int id)
         {
             try
             {

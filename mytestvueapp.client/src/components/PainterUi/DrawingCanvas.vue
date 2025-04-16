@@ -16,7 +16,7 @@ import { Vector2 } from "@/entities/Vector2";
 import Cursor from "@/entities/Cursor";
 
 //Constants
-var PIXEL_SIZE = 10;
+const PIXEL_SIZE = 10;
 
 //props
 const props = defineProps<{
@@ -76,8 +76,8 @@ function updateCanvas() {
   if (viewport.children[1].tint !== props.pixelGrid.backgroundColor) {
     viewport.children[1].tint = props.pixelGrid.backgroundColor;
   } else {
-    for (var i = 0; i < props.pixelGrid.height; i++) {
-      for (var j = 0; j < props.pixelGrid.width; j++) {
+    for (let i = 0; i < props.pixelGrid.height; i++) {
+      for (let j = 0; j < props.pixelGrid.width; j++) {
         //tint of erased values doesn't matter since we look at the grid
         if (props.pixelGrid.grid[i][j] === "empty") {
           viewport.children[idx].alpha = 0;

@@ -28,9 +28,9 @@ namespace MyTestVueApp.Server.Controllers
             LoginService = loginService;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("InsertLike")]
-        public async Task<IActionResult> InsertLike(int artId)
+        public async Task<IActionResult> InsertLike([FromQuery] int artId)
         {
             try
             {
@@ -77,7 +77,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpDelete]
         [Route("RemoveLike")]
-        public async Task<IActionResult> RemoveLike(int artId)
+        public async Task<IActionResult> RemoveLike([FromQuery] int artId)
         {
             try
             {
@@ -122,9 +122,9 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("IsLiked")]
-        public async Task<IActionResult> IsLiked(int artId)
+        public async Task<IActionResult> IsLiked([FromQuery] int artId)
         {
             try
             {

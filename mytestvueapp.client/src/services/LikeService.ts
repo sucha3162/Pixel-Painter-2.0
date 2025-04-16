@@ -1,7 +1,10 @@
 export default class LikeService {
   public static async insertLike(artId: number): Promise<boolean> {
     try {
-      const response = await fetch(`/like/InsertLike?artId=${artId}`);
+      const response = await fetch(`/like/InsertLike?artId=${artId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
       if (!response.ok) {
         throw new Error("Response was false.");
       }

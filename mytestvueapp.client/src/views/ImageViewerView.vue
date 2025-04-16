@@ -41,7 +41,7 @@
               class=""
               :art-id="id"
               :likes="art.numLikes"></LikeButton>
-            <SaveImageToFile :art="art"></SaveImageToFile>
+            <SaveImageToFile :art="art" :fps="0"></SaveImageToFile>
             <Button
               icon="pi pi-ellipsis-h"
               rounded

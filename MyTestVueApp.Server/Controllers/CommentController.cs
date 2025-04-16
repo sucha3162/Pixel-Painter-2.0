@@ -33,7 +33,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("GetCommentsByArtId")]
-        public async Task<IActionResult> GetCommentsByArtId(int artId)
+        public async Task<IActionResult> GetCommentsByArtId([FromQuery] int artId)
         {
             try
             {
@@ -60,20 +60,20 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("EditComment")]
-        public async Task<IActionResult> EditComment(int commentId, String newMessage)
+        public async Task<IActionResult> EditComment([FromBody] Comment altComment)
         {
             try
             {
                 // If the user is logged in
                 if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
-                    var comment = await CommentAccessService.GetCommentByCommentId(commentId);
+                    var comment = await CommentAccessService.GetCommentByCommentId(altComment.Id);
                     var subid = await LoginService.GetUserBySubId(userId);
                     if (comment.ArtistId == subid.Id)
                     {    // You can add additional checks here if needed
-                        var rowsChanged = await CommentAccessService.EditComment(commentId, newMessage);
+                        var rowsChanged = await CommentAccessService.EditComment(altComment.Id, altComment.Message);
                         if (rowsChanged > 0) // If the comment has been sucessfuly edited
                         {
                             return Ok();
@@ -109,7 +109,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpDelete]
         [Route("DeleteComment")]
-        public async Task<IActionResult> DeleteComment(int commentId)
+        public async Task<IActionResult> DeleteComment([FromQuery] int commentId)
         {
             try
             {
@@ -159,7 +159,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpPost]
         [Route("CreateComment")]
-        public async Task<IActionResult> CreateComment(Comment comment)
+        public async Task<IActionResult> CreateComment([FromBody] Comment comment)
         {
             try
             {

@@ -22,8 +22,7 @@
             v-for="(artist, index) in art.artistName"
             :key="index"
             class="py-1 font-semibold"
-            onclick="//thing to route"
-          >
+            onclick="//thing to route">
             {{ artist }}
           </div>
         </div>

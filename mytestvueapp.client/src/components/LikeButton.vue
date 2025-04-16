@@ -12,26 +12,35 @@ import LoginService from "@/services/LoginService";
 import LikeService from "@/services/LikeService";
 import { useToast } from "primevue/usetoast";
 
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 
 const props = defineProps<{
   likes: number;
   artId: number;
 }>();
 
-const localLike = ref<number>(0);
-const liked = ref<boolean>(false);
-const loggedIn = ref<boolean>(false);
+const localLike = ref(0);
+const liked = ref(false);
+const loggedIn = ref(false);
 
 const toast = useToast();
 
 onMounted(async () => {
-  LikeService.isLiked(props.artId).then((value) => (liked.value = value));
-
   LoginService.isLoggedIn().then((value) => (loggedIn.value = value));
 
   localLike.value = 0;
 });
+
+async function isLiked() {
+  LikeService.isLiked(props.artId).then((value) => (liked.value = value));
+}
+
+watch(
+  () => props.artId,
+  async () => {
+    await isLiked();
+  }
+);
 
 async function likedClicked() {
   if (!loggedIn.value) {
@@ -42,7 +51,9 @@ async function likedClicked() {
       detail: "User must be logged in to like art!",
       life: 3000
     });
-  } else if (liked.value) {
+    return;
+  }
+  if (liked.value) {
     // Try to unlike
     LikeService.removeLike(props.artId).then((value) => {
       if (value) {

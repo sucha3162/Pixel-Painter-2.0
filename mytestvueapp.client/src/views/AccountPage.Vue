@@ -126,7 +126,6 @@ import ArtCard from "@/components/Gallery/ArtCard.vue";
 
 const toast = useToast();
 const route = useRoute();
-const changeArtist = ref<boolean>(false);
 
 const name = String(route.params.artist);
 const artist = ref<Artist>(new Artist());
@@ -134,7 +133,6 @@ const isEditing = ref<boolean>(false);
 const newUsername = ref<string>("");
 const user = ref<boolean>();
 const curArtist = ref<Artist>(new Artist()); // Selected Artist page to view
-const artistList = ref<Artist[]>([]);
 
 var myArt = ref<Art[]>([]);
 var likedArt = ref<Art[]>([]);

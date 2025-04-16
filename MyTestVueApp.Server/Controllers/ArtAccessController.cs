@@ -42,7 +42,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("GetLikedArt")]
-        public async Task<IActionResult> GetLikedArt(int artistId)
+        public async Task<IActionResult> GetLikedArt([FromQuery] int artistId)
         {
             try
             {
@@ -58,7 +58,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("GetAllArtByUserID")]
-        public async Task<IActionResult> GetAllArtByUserID(int id)
+        public async Task<IActionResult> GetAllArtByUserID([FromQuery] int id)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpGet]
         [Route("GetArtById")]
-        public async Task<IActionResult> GetArtById(int id)
+        public async Task<IActionResult> GetArtById([FromQuery] int id)
         {
             try
             {
@@ -174,9 +174,9 @@ namespace MyTestVueApp.Server.Controllers
             return Ok(await ArtAccessService.GetArtistsByArtId(artId));
         }*/
 
-        [HttpPost]
+        [HttpPut]
         [Route("SaveArt")]
-        public async Task<IActionResult> SaveArt(Art art)
+        public async Task<IActionResult> SaveArt([FromBody] Art art)
         {
             try
             {
@@ -287,7 +287,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpDelete]
         [Route("DeleteArt")]
-        public async Task<IActionResult> DeleteArt(int artId)
+        public async Task<IActionResult> DeleteArt([FromQuery] int artId)
         {
             try
             {
@@ -323,7 +323,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpDelete]
         [Route("DeleteContributingArtist")]
-        public async Task<IActionResult> DeleteContrbutingArtist(int artId)
+        public async Task<IActionResult> DeleteContrbutingArtist([FromQuery] int artId)
         {
 
             try

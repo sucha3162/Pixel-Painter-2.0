@@ -39,26 +39,20 @@ export default class ArtAccessService {
   }
        
   public static async getLikedArt(artistId: number): Promise<Art[]> {
-        try {
-            const response = await fetch(
-                `/artaccess/GetLikedArt?artistId=${artistId}`
-            );
-            const json = await response.json();
-
-            const allArt: Art[] = [];
-
-            for (const jsonArt of json) {
-                let art = new Art();
-                art = jsonArt as Art;
-
-                allArt.push(art);
-            }
-
-            return allArt;
-        } catch (error) {
-            console.error;
-            throw error;
-        }
+    try {
+      const response = await fetch(
+        `/artaccess/GetLikedArt?artistId=${artistId}`
+      );
+      const json = await response.json();
+      const allArt: Art[] = [];
+      for (const jsonArt of json) {
+        allArt.push(jsonArt as Art);
+      }
+      return allArt;
+    }catch (error) {
+        console.error;
+        throw error;
+      }
     }
     public static async getCurrentUsersArt(): Promise<Art[]> {
         try { 
@@ -113,10 +107,10 @@ export default class ArtAccessService {
     try {
       art.creationDate = new Date().toISOString();
 
-      const request = art.artistId.length > 1? "/artaccess/SaveArtCollab" : "/artaccess/SaveArt";
+      const request = "/artaccess/SaveArt";
 
       const response = await fetch(request, {
-        method: "POST",
+        method: "PUT",
         body: JSON.stringify(art),
         headers: { "Content-Type": "application/json" }
       });
@@ -133,7 +127,10 @@ export default class ArtAccessService {
 
   public static async deleteArt(ArtId: number): Promise<void> {
     try {
-      const response = await fetch(`/artaccess/DeleteArt?ArtId=${ArtId}`);
+      const response = await fetch(`/artaccess/DeleteArt?ArtId=${ArtId}`, {
+        method: "DELTETE",
+        headers: { "Content-Type": "application/json" }
+      });
 
       if (!response.ok) {
         throw new Error("Error: Bad response");
@@ -148,7 +145,10 @@ export default class ArtAccessService {
   ): Promise<void> {
     try {
       const response = await fetch(
-        `/artaccess/DeleteContributingArtist?ArtId=${ArtistId}`
+        `/artaccess/DeleteContributingArtist?ArtId=${ArtistId}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" }
+        }
       );
 
       if (!response.ok) {

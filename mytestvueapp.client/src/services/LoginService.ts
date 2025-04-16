@@ -17,7 +17,10 @@ export default class LoginService {
 
   public static async logout(): Promise<void> {
     try {
-      const response = await fetch("/login/Logout");
+      const response = await fetch("/login/Logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
@@ -31,8 +34,7 @@ export default class LoginService {
       const response = await fetch(`/login/GetArtistByName?name=${name}`);
       const json = await response.json();
 
-      var artist = json;
-      return artist;
+      return json as Artist;
     } catch (error) {
       console.error;
       throw error;
