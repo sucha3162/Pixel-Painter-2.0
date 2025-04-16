@@ -11,7 +11,7 @@
         <template #header>
             <div style="display: block; margin-bottom: 1rem;">
                 <h1 style="margin-bottom: 0.5rem;">Connect to a group?</h1>
-                <h4>This will disable: Adding/Removing Layers, Gravity, and 'Give Me Color!' functions</h4>
+                <h4>This will disable: Adding/Removing Layers, Gravity functions</h4>
             </div>
         </template>
 

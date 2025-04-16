@@ -76,7 +76,7 @@ function updateLocalStorage() {
   layerStore.empty(); //just in case
 
 
-  var pixelGrid = new PixelGrid(
+  let pixelGrid = new PixelGrid(
     resolution.value,
     resolution.value,
     backgroundColor.value,

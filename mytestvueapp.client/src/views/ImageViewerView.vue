@@ -19,6 +19,10 @@
         <div>
           By
           <div
+            :style="{
+              textDecoration: hover ? 'underline' : 'none',
+              cursor: hover ? 'pointer' : 'none',
+            }"
             v-for="(artist, index) in art.artistName"
             :key="index"
             class="py-1 font-semibold"
@@ -27,9 +31,6 @@
             v-on:mouseleave="hover = false"
           >
             {{ artist }}
-          </div>
-          <div v-if="hover == true">
-            Click on the name to go to the account page!
           </div>
           <!-- <RouterLink to="/accountpage">
             <Button>Account Page</Button>
@@ -175,6 +176,7 @@ import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
 import type { Color } from "pixi.js";
 import { useLayerStore } from "@/store/LayerStore";
+import type { Tooltip } from "primevue";
 
 const layerStore = useLayerStore();
 
