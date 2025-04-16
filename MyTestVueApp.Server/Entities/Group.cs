@@ -1,4 +1,6 @@
-﻿namespace MyTestVueApp.Server.Entities
+﻿using System.Drawing;
+
+namespace MyTestVueApp.Server.Entities
 {
 
     public class Group(string groupName)
@@ -8,13 +10,15 @@
         public string BackgroundColor { get; set; } = "#FFFFFF";
         public List<Artist> CurrentMembers { get; set; } = new();
         public List<Artist> MemberRecord { get; set; } = new();
-        public string[][] Pixels { get; set; }
+        public List<string[][]> Pixels { get; set; } = new List<string[][]>();
 
         
-        public Group(string groupName, string[][] canvas, int canvasSize, string backgroundColor): this(groupName)
+        public Group(string groupName, string[][][] canvas, int canvasSize, string backgroundColor): this(groupName)
         {
             Name = groupName;
-            Pixels = canvas;
+            foreach(string[][] grid in canvas){
+              Pixels.Add(grid);
+            }
             CanvasSize = canvasSize;
             BackgroundColor = backgroundColor;
             CurrentMembers = new();
@@ -42,29 +46,32 @@
             CurrentMembers.Remove(member);
         }
 
-        public void PaintPixels(string color, Coordinate[] coords)
+        public void PaintPixels(int layer, string color, Coordinate[] coords)
         {
             foreach (Coordinate coord in coords)
             {
-                Pixels[coord.X][coord.Y] = color;
+                Pixels[layer][coord.X][coord.Y] = color;
             }
         }
 
-        public List<Pixel> GetPixelsAsList()
+        public List<List<Pixel>> GetPixelsAsList()
         {
-            List<Pixel> pixelVec = new();
-            for (int i = 0; i < Pixels.GetLength(0); i++)
+            List<List<Pixel>> pixelVec = new();
+            for (int l = 0; l < Pixels.Count; l++) 
             {
-                for (int j = 0; j < Pixels.GetLength(0); j++)
+                List<Pixel> row = new();
+                for (int i = 0; i < CanvasSize; i++)
                 {
-                    if (Pixels[i][j] != null)
+                    for (int j = 0; j < CanvasSize; j++)
                     {
-                        pixelVec.Add(new Pixel(Pixels[i][j], i, j));
-                    } else
-                    {
-                        pixelVec.Add(new Pixel(BackgroundColor, i, j));
+                        string color = Pixels[l][i][j];
+                        if (Pixels[l][i][j] != null)
+                        {
+                            row.Add(new Pixel(color, i, j));
+                        } 
                     }
                 }
+                pixelVec.Add(row);
             }
             return pixelVec;
         }

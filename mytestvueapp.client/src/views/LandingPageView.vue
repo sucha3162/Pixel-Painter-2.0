@@ -5,7 +5,8 @@
     <Button
       class="mt-4 text-2xl"
       label="Get Started"
-      @click="router.push('/paint')" />
+      @click="router.push('/new')"
+    />
 
     <img
       src="../assets/images/pop_cat.gif"

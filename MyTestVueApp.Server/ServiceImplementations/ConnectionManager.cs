@@ -11,7 +11,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             Groups.Add(groupName, new Group(groupName));
         }
 
-        public void AddGroup(string groupName, string[][] canvas, int canvasSize, string backgroundColor)
+        public void AddGroup(string groupName, string[][][] canvas, int canvasSize, string backgroundColor)
         {
             Groups.Add(groupName, new Group(groupName, canvas, canvasSize, backgroundColor));
         }
@@ -53,7 +53,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return Groups[groupName].MemberRecord;
         }
 
-        public void PaintPixels(string groupName, string color, Coordinate[] vector)
+        public void PaintPixels(string groupName, int layer, string color, Coordinate[] vector)
         {
             Groups[groupName].PaintPixels(color, vector);
         }

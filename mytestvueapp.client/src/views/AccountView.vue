@@ -86,7 +86,8 @@
             :key="art.id"
             :art="art"
             :size="10"
-            :position="art.id" />
+            :position="art.id"
+          />
         </div>
       </div>
     </div>

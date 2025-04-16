@@ -177,7 +177,7 @@ import TabPanels from "primevue/tabpanels";
 import TabPanel from "primevue/tabpanel";
 
 const props = defineProps<{
-  isBackground?: boolean;
+  isBackground: boolean;
 }>();
 
 const selectedColor = defineModel<string>("color", { default: "000000" });

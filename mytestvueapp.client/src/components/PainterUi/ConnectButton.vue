@@ -6,10 +6,13 @@
     icon="pi pi-wifi"
     @click="toggleModal()" />
 
-  <Dialog v-model:visible="visible" modal :style="{ width: '25rem' }">
-    <template #header>
-      <h1 class="mr-2">Connect?</h1>
-    </template>
+    <Dialog v-model:visible="visible" modal :style="{width:'25rem'}">
+        <template #header>
+            <div style="display: block; margin-bottom: 1rem;">
+                <h1 style="margin-bottom: 0.5rem;">Connect to a group?</h1>
+                <h4>This will disable: Adding/Removing Layers, Gravity functions</h4>
+            </div>
+        </template>
 
     <div class="flex align-items-center gap-3">
       <span>Group: </span>

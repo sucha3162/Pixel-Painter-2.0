@@ -3,6 +3,7 @@ export default class Artist {
   id: number;
   name: string;
   isAdmin: boolean;
+  privateProfile: boolean;
   creationDate: string;
   email: string;
 
@@ -10,6 +11,7 @@ export default class Artist {
     this.id = 0;
     this.name = "";
     this.isAdmin = false;
+    this.privateProfile = false;
     this.creationDate = "";
     this.email = "";
   }

@@ -6,7 +6,9 @@ import Art from "@/entities/Art";
 import Button from "primevue/button";
 import { PixelGrid } from "@/entities/PixelGrid";
 import GIFCreationService from "@/services/GIFCreationService";
+import { useLayerStore } from "@/store/LayerStore"
 
+const layerStore = useLayerStore();
 const props = defineProps<{
   art: Art;
   fps: number;
@@ -20,31 +22,54 @@ function handleClick() {
   }
 }
 
-function saveToFile() {
-  console.log(props.art.pixelGrid.grid);
+function flattenArt(): string[][] { 
+  let width = layerStore.grids[0].width;
+  let height = layerStore.grids[0].height;
+  let arr: string[][] = Array.from({ length: height }, () =>
+    Array(width).fill(layerStore.grids[0].backgroundColor)
+  );
+
+
+  for (let length = 0; length < layerStore.grids.length; length++) {
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        //only set empty cells to background color if its the first layer
+        //layers above the first will just replace cells if they have a value
+        if (layerStore.grids[length].grid[i][j] !== "empty") {
+          arr[i][j] = layerStore.grids[length].grid[i][j];
+        }  
+      }
+    }
+  }
+  return arr;
+}
+
+function SaveToFile() {
+  let grid: string[][];
+  if (layerStore.grids.length>1) {
+    grid = flattenArt();
+  } else {
+    grid = props.art.pixelGrid.grid;
+  }
+  
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
   if (!context) {
     throw new Error("Could not get context");
   }
   const image = context.createImageData(
-    props.art.pixelGrid.width,
-    props.art.pixelGrid.height
+    grid.length,
+    grid.length
   );
 
-  canvas.width = props.art.pixelGrid.width;
-  canvas.height = props.art.pixelGrid.height;
+  canvas.width = grid.length;
+  canvas.height = grid.length;
 
-  for (let x = 0; x < props.art.pixelGrid.height; x++) {
-    for (let y = 0; y < props.art.pixelGrid.width; y++) {
-      let pixelHex;
-      if (props.art.pixelGrid.grid[x][y] === "empty") {
-        pixelHex = props.art.pixelGrid.backgroundColor;
-      } else {
-        pixelHex = props.art.pixelGrid.grid[x][y];
-      }
+  for (let x = 0; x < grid.length; x++) {
+    for (let y = 0; y < grid.length; y++) {
+      let pixelHex = grid[x][y];
       pixelHex = pixelHex.replace("#", "").toUpperCase();
-      const index = (x + y * props.art.pixelGrid.width) * 4;
+      const index = (x + y * grid.length) * 4;
       image?.data.set(
         [
           parseInt(pixelHex.substring(0, 2), 16),
@@ -140,4 +165,3 @@ function saveGIF() {
   GIFCreationService.createGIF(urls, props.fps);
 }
 </script>
-
