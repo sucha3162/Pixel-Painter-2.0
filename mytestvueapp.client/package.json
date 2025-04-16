@@ -1,4 +1,7 @@
 {
+  "prettier": {
+    "trailingComma": "none"
+  },
   "name": "mytestvueapp.client",
   "version": "0.0.0",
   "private": true,
