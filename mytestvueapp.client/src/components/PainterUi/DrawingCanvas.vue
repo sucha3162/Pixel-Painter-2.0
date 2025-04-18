@@ -103,6 +103,8 @@ function drawLayers(layer: number) {
   let index = 0;
   if (!props.showLayers) {
     index = layer; //for showing only the selected layer
+  } else if (props.grid.isGif && layer != 0) {
+    index = layer - 1;
   }
 
   if (viewport.children.length > 2) {
@@ -132,7 +134,7 @@ function drawLayers(layer: number) {
           sprite.alpha = 0;
         } else {
           let tmp = layerStore.grids[index].grid[i][j];
-          if (index < layerStore.layer && props.greyscale) {
+					if (index < layerStore.layer && (props.greyscale || props.grid.isGif)) {
             tmp = filterGreyScale(tmp);
           }
           sprite.tint = tmp;

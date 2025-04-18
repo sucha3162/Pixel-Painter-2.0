@@ -65,6 +65,7 @@
       <FrameSelection
         v-if="art.pixelGrid.isGif"
         v-model:selFrame="selectedFrame"
+        v-model:showLayers="showLayers"
       />
       <FPSSlider v-if="art.pixelGrid.isGif" v-model:fps="fps" />
       <LayerSelection
@@ -454,6 +455,7 @@ watch(
         JSON.stringify(layerStore.grids[layerStore.layer].grid)
       );
       canvas.value?.drawFrame(layerStore.layer);
+			canvas.value?.drawLayers(next);
     } else {
       layerStore.layer = next;
       tempGrid = JSON.parse(JSON.stringify(layerStore.grids[next].grid));
