@@ -87,7 +87,10 @@ export default class CommentAccessService {
   public static async deleteComment(commentId: number): Promise<void> {
     try {
       await fetch(
-        `/comment/DeleteComment?commentId=${commentId}`
+        `/comment/DeleteComment?commentId=${commentId}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" }
+        }
       );
     } catch (error) {
       console.error;

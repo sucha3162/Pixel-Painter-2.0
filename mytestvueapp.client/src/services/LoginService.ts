@@ -17,10 +17,7 @@ export default class LoginService {
 
   public static async logout(): Promise<void> {
     try {
-      const response = await fetch("/login/Logout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" }
-      });
+      const response = await fetch("/login/Logout");
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
@@ -99,7 +96,11 @@ export default class LoginService {
   public static async updateUsername(newUsername: any): Promise<boolean> {
     try {
       const response = await fetch(
-        `login/UpdateUsername?newUsername=${newUsername}`
+        `login/UpdateUsername?newUsername=${newUsername}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" }
+        }
       );
 
       if (!response.ok) {
@@ -119,7 +120,10 @@ export default class LoginService {
   public static async deleteArtist(id: number): Promise<void> {
     try {
       const response = await fetch(
-        `/login/DeleteArtist?ArtistId=${id}`
+        `/login/DeleteArtist?ArtistId=${id}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" }
+        }
       );
 
       if (!response.ok) {

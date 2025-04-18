@@ -140,7 +140,7 @@ async function getIsAdmin() {
 
 async function submitEdit() {
   if (props.comment.id != null) {
-    CommentAccessService.editComment(props.comment.id, newMessage.value)
+    CommentAccessService.editComment(props.comment, newMessage.value)
       .then(() => {
         emit("deleteComment");
         editing.value = false;
@@ -165,7 +165,7 @@ async function deleteComment() {
 }
 
 function adjustForTimezone(date: Date): Date {
-  var timeOffsetInMS: number = date.getTimezoneOffset() * 60000;
+  let timeOffsetInMS: number = date.getTimezoneOffset() * 60000;
   date.setTime(date.getTime() - timeOffsetInMS);
   return date;
 }

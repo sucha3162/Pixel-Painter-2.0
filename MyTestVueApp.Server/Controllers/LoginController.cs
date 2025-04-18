@@ -30,7 +30,7 @@ namespace MyTestVueApp.Server.Controllers
             LoginService = loginService;
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("Login")]
         public IActionResult Login()
         {
@@ -40,7 +40,7 @@ namespace MyTestVueApp.Server.Controllers
             return Redirect(url);
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("LoginRedirect")]
         public async Task<IActionResult> RedirectLogin(string code, string scope, string authuser, string prompt)
         {
@@ -59,7 +59,7 @@ namespace MyTestVueApp.Server.Controllers
             return Redirect(AppConfig.Value.HomeUrl);
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("Logout")]
         public IActionResult Logout()
         {

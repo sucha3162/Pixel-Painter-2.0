@@ -16,7 +16,10 @@ export default class LikeService {
   }
   public static async removeLike(artId: number): Promise<boolean> {
     try {
-      const response = await fetch(`/like/RemoveLike?artId=${artId}`);
+      const response = await fetch(`/like/RemoveLike?artId=${artId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" }
+      });
       if (!response.ok) {
         throw new Error("Response was false.");
       }

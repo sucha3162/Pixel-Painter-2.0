@@ -55,7 +55,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         public void PaintPixels(string groupName, int layer, string color, Coordinate[] vector)
         {
-            Groups[groupName].PaintPixels(color, vector);
+            Groups[groupName].PaintPixels(layer, color, vector);
         }
 
         public void RemoveGroup(string groupName)

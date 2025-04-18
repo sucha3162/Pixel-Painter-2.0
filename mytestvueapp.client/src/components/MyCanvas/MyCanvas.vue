@@ -70,8 +70,8 @@ function updateCanvas() {
 function render() {
   if (ctx.value && props.art.pixelGrid.encodedGrid) {
     const imageServe = props.art.pixelGrid.encodedGrid;
-    var hexBegin = 0;
-    var hexEnd = 6;
+    let hexBegin = 0;
+    let hexEnd = 6;
     for (
       let column = 0;
       column < props.art.pixelGrid.width * props.pixelSize;
@@ -94,8 +94,8 @@ function render() {
 function renderfilter() {
   if (ctx.value && props.art.pixelGrid.encodedGrid) {
     const imageServe = props.modelValue ? props.modelValue : "";
-    var hexBegin = 0;
-    var hexEnd = 6;
+    let hexBegin = 0;
+    let hexEnd = 6;
     for (
       let column = 0;
       column < props.art.pixelGrid.width * props.pixelSize;

@@ -6,7 +6,7 @@ import Art from "@/entities/Art";
 import Button from "primevue/button";
 import { PixelGrid } from "@/entities/PixelGrid";
 import GIFCreationService from "@/services/GIFCreationService";
-import { useLayerStore } from "@/store/LayerStore"
+import { useLayerStore } from "@/store/LayerStore";
 
 const layerStore = useLayerStore();
 const props = defineProps<{
@@ -22,13 +22,12 @@ function handleClick() {
   }
 }
 
-function flattenArt(): string[][] { 
+function flattenArt(): string[][] {
   let width = layerStore.grids[0].width;
   let height = layerStore.grids[0].height;
   let arr: string[][] = Array.from({ length: height }, () =>
     Array(width).fill(layerStore.grids[0].backgroundColor)
   );
-
 
   for (let length = 0; length < layerStore.grids.length; length++) {
     for (let i = 0; i < height; i++) {
@@ -37,30 +36,27 @@ function flattenArt(): string[][] {
         //layers above the first will just replace cells if they have a value
         if (layerStore.grids[length].grid[i][j] !== "empty") {
           arr[i][j] = layerStore.grids[length].grid[i][j];
-        }  
+        }
       }
     }
   }
   return arr;
 }
 
-function SaveToFile() {
+function saveToFile() {
   let grid: string[][];
-  if (layerStore.grids.length>1) {
+  if (layerStore.grids.length > 1) {
     grid = flattenArt();
   } else {
     grid = props.art.pixelGrid.grid;
   }
-  
+
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
   if (!context) {
     throw new Error("Could not get context");
   }
-  const image = context.createImageData(
-    grid.length,
-    grid.length
-  );
+  const image = context.createImageData(grid.length, grid.length);
 
   canvas.width = grid.length;
   canvas.height = grid.length;

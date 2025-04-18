@@ -92,7 +92,7 @@ namespace MyTestVueApp.Server.Hubs
 
         public async Task SendPixels(string room, int layer, string color, Coordinate[] coords)
         {
-            _manager.PaintPixels(room, layer, color, coords);
+            Manager.PaintPixels(room, layer, color, coords);
             await Clients.Group(room).SendAsync("ReceivePixels", layer, color, coords);
         }
 

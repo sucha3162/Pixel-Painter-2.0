@@ -7,7 +7,8 @@
         :key="art.id"
         :art="art"
         :pixelSize="20"
-        :canvas-number="1" />
+        :canvas-number="1"
+      />
     </div>
     <Card class="w-20rem ml-5">
       <template #content>
@@ -20,14 +21,15 @@
           <div
             :style="{
               textDecoration: hover ? 'underline' : 'none',
-              cursor: hover ? 'pointer' : 'none',
+              cursor: hover ? 'pointer' : 'none'
             }"
             v-for="(artist, index) in art.artistName"
             :key="index"
             class="py-1 font-semibold"
             @click="router.push(`/accountpage/${artist}`)"
             v-on:mouseover="hover = true"
-            v-on:mouseleave="hover = false">
+            v-on:mouseleave="hover = false"
+          >
             {{ artist }}
           </div>
           <!-- <RouterLink to="/accountpage">
@@ -53,7 +55,8 @@
               rounded
               text
               severity="secondary"
-              @click="showFilters = !showFilters" />
+              @click="showFilters = !showFilters"
+            />
           </div>
           <div class="flex gap-2">
             <Button
@@ -99,21 +102,23 @@
                 >Deuteranope</Button
               >
             </div>
-            <div v-if="ShowTones" class="flex flex-column gap-2 mt-4">
+            <div v-if="showTones" class="flex flex-column gap-2 mt-4">
               <h4 class="m-auto">Color 1</h4>
               <h4 class="m-auto">{{ toneOne }}</h4>
               <input
                 type="color"
                 id="tone1"
                 v-model="toneOne"
-                class="flex gap-2 w-auto h-2rem" />
+                class="flex gap-2 w-auto h-2rem"
+              />
               <h4 class="m-auto">Color 2</h4>
               <h4 class="m-auto">{{ toneTwo }}</h4>
               <input
                 type="color"
                 id="tone2"
                 v-model="toneTwo"
-                class="flex gap-2 w-auto h-2rem" />
+                class="flex gap-2 w-auto h-2rem"
+              />
               <Button
                 :disabled="filtered && duotone == false"
                 :severity="duotone ? 'primary' : 'secondary'"
@@ -141,12 +146,14 @@
     <NewComment
       @newComment="updateComments"
       class="mb-4"
-      :allComments="allComments"></NewComment>
+      :allComments="allComments"
+    ></NewComment>
     <CommentOnArt
       v-for="Comment in allComments"
       :key="Comment.id"
       :comment="Comment"
-      @delete-comment="updateComments"></CommentOnArt>
+      @delete-comment="updateComments"
+    ></CommentOnArt>
   </div>
 </template>
 <script setup lang="ts">
@@ -167,9 +174,7 @@ import Button from "primevue/button";
 import router from "@/router";
 import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
-import type { Color } from "pixi.js";
 import { useLayerStore } from "@/store/LayerStore";
-import type { Tooltip } from "primevue";
 
 const layerStore = useLayerStore();
 
@@ -221,8 +226,7 @@ function editArt() {
 }
 
 async function updateComments() {
-  numberTotalComments = art.value.numComments;
-  CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
+  CommentAccessService.getCommentsByArtId(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });
 }
@@ -516,7 +520,7 @@ function rgbToLMS(rgbcolors: number[]): number[][] {
   }
   return LMSColors;
 }
-function LMStoProtanopes(LMScolors: number[][]): number[][] {
+function lmsToProtanopes(LMScolors: number[][]): number[][] {
   let ProtanopeColors: number[][] = [];
   const ProtanopeCalc: number[][] = [
     [0, 2.02344, -2.52581],
@@ -686,4 +690,3 @@ const deuFilter = () => {
   });
 };
 </script>
-
