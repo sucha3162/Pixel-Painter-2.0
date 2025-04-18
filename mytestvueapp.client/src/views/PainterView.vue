@@ -33,13 +33,14 @@
           :connection="connection"
           :connected="connected"
           :group-name="groupName"
-          @OpenModal="ToggleKeybinds"
+          @disconnect="disconnect"
+          @openModal="ToggleKeybinds"
         />
         <SaveImageToFile :art="art" :fps="fps"></SaveImageToFile>
         <ConnectButton
-          @OpenModal="ToggleKeybinds"
-          @Connect="connect"
-          @Disconnect="disconnect"
+          @openModal="ToggleKeybinds"
+          @connect="connect"
+          @disconnect="disconnect"
           :connected="connected"
           :isGif="art.pixelGrid.isGif"
         />
@@ -254,6 +255,8 @@ const connect = (groupname: string) => {
         );
         groupName.value = groupname;
         connected.value = !connected.value;
+        art.value.artistId = [artist.value.id];
+        art.value.artistName = [artist.value.name];
       })
       .catch((err) => console.error("Error connecting to Hub:", err));
   } else {
