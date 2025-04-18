@@ -693,6 +693,9 @@ function DrawAtCoords(coords: Vector2[]) {
       }
     }
   });
+	if (layerStore.grids[0].isGif) {
+		canvas.value?.drawLayers(layerStore.layer);
+	}
 }
 
 function fill(
