@@ -34,8 +34,7 @@ defineExpose({
   drawLayers,
   updateCell,
   init,
-  drawFrame,
-  updateCellFrame
+  drawFrame
 });
 
 //model
@@ -174,19 +173,6 @@ function drawFrame(frame: number) {
     }
   }
 }
-
-  function updateCellFrame(frame: number, x: number, y: number, color: string) {
-    let idx = x * layerStore.grids[0].width + y + 2;
-
-    let sprite = viewport.children[idx] as Sprite;
-    if (color === "empty") {
-      sprite.alpha = 0;
-    } else {
-      sprite.tint = color;
-      sprite.alpha = 1;
-    }
-  }
-
 
 function updateCell(layer: number, x: number, y: number, color: string) {
   if (layer <= layerStore.layer) {
