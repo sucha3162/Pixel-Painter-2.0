@@ -454,7 +454,7 @@ watch(
       tempGrid = JSON.parse(
         JSON.stringify(layerStore.grids[layerStore.layer].grid)
       );
-      canvas.value?.drawFrame(layerStore.layer);
+      //canvas.value?.drawFrame(layerStore.layer);
 			canvas.value?.drawLayers(next);
     } else {
       layerStore.layer = next;
@@ -601,14 +601,15 @@ function DrawAtCoords(coords: Vector2[]) {
                   coord.y + j,
                   cursor.value.color
                 );
-              } else {
-                canvas.value?.updateCellFrame(
-                  layerStore.layer,
-                  coord.x + i,
-                  coord.y + j,
-                  cursor.value.color
-                );
               }
+              //else {
+              //  canvas.value?.updateCellFrame(
+              //    layerStore.layer,
+              //    coord.x + i,
+              //    coord.y + j,
+              //    cursor.value.color
+              //  );
+              //}
             }
           }
         }
