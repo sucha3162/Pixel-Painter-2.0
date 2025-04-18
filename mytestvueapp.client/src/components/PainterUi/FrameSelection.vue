@@ -1,36 +1,40 @@
 <template>
-  <FloatingCard
-    position="bottom"
-    header="Frames"
-    button-icon="pi pi-images"
-    button-label=""
-    width=""
-    :default-open="true"
-  >
-    <Button
-      class="mr-1"
-      icon="pi pi-minus"
-      size="small"
-      rounded
-      @click="removeFrame()"
-    />
+  <FloatingCard position="bottom"
+                header="Frames"
+                button-icon="pi pi-images"
+                button-label=""
+                width=""
+                :default-open="true">
 
-    <template v-for="frame in frames" :key="frame.id">
-      <Button
-        :icon="frame.icon"
-        :class="frame.class"
-        :severity="frame.severity"
-        @click="switchFrame(frame.id)"
-      />
-    </template>
+    <div>
+      <Button class="mr-1"
+              icon="pi pi-minus"
+              size="small"
+              rounded
+              @click="removeFrame()" />
 
-    <Button
-      class="ml-1"
-      icon="pi pi-plus"
-      size="small"
-      rounded
-      @click="addFrame()"
-    />
+      <template v-for="frame in frames" :key="frame.id">
+        <Button :icon="frame.icon"
+                :class="frame.class"
+                :severity="frame.severity"
+                @click="switchFrame(frame.id)" />
+      </template>
+
+      <Button class="ml-1"
+              icon="pi pi-plus"
+              size="small"
+              rounded
+              @click="addFrame()" />
+    </div>
+    <div class="flex justify-center w-full">
+      <Button class="w-full"
+              :label="showPrevFrame ? 'Hide Previous Frame' : 'Show Previous Frame'"
+              :severity="buttonSeverity"
+              icon=""
+              size="small"
+              rounded
+              @click="showPrevFrame = !showPrevFrame; changeSeverity()" />
+    </div>
   </FloatingCard>
 </template>
 
@@ -46,6 +50,8 @@ const frameStore = useLayerStore();
 const frames = ref([
   { id: 0, icon: "pi pi-image", class: "m-1", severity: "secondary" }
 ]);
+const showPrevFrame = defineModel<boolean>("showLayers", { default: true });
+let buttonSeverity = "secondary";
 
 onBeforeMount(() => {
   for (let i = 1; i < frameStore.grids.length; i++) {
@@ -59,6 +65,14 @@ onBeforeMount(() => {
 
   frames.value[0].severity = "primary";
 });
+
+  function changeSeverity() {
+    if (showPrevFrame.value) {
+      buttonSeverity = "primary";
+    } else {
+      buttonSeverity = "secondary";
+    }
+  }
 
 function addFrame() {
   frames.value.push({

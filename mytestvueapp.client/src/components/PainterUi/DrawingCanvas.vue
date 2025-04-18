@@ -34,8 +34,7 @@ defineExpose({
   drawLayers,
   updateCell,
   init,
-  drawFrame,
-  updateCellFrame
+  drawFrame
 });
 
 //model
@@ -103,6 +102,8 @@ function drawLayers(layer: number) {
   let index = 0;
   if (!props.showLayers) {
     index = layer; //for showing only the selected layer
+  } else if (props.grid.isGif && layer != 0) {
+    index = layer - 1;
   }
 
   if (viewport.children.length > 2) {
@@ -132,7 +133,7 @@ function drawLayers(layer: number) {
           sprite.alpha = 0;
         } else {
           let tmp = layerStore.grids[index].grid[i][j];
-          if (index < layerStore.layer && props.greyscale) {
+					if (index < layerStore.layer && (props.greyscale || props.grid.isGif)) {
             tmp = filterGreyScale(tmp);
           }
           sprite.tint = tmp;
@@ -175,12 +176,17 @@ function drawFrame(frame: number) {
 
 function updateCell(layer: number, x: number, y: number, color: string) {
   if (layer <= layerStore.layer) {
-    //square the width to get last index of grid before current,
-    //mult by layer to get selected layer,
-    //add by 2 to account for dropshadow and background sprites in viewport
-    let idx = layerStore.grids[0].width ** 2 * layer + 2;
-    if (!props.showLayers) {
-      idx = 2;
+    
+    let idx = 2;
+
+    if (!props.grid.isGif) {
+      //square the width to get last index of grid before current,
+      //mult by layer to get selected layer,
+      //add by 2 to account for dropshadow and background sprites in viewport
+      idx += layerStore.grids[0].width ** 2 * layer;
+      if (!props.showLayers) {
+        idx = 2;
+      }
     }
 
     //no way around this, viewport stores sprites in a 1d array
@@ -216,17 +222,6 @@ function filterGreyScale(hex: string): string {
   return val;
 }
 
-function updateCellFrame(frame: number, x: number, y: number, color: string) {
-  let idx = x * layerStore.grids[0].width + y + 2;
-
-  let sprite = viewport.children[idx] as Sprite;
-  if (color === "empty") {
-    sprite.alpha = 0;
-  } else {
-    sprite.tint = color;
-    sprite.alpha = 1;
-  }
-}
 
 const pos = ref<any>();
 

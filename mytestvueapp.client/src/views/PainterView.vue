@@ -66,6 +66,7 @@
       <FrameSelection
         v-if="art.pixelGrid.isGif"
         v-model:selFrame="selectedFrame"
+        v-model:showLayers="showLayers"
       />
       <FPSSlider v-if="art.pixelGrid.isGif" v-model:fps="fps" />
       <LayerSelection
@@ -269,8 +270,9 @@ const connect = (groupname: string) => {
   }
 };
 
-const disconnect = () => {
-  connection.invoke("LeaveGroup", groupName.value, artist.value)
+const disconnect = (groupname: string) => {
+  connection
+    .invoke("LeaveGroup", groupname, artist.value)
     .then(() => {
       connection
         .stop()
@@ -455,7 +457,7 @@ watch(
       tempGrid = JSON.parse(
         JSON.stringify(layerStore.grids[layerStore.layer].grid)
       );
-      canvas.value?.drawFrame(layerStore.layer);
+			canvas.value?.drawLayers(next);
     } else {
       layerStore.layer = next;
       tempGrid = JSON.parse(JSON.stringify(layerStore.grids[next].grid));
@@ -564,16 +566,7 @@ function DrawAtCoords(coords: Vector2[]) {
         for (let j = 0; j < layerStore.grids[layerStore.layer].width; j++) {
           layerStore.grids[layerStore.layer].grid[i][j] = tempGrid[i][j];
 
-          if (!layerStore.grids[0].isGif) {
-            canvas.value?.updateCell(layerStore.layer, i, j, tempGrid[i][j]);
-          } else {
-            canvas.value?.updateCellFrame(
-              layerStore.layer,
-              i,
-              j,
-              tempGrid[i][j]
-            );
-          }
+					canvas.value?.updateCell(layerStore.layer, i, j, tempGrid[i][j]);
         }
       }
     }
@@ -601,13 +594,6 @@ function DrawAtCoords(coords: Vector2[]) {
                   coord.y + j,
                   cursor.value.color
                 );
-              } else {
-                canvas.value?.updateCellFrame(
-                  layerStore.layer,
-                  coord.x + i,
-                  coord.y + j,
-                  cursor.value.color
-                );
               }
             }
           }
@@ -627,21 +613,12 @@ function DrawAtCoords(coords: Vector2[]) {
                 layerStore.grids[layerStore.layer].grid[coord.x + i][
                   coord.y + j
                 ] = "empty";
-                if (!layerStore.grids[0].isGif) {
-                  canvas.value?.updateCell(
-                    layerStore.layer,
-                    coord.x + i,
-                    coord.y + j,
-                    "empty"
-                  );
-                } else {
-                  canvas.value?.updateCellFrame(
-                    layerStore.layer,
-                    coord.x + i,
-                    coord.y + j,
-                    "empty"
-                  );
-                }
+								canvas.value?.updateCell(
+									layerStore.layer,
+									coord.x + i,
+									coord.y + j,
+									"empty"
+								);
               }
             }
           }
@@ -674,25 +651,20 @@ function DrawAtCoords(coords: Vector2[]) {
         ) {
           layerStore.grids[layerStore.layer].grid[coord.x][coord.y] =
             cursor.value.color;
-          if (!layerStore.grids[0].isGif) {
-            canvas.value?.updateCell(
-              layerStore.layer,
-              coord.x,
-              coord.y,
-              cursor.value.color
-            );
-          } else {
-            canvas.value?.updateCellFrame(
-              layerStore.layer,
-              coord.x,
-              coord.y,
-              cursor.value.color
-            );
-          }
+
+					canvas.value?.updateCell(
+						layerStore.layer,
+						coord.x,
+						coord.y,
+						cursor.value.color
+					);
         }
       }
     }
   });
+	if (layerStore.grids[0].isGif) {
+		canvas.value?.drawLayers(layerStore.layer);
+	}
 }
 
 function fill(
@@ -705,11 +677,8 @@ function fill(
     const oldColor = layerStore.grids[layerStore.layer].grid[x][y];
     layerStore.grids[layerStore.layer].grid[x][y] = color;
 
-    if (!layerStore.grids[0].isGif) {
-      canvas.value?.updateCell(layerStore.layer, x, y, color);
-    } else {
-      canvas.value?.updateCellFrame(layerStore.layer, x, y, color);
-    }
+		canvas.value?.updateCell(layerStore.layer, x, y, color);
+    
     vectors.push(new Vector2(x, y));
     if ("empty" !== color) {
       if (x + 1 < layerStore.grids[layerStore.layer].width) {
@@ -746,11 +715,7 @@ function randomizeGrid() {
         .padStart(6, "0");
       layerStore.grids[layerStore.layer].grid[i][j] = color;
 
-      if (!layerStore.grids[0].isGif) {
-        canvas.value?.updateCell(layerStore.layer, i, j, color);
-      } else {
-        canvas.value?.updateCellFrame(layerStore.layer, i, j, color);
-      }
+			canvas.value?.updateCell(layerStore.layer, i, j, color);
 
       if (connected.value) {
         let coords: Vector2[] = [];
@@ -773,29 +738,15 @@ function fallingSand() {
           const below = pixelGrid.grid[x][y + 1];
           pixelGrid.grid[x][y + 1] = pixelGrid.grid[x][y];
 
-          if (!layerStore.grids[0].isGif) {
-            canvas.value?.updateCell(
-              layerStore.layer,
-              x,
-              y + 1,
-              pixelGrid.grid[x][y]
-            );
-          } else {
-            canvas.value?.updateCellFrame(
-              layerStore.layer,
-              x,
-              y + 1,
-              pixelGrid.grid[x][y]
-            );
-          }
+					canvas.value?.updateCell(
+						layerStore.layer,
+						x,
+						y + 1,
+						pixelGrid.grid[x][y]
+					);
 
           pixelGrid.grid[x][y] = below;
-
-          if (!layerStore.grids[0].isGif) {
-            canvas.value?.updateCell(layerStore.layer, x, y, below);
-          } else {
-            canvas.value?.updateCellFrame(layerStore.layer, x, y, below);
-          }
+					canvas.value?.updateCell(layerStore.layer, x, y, below);
         } else {
           //generate a random number either -1 or 1
           const random = Math.random() > 0.5 ? 1 : -1;
@@ -809,28 +760,15 @@ function fallingSand() {
             const belowRight = pixelGrid.grid[x + random][y + 1];
             pixelGrid.grid[x + random][y + 1] = pixelGrid.grid[x][y];
 
-            if (!layerStore.grids[0].isGif) {
-              canvas.value?.updateCell(
-                layerStore.layer,
-                x + random,
-                y + 1,
-                pixelGrid.grid[x][y]
-              );
-            } else {
-              canvas.value?.updateCellFrame(
-                layerStore.layer,
-                x + random,
-                y + 1,
-                pixelGrid.grid[x][y]
-              );
-            }
+						canvas.value?.updateCell(
+							layerStore.layer,
+							x + random,
+							y + 1,
+							pixelGrid.grid[x][y]
+						);
             pixelGrid.grid[x][y] = belowRight;
 
-            if (!layerStore.grids[0].isGif) {
-              canvas.value?.updateCell(layerStore.layer, x, y, belowRight);
-            } else {
-              canvas.value?.updateCellFrame(layerStore.layer, x, y, belowRight);
-            }
+						canvas.value?.updateCell(layerStore.layer, x, y, belowRight);
           }
         }
       }
