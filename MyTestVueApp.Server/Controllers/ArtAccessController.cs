@@ -161,6 +161,20 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
+        [HttpGet]
+        [Route("GetGif")]
+        public async Task<IActionResult> GetGif(int id)
+        {
+            try
+            {
+                var gif = await ArtAccessService.GetGif(id);
+                return Ok(gif);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
 
         [HttpGet]
         [Route("GetArtists")]
@@ -195,6 +209,51 @@ namespace MyTestVueApp.Server.Controllers
                         if (result == null)
                         {
                             return BadRequest("Could not update this art");
+                        }
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return BadRequest("User not logged in");
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+        [HttpPut]
+        [Route("SaveGif")]
+        public async Task<IActionResult> SaveGif([FromBody] Art[] art, int fps)
+        {
+            try
+            {
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userSubId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userSubId);
+
+                    if (artist == null)
+                    {
+                        return BadRequest("User not logged in");
+                    }
+
+                    if (art[0].id == 0) //New Gif
+                    {
+                        var result = await ArtAccessService.SaveGif(artist, art, fps);
+                        return Ok(result);
+                    }
+                    else //Update Gif
+                    {
+                        var result = await ArtAccessService.UpdateGif(art,fps);
+                        if (result == null)
+                        {
+                            return BadRequest("Could not update this gif"); //need to update fps as well
                         }
                         return Ok(result);
                     }

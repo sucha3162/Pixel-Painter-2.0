@@ -17,6 +17,10 @@ export default class Art {
   numComments: number;
   currentUserIsOwner: boolean;
 
+  IsGif: boolean;
+  gifId: number;
+  gifFrameNum: number;
+
   constructor() {
     this.id = 0;
     this.title = "";
@@ -29,5 +33,9 @@ export default class Art {
     this.numComments = 0;
     this.pixelGrid = new PixelGrid(1, 1, "FF0000", false);
     this.currentUserIsOwner = false;
+
+    this.IsGif = false;
+    this.gifFrameNum = 0;
+    this.gifId = 0;
   }
 }

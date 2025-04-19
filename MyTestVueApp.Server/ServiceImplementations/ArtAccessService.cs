@@ -35,12 +35,16 @@ namespace MyTestVueApp.Server.ServiceImplementations
 	                    Art.Encode, 
 	                    Art.CreationDate, 
 	                    Art.isPublic, 
+						Art.IsGIF,
 	                    COUNT(distinct Likes.ArtistId) as Likes, 
-	                    Count(distinct Comment.Id) as Comments  
+	                    Count(distinct Comment.Id) as Comments,
+                        Art.gifId,
+                        Art.gifFrameNum
                     FROM ART  
 	                    LEFT JOIN Likes ON Art.ID = Likes.ArtID  
-	                    LEFT JOIN Comment ON Art.ID = Comment.ArtID  
-                    GROUP BY Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
+	                    LEFT JOIN Comment ON Art.ID = Comment.ArtID
+						Where Art.gifFrameNum <= 1
+                    GROUP BY Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic, Art.IsGIF, Art.GifId, Art.gifFrameNum
                     ";
 
                 using (var command = new SqlCommand(query1, connection))
@@ -61,8 +65,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 title = reader.GetString(1),
                                 creationDate = reader.GetDateTime(5),
                                 isPublic = reader.GetBoolean(6),
-                                numLikes = reader.GetInt32(7),
-                                numComments = reader.GetInt32(8),
+                                IsGif = reader.GetBoolean(7),
+                                numLikes = reader.GetInt32(8),
+                                numComments = reader.GetInt32(9),
+                                gifID = reader.GetInt32(10),
+                                gifFrameNum = reader.GetInt32(11),
                                 pixelGrid = pixelGrid,
                             };
                             painting.SetArtists(GetArtists(painting.id));
@@ -136,9 +143,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     WHERE Art.ID =  {id} 
                     GROUP BY Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
                     ";
-
-                //SQL INJECTION WHOOPS^
-                //Good thing we have type checking :p
 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -308,10 +312,10 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         command.Parameters.AddWithValue("@IsPublic", art.isPublic);
                         command.Parameters.AddWithValue("@ArtistId", artist.id);
 
-                        var newArtId = await command.ExecuteScalarAsync();
-                        art.id = Convert.ToInt32(newArtId);
+                            var newArtId = await command.ExecuteScalarAsync();
+                            art.id = Convert.ToInt32(newArtId);
+                        }
                     }
-                }
 
                 return art;
             }
@@ -321,7 +325,114 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
-        public async Task<Art> SaveNewArtMulti(Art art)//Multi artist
+
+        public async Task<IEnumerable<Art>> SaveGif(Artist artist, Art[] art, int fps)
+        {
+
+            try
+            {
+                using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
+                {
+                    connection.Open();
+
+                    var query = @"
+                    INSERT INTO Gif(FPS) values (@FPS);
+                    SELECT SCOPE_IDENTITY();
+                ";
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@FPS", fps);
+                        var GifID = await command.ExecuteScalarAsync();
+                        foreach (var item in art)
+                        {
+                            if (GifID != null)
+                            item.gifID = Convert.ToInt32(GifID);
+                        }
+
+                    }
+                }
+                foreach (var item in art)
+                {
+                    item.creationDate = DateTime.UtcNow;
+
+                    using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
+                    {
+                        connection.Open();
+
+                        var query = @"
+                    INSERT INTO Art (Title, Width, Height, Encode, CreationDate, IsPublic, IsGIF, gifId,gifFrameNum)
+                    VALUES (@Title, @Width, @Height, @Encode, @CreationDate, @IsPublic,1,@gifNum,@frameNum);
+                    SELECT SCOPE_IDENTITY();
+                    INSERT INTO ContributingArtists(ArtId,ArtistId) values (@@IDENTITY,@ArtistId);";
+                        using (var command = new SqlCommand(query, connection))
+                        {
+                            command.Parameters.AddWithValue("@Title", item.title);
+                            command.Parameters.AddWithValue("@ArtistId", artist.id);
+                            command.Parameters.AddWithValue("@Width", item.pixelGrid.width);
+                            command.Parameters.AddWithValue("@Height", item.pixelGrid.height);
+                            command.Parameters.AddWithValue("@Encode", item.pixelGrid.encodedGrid);
+                            command.Parameters.AddWithValue("@CreationDate", item.creationDate);
+                            command.Parameters.AddWithValue("@IsPublic", item.isPublic);
+                            command.Parameters.AddWithValue("@gifNum", item.gifID);
+                            command.Parameters.AddWithValue("@frameNum", item.gifFrameNum);
+
+                            var newArtId = await command.ExecuteScalarAsync();
+                            item.id = Convert.ToInt32(newArtId);
+                        }
+                    }
+                }
+                return  art;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error in SaveArt");
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<Art>> GetGif(int id)
+        {
+            var connectionString = AppConfig.Value.ConnectionString;
+            var paintings = new List<Art>();
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                var query =
+                    @"
+                        Select id,Title,gifId,gifFrameNum,Width,Height,Encode from art
+                        where gifId = 1
+                        Order by gifFrameNum";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@gifId", id);
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (reader.Read())
+                        {
+                            var pixelGrid = new PixelGrid()
+                            {
+                                width = reader.GetInt32(4),
+                                height = reader.GetInt32(5),
+                                encodedGrid = reader.GetString(6)
+                            };
+                            var Gifframes = new Art()
+                            {
+                                id = reader.GetInt32(0),
+                                gifID = reader.GetInt32(2),
+                                gifFrameNum = reader.GetInt32(3),
+                                pixelGrid = pixelGrid
+
+                            };
+                            Gifframes.SetArtists(GetArtists(Gifframes.id));
+                            paintings.Add(Gifframes);
+                        }
+                        return paintings;
+                    }
+                }
+            }
+        }
+        public async Task<Art> SaveNewArtMulti(Art art)
         {
             try
             {
@@ -418,7 +529,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             command.Parameters.AddWithValue("@Height", art.pixelGrid.height);
                             command.Parameters.AddWithValue("@Encode", art.pixelGrid.encodedGrid);
                             command.Parameters.AddWithValue("@Id", art.id);
-                            command.Parameters.AddWithValue("@ArtistId", artist.id);
 
                             await command.ExecuteScalarAsync();
 
@@ -430,6 +540,77 @@ namespace MyTestVueApp.Server.ServiceImplementations
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Error in UpdateArt");
+                throw;
+            }
+
+        }
+
+        public async Task<Art> UpdateGif(Art[] art, int Fps)
+        {
+            try
+            {
+                var gifNum = art[0].gifID;
+                var oldArt = GetGif(gifNum);
+                if (oldArt == null)
+                {
+                    return null;
+                }
+
+                else
+                {
+                    foreach (var item in art)
+                    {
+                        using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
+                        {
+                            connection.Open();
+
+                            var query = @"
+                            UPDATE Art SET
+	                            Title = @Title,
+	                            IsPublic = @IsPublic,
+	                            Width = @Width,
+	                            Height = @Height,
+	                            Encode = @Encode
+                            WHERE GifId = @Id;
+                        ";
+                            using (var command = new SqlCommand(query, connection))
+                            {
+                                command.Parameters.AddWithValue("@Title", item.title);
+                                command.Parameters.AddWithValue("@IsPublic", item.isPublic);
+                                command.Parameters.AddWithValue("@Width", item.pixelGrid.width);
+                                command.Parameters.AddWithValue("@Height", item.pixelGrid.height);
+                                command.Parameters.AddWithValue("@Encode", item.pixelGrid.encodedGrid);
+                                command.Parameters.AddWithValue("@Id",gifNum);
+
+                                await command.ExecuteScalarAsync();
+
+                            }
+                        }
+                    }
+                    using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
+                    {
+                        connection.Open();
+
+                        var query = @"
+                           Update GIF Set
+                           FPS = @Fps
+                           where Id = @GifID
+                        ";
+                        using (var command = new SqlCommand(query, connection))
+                        {
+                            command.Parameters.AddWithValue("@Fps", Fps);
+                            command.Parameters.AddWithValue("@GifID", gifNum);
+
+                            await command.ExecuteScalarAsync();
+
+                        }
+                    }
+                        return GetArtById(Convert.ToInt32(art[0].id));
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error in UpdateGif");
                 throw;
             }
 
@@ -483,5 +664,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
+
     }
 }

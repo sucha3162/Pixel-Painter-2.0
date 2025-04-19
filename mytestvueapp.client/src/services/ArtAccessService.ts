@@ -213,7 +213,31 @@ export default class ArtAccessService {
       console.error(error);
       throw error;
     }
-  }
+    }
+
+    public static async SaveGif(art: Art[]): Promise<Art> {
+        try {
+            for (let i = 0; i < art.length; i++) {
+                art[i].creationDate = new Date().toISOString();
+            }
+
+            const request = "/artaccess/SaveGif";
+
+            const response = await fetch(request, {
+                method: "PUT",
+                body: JSON.stringify(art),
+                headers: { "Content-Type": "application/json" },
+            });
+            const json = await response.json();
+
+            const artpiece = json as Art[];
+
+            return artpiece[0];
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
 
   public static async DeleteArt(ArtId: number): Promise<void> {
     try {
