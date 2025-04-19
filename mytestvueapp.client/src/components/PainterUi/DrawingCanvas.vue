@@ -143,7 +143,7 @@ function updateCell(layer: number, x: number, y: number, color: string) {
     //square the width to get last index of grid before current,
     //mult by layer to get selected layer,
     //add by 2 to account for dropshadow and background sprites in viewport
-    let idx=layerStore.grids[0].width ** 2 * layer + 2;;
+    let idx=layerStore.grids[0].width ** 2 * layer + 2;
     if (!props.showLayers) {
       idx = 2;
     }

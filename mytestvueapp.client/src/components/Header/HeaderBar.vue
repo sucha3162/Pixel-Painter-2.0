@@ -41,8 +41,6 @@ import Notification from "./NotificationRedirect.vue";
 import LoginService from "@/services/LoginService";
 import { useLayerStore } from "@/store/LayerStore"
 
-const visible = ref(false);
-const password = ref(null);
 const layerStore = useLayerStore();
 
 const isLoggedIn = ref(false);

@@ -120,7 +120,7 @@ export default class LoginService {
   public static async deleteArtist(id: number): Promise<void> {
     try {
       const response = await fetch(
-        `/login/DeleteArtist?ArtistId=${id}`, {
+        `/login/DeleteArtist?id=${id}`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" }
         }

@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using MyTestVueApp.Server.ServiceImplementations;
 using MyTestVueApp.Server.Entities;
 using System.Security.Authentication;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace MyTestVueApp.Server.Controllers
 {
@@ -156,7 +157,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpPut]
         [Route("UpdateUsername")]
-        public async Task<IActionResult> UpdateUsername([FromBody] string newUsername)
+        public async Task<IActionResult> UpdateUsername([FromQuery] string newUsername)
         {
             try
             {

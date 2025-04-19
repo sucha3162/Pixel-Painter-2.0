@@ -2,7 +2,8 @@
   <Button
     :label="isEditing ? 'Save Changes' : 'Upload'"
     :icon="isEditing ? 'pi pi-save' : 'pi pi-upload'"
-    @click="toggleModal()"></Button>
+    @click="toggleModal()"
+  ></Button>
 
   <Dialog v-model:visible="visible" modal :style="{ width: '26rem' }">
     <template #header>
@@ -16,7 +17,8 @@
         <InputText
           v-model="newName"
           placeholder="Title"
-          class="w-full"></InputText>
+          class="w-full"
+        ></InputText>
       </div>
       <div class="flex align-items-center gap-3">
         <span>Privacy:</span>
@@ -27,7 +29,8 @@
           offLabel="Private"
           offIcon="pi pi-lock"
           class="w-36"
-          aria-label="Do you confirm" />
+          aria-label="Do you confirm"
+        />
         <span class="font-italic">*Visibility on gallery page*</span>
       </div>
     </div>
@@ -37,12 +40,14 @@
         text
         severity="secondary"
         @click="visible = false"
-        autofocus />
+        autofocus
+      />
       <Button
         :label="isEditing ? 'Save' : 'Upload'"
         severity="secondary"
         @click="upload()"
-        autofocus />
+        autofocus
+      />
     </template>
   </Dialog>
 </template>
@@ -60,7 +65,7 @@ import router from "@/router";
 import LoginService from "@/services/LoginService";
 import { HubConnectionState } from "@microsoft/signalr";
 import Artist from "@/entities/Artist";
-import { useLayerStore } from "@/store/LayerStore"
+import { useLayerStore } from "@/store/LayerStore";
 
 const layerStore = useLayerStore();
 const toast = useToast();
@@ -126,7 +131,6 @@ function flattenArtEncode(): string {
     Array(width).fill(layerStore.grids[0].backgroundColor)
   );
 
-
   for (let length = 0; length < layerStore.grids.length; length++) {
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
@@ -138,7 +142,7 @@ function flattenArtEncode(): string {
       }
     }
   }
-  return arr.flat().join('');
+  return arr.flat().join("");
 }
 
 async function upload() {
@@ -149,10 +153,10 @@ async function upload() {
       let newArt = new Art();
       newArt.title = newName.value;
       newArt.isPublic = newPrivacy.value;
-      newArt.pixelGrid.deepCopy(props.art.pixelGrid);
+      newArt.pixelGrid.deepCopy(layerStore.grids[0]);
       newArt.id = props.art.id;
       newArt.pixelGrid.encodedGrid = flattenArtEncode();
-      if (props.connected){
+      if (props.connected) {
         newArt.artistName = contributors.value.map((artist) => artist.name);
         newArt.artistId = contributors.value.map((artist) => artist.id);
       }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MyTestVueApp.Server.Configuration;
@@ -176,7 +177,7 @@ namespace MyTestVueApp.Server.Controllers
 
         [HttpPut]
         [Route("SaveArt")]
-        public async Task<IActionResult> SaveArt([FromBody] Art art)
+        public async Task<IActionResult> SaveArt([FromBody, BindRequired]Art art)
         {
             try
             {

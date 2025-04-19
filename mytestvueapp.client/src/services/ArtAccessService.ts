@@ -5,7 +5,11 @@ export default class ArtAccessService {
   public static async getAllArt(): Promise<Art[]> {
     try {
       const response = await fetch("/artaccess/GetAllArt");
+      if(!response.ok){
+        throw new Error("Error grabbign art");
+      }
       const json = await response.json();
+      console.log(json);
 
       const allArt: Art[] = [];
 

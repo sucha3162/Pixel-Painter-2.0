@@ -13,9 +13,7 @@ export default class NotificationService {
       const data = await response.json();
       
       for (const newNotification of data) {
-        let notification = new Notification();
-        notification = newNotification as Notification;
-        allNotifications.push(notification);
+        allNotifications.push(newNotification as Notification);
       }
 
       return allNotifications;
