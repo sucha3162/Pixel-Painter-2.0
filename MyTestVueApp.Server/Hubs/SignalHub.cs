@@ -8,11 +8,8 @@ namespace MyTestVueApp.Server.Hubs
 {
     public class SignalHub : Hub
     {
-        //key = groupname, value = list of users in the group
-        private IConnectionManager Manager;
+        private readonly IConnectionManager Manager;
         private readonly ILogger<SignalHub> Logger;
-
-        private Dictionary<string, string> Users = new();
 
         public SignalHub(IConnectionManager manager, ILogger<SignalHub> logger)
         {
@@ -36,56 +33,36 @@ namespace MyTestVueApp.Server.Hubs
 
         public async Task JoinGroup(string groupName, Artist artist)
         {
-            // Add the user to the group
-            Manager.AddUser(groupName, artist); 
-            Users.Add(Context.ConnectionId, groupName);
+            Manager.AddUser(Context.ConnectionId, artist, groupName); 
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-            await Clients.Group(groupName).SendAsync("Send", $"{artist.Name} has joined the group {groupName}.");
-
-            Logger.LogInformation("Member Count: " + Manager.GetGroup(groupName).GetCurrentMemberCount());
+            await Clients.Group(groupName).SendAsync("Send", $"{artist.name} has joined the group {groupName}.");
            
-            // Send the group config and list of members to the joiner!
             await Clients.Client(Context.ConnectionId).SendAsync("GroupConfig", Manager.GetGroup(groupName).CanvasSize, Manager.GetGroup(groupName).BackgroundColor, Manager.GetGroup(groupName).GetPixelsAsList());
             await Clients.Client(Context.ConnectionId).SendAsync("Members", Manager.GetGroup(groupName).CurrentMembers);
             
-            // Tell Existing members about the new member!
             await Clients.Group(groupName).SendAsync("NewMember", artist);
-
-            // Log Members to console
-            string members = "";
-            foreach(Artist member in Manager.GetGroup(groupName).CurrentMembers)
-            {
-                members = members + " " + member.Name;
-            }
-            Logger.LogInformation("Members: " + members);
         }
 
 
         public async Task CreateGroup(string groupName, Artist artist, string[][][] canvas, int canvasSize, string backgroundColor)
         { 
-            // Create the group, then add the user
             Manager.AddGroup(groupName,canvas,canvasSize,backgroundColor);
-            Manager.AddUser(groupName, artist);
-            Users.Add(Context.ConnectionId, groupName);
-
-            Logger.LogInformation("Group Info: " 
-                + Manager.GetGroup(groupName).Name + " " 
-                + Manager.GetGroup(groupName).CanvasSize + " "
-                + Manager.GetGroup(groupName).BackgroundColor
-                );
-
+            Manager.AddUser(Context.ConnectionId, artist, groupName);
 
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-            await Clients.Group(groupName).SendAsync("Send", $"{artist.Name} has joined the group {groupName}.");
-            // Give self to the frontend............ yeah i know.
-            await Clients.Group(groupName).SendAsync("NewMember", artist);
-
+            await Clients.Group(groupName).SendAsync("Send", $"{artist.name} has joined the group {groupName}.");
         }
 
         public async Task LeaveGroup(string groupName, Artist member)
         {
-            Logger.LogInformation("Leaving Group - MC: " + Manager.GetGroup(groupName).GetCurrentMemberCount());
-            Manager.RemoveUser(groupName, member);
+            try
+            {
+                Manager.RemoveUserFromGroup(Context.ConnectionId, member, groupName);
+            } catch (ArgumentException ex)
+            {
+                Logger.LogError(ex.Message);
+            }
+
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
             await Clients.Group(groupName).SendAsync("Send", $"{member.Name} has left the group {groupName}.");
         }
@@ -115,6 +92,23 @@ namespace MyTestVueApp.Server.Hubs
         public async Task GetContributingArtists(string groupName)
         {
             await Clients.Group(groupName).SendAsync("ContributingArtists", Manager.GetGroup(groupName).MemberRecord);
+        }
+
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            if (exception != null)
+            {
+                try
+                {
+                    Manager.RemoveUserFromAllGroups(Context.ConnectionId);
+                } catch (ArgumentException ex)
+                {
+                    Logger.LogError(ex.Message);
+                }
+
+                Logger.LogError($"Error, Disconnected: {exception.Message}");
+            }
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }

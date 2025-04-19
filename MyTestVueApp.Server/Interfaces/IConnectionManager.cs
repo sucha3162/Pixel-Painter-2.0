@@ -5,14 +5,15 @@ namespace MyTestVueApp.Server.Interfaces
 {
     public interface IConnectionManager
     {
-        public void AddGroup(string groupName);
         public void AddGroup(string groupName, string[][][] canvas, int canvasSize, string backgroundColor);
         public void RemoveGroup(string groupName);
-        public void AddUser(string groupName, Artist member);
-        public void RemoveUser(string groupName, Artist member);
+        public void AddUser(string connectionId, Artist member, string groupName);
+        public void RemoveUserFromGroup(string connectionId, Artist artist, string groupName);
+        public void RemoveUserFromAllGroups(string connectionId);
         public void PaintPixels(string groupName, int layer, string color, Coordinate[] vector);
         public Group GetGroup(string groupName);
-        public IEnumerable<string> GetGroups();
+        public IEnumerable<Group> GetGroups();
+        public IEnumerable<GroupAdvert> GetGroupAdverts();
         public IEnumerable<Artist> GetUsersInGroup(string groupName);
         public IEnumerable<Artist> GetContributingArtists(string groupName);
         public bool GroupExists(string groupName);

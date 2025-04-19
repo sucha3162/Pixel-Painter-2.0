@@ -97,39 +97,33 @@ function saveToFile() {
 }
 
 function saveGIF() {
-  let i = 1;
-  let workingGrid: PixelGrid;
-  let urls = [];
+  let workingGrid: string[][];
+  let urls: string[] = [];
+  let grids = layerStore.grids;
 
-  while (
-    (workingGrid = JSON.parse(
-      localStorage.getItem(`frame${i}`) as string
-    ) as PixelGrid) !== null
-  ) {
-    console.log(workingGrid.grid);
+  for (let i = 0; i < grids.length; i++) {
+    workingGrid = grids[i].grid;
+
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
     if (!context) {
       throw new Error("Could not get context");
     }
-    const image = context.createImageData(
-      workingGrid.width,
-      workingGrid.height
-    );
+    const image = context.createImageData(grids[i].width, grids[i].height);
 
-    canvas.width = workingGrid.width;
-    canvas.height = workingGrid.height;
+    canvas.width = grids[i].width;
+    canvas.height = grids[i].height;
 
-    for (let x = 0; x < workingGrid.height; x++) {
-      for (let y = 0; y < workingGrid.width; y++) {
+    for (let x = 0; x < grids[i].height; x++) {
+      for (let y = 0; y < grids[i].width; y++) {
         let pixelHex;
-        if (workingGrid.grid[x][y] === "empty") {
-          pixelHex = workingGrid.backgroundColor;
+        if (grids[i].grid[x][y] === "empty") {
+          pixelHex = grids[i].backgroundColor;
         } else {
-          pixelHex = workingGrid.grid[x][y];
+          pixelHex = grids[i].grid[x][y];
         }
         pixelHex = pixelHex.replace("#", "").toUpperCase();
-        const index = (x + y * workingGrid.width) * 4;
+        const index = (x + y * grids[i].width) * 4;
         image?.data.set(
           [
             parseInt(pixelHex.substring(0, 2), 16),
@@ -143,20 +137,19 @@ function saveGIF() {
     }
     context?.putImageData(image, 0, 0);
 
-    var upsizedCanvas = document.createElement("canvas");
+    let upsizedCanvas = document.createElement("canvas");
     upsizedCanvas.width = 1080;
     upsizedCanvas.height = 1080;
-    var upsizedContext = upsizedCanvas.getContext("2d");
+    let upsizedContext = upsizedCanvas.getContext("2d");
     if (!upsizedContext) {
       throw new Error("Could not get context");
     }
     upsizedContext.imageSmoothingEnabled = false;
     upsizedContext.drawImage(canvas, 0, 0, 1080, 1080);
 
-    var dataURL = upsizedCanvas.toDataURL("image/png");
+    let dataURL = upsizedCanvas.toDataURL("image/png");
     const strings = dataURL.split(",");
     urls.push(strings[1]);
-    i++;
   }
   GIFCreationService.createGIF(urls, props.fps);
 }

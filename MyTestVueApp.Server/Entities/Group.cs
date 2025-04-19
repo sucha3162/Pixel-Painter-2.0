@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+using System.Drawing;
+
+using System.Collections.Generic;
 
 namespace MyTestVueApp.Server.Entities
 {
@@ -43,14 +45,20 @@ namespace MyTestVueApp.Server.Entities
 
         public void RemoveMember(Artist member)
         {
-            CurrentMembers.Remove(member);
+            var itemToRemove = CurrentMembers.FirstOrDefault(mem => mem.id == member.id);
+            if(itemToRemove != null)
+                CurrentMembers.Remove(itemToRemove);
         }
 
         public void PaintPixels(int layer, string color, Coordinate[] coords)
         {
             foreach (Coordinate coord in coords)
             {
-                Pixels[layer][coord.X][coord.Y] = color;
+                if (coord.X >= 0 && coord.X < Pixels[0].GetLength(0) &&
+                    coord.Y >= 0 && coord.Y < Pixels[0].GetLength(0))
+                {
+                    Pixels[layer][coord.X][coord.Y] = color;
+                }
             }
         }
 

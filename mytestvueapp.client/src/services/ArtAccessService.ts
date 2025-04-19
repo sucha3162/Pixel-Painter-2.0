@@ -112,6 +112,7 @@ export default class ArtAccessService {
       art.creationDate = new Date().toISOString();
 
       const request = "/artaccess/SaveArt";
+      }
 
       const response = await fetch(request, {
         method: "PUT",

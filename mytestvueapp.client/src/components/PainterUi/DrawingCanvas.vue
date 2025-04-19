@@ -14,7 +14,7 @@ import { PixelGrid } from "@/entities/PixelGrid";
 import PainterTool from "@/entities/PainterTool";
 import { Vector2 } from "@/entities/Vector2";
 import Cursor from "@/entities/Cursor";
-import { useLayerStore } from "@/store/LayerStore"
+import { useLayerStore } from "@/store/LayerStore";
 
 //Constants
 const PIXEL_SIZE = 10;
@@ -28,7 +28,13 @@ const props = defineProps<{
 }>();
 
 //exposes (only put methods here if there are things painterview does that DIRECTLY update the canvas)
-defineExpose({ recenter, updateCursor, drawLayers, updateCell, init });
+defineExpose({
+  recenter,
+  updateCursor,
+  drawLayers,
+  updateCell,
+  init
+});
 
 //model
 const cursor = defineModel<Cursor>({
@@ -95,6 +101,8 @@ function drawLayers(layer: number) {
   let index = 0;
   if (!props.showLayers) {
     index = layer; //for showing only the selected layer
+  } else if (props.grid.isGif && layer != 0) {
+    index = layer - 1;
   }
 
   if (viewport.children.length > 2) {
@@ -124,15 +132,18 @@ function drawLayers(layer: number) {
           sprite.alpha = 0;
         } else {
           let tmp = layerStore.grids[index].grid[i][j];
-          if (index < layerStore.layer && props.greyscale) { 
-            tmp = filterGreyScale(tmp); 
+          if (
+            index < layerStore.layer &&
+            (props.greyscale || props.grid.isGif)
+          ) {
+            tmp = filterGreyScale(tmp);
           }
           sprite.tint = tmp;
           sprite.alpha = 1;
         }
         sprite.width = sprite.height = PIXEL_SIZE;
         sprite.position.set(i * PIXEL_SIZE, j * PIXEL_SIZE);
-        sprite.interactive = (index === layer) ? true : false; //reduce lag
+        sprite.interactive = index === layer ? true : false; //reduce lag
       }
     }
   }
@@ -140,16 +151,20 @@ function drawLayers(layer: number) {
 
 function updateCell(layer: number, x: number, y: number, color: string) {
   if (layer <= layerStore.layer) {
-    //square the width to get last index of grid before current,
-    //mult by layer to get selected layer,
-    //add by 2 to account for dropshadow and background sprites in viewport
-    let idx=layerStore.grids[0].width ** 2 * layer + 2;
-    if (!props.showLayers) {
-      idx = 2;
+    let idx = 2;
+
+    if (!props.grid.isGif) {
+      //square the width to get last index of grid before current,
+      //mult by layer to get selected layer,
+      //add by 2 to account for dropshadow and background sprites in viewport
+      idx += layerStore.grids[0].width ** 2 * layer;
+      if (!props.showLayers) {
+        idx = 2;
+      }
     }
 
     //no way around this, viewport stores sprites in a 1d array
-    idx += (x * layerStore.grids[0].width + y);
+    idx += x * layerStore.grids[0].width + y;
     const cell = viewport.children[idx] as Sprite;
     if (color === "empty") {
       cell.alpha = 0;
@@ -177,7 +192,7 @@ function filterGreyScale(hex: string): string {
 
   let newrgb = [gray, gray, gray];
 
-  let val = newrgb.map(x => x.toString(16).padStart(2, '0')).join("");
+  let val = newrgb.map((x) => x.toString(16).padStart(2, "0")).join("");
   return val;
 }
 
@@ -248,16 +263,20 @@ function recenter() {
   viewport.setZoom(40 / layerStore.grids[0].width);
   viewport.moveCenter(
     (layerStore.grids[0].width * PIXEL_SIZE) / 2,
-    (layerStore.grids[0].height * PIXEL_SIZE) / 2 + layerStore.grids[0].height * 2.5,
+    (layerStore.grids[0].height * PIXEL_SIZE) / 2 +
+      layerStore.grids[0].height * 2.5
   );
 }
 
-watch(() => props.grid.backgroundColor, () => {
-  const bg = viewport.children[1] as Sprite;
-  if (bg.tint !== props.grid.backgroundColor) {
-    bg.tint = props.grid.backgroundColor;
+watch(
+  () => props.grid.backgroundColor,
+  (prev, next) => {
+    const bg = viewport.children[1] as Sprite;
+    if (bg.tint !== props.grid.backgroundColor) {
+      bg.tint = props.grid.backgroundColor;
+    }
   }
-});
+);
 
 watch([() => props.showLayers, () => props.greyscale], () => {
   drawLayers(layerStore.layer);

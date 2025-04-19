@@ -194,8 +194,8 @@ const allComments = ref<Comment[]>([]);
 const id = Number(route.params.id);
 const uploadDate = ref<Date>(new Date());
 const user = ref<boolean>(false);
-const showFilters = ref<boolean>(false);
-const showTones = ref<boolean>(false);
+const showFilters = ref(false);
+const ShowTones = ref(false);
 const Names = ref<String[]>([]);
 
 onMounted(async () => {
@@ -225,8 +225,8 @@ function editArt() {
   router.push(`/paint/${id}`);
 }
 
-async function updateComments() {
-  CommentAccessService.getCommentsByArtId(id).then((promise: Comment[]) => {
+function updateComments() {
+  CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });
 }

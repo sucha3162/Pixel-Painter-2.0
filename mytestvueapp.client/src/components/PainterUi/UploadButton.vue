@@ -56,7 +56,7 @@
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import Art from "@/entities/Art";
 import ToggleButton from "primevue/togglebutton";
 import ArtAccessService from "@/services/ArtAccessService";
@@ -75,44 +75,18 @@ const loading = ref<boolean>(false);
 const newName = ref<string>("");
 const newPrivacy = ref<boolean>(false);
 
-const contributors = ref<Artist[]>([]);
-
 const props = defineProps<{
   art: Art;
-  connection: signalR.HubConnection;
-  connected: boolean;
-  groupName: string;
 }>();
 
 const isEditing = computed(() => {
   return props.art.id != 0;
 });
 
-const emit = defineEmits(["OpenModal"]);
+const emit = defineEmits(["openModal", "disconnect"]);
 
 watch(visible, () => {
-  emit("OpenModal", visible.value);
-});
-
-// WHY CANT I JUST WATCH props.connection.state !!!!!!!
-// I even tried using computed and {deep: true}!!!!
-watch(
-  () => props.connected,
-  () => {
-    if (props.connection.state == HubConnectionState.Connected) {
-      props.connection.invoke("GetContributingArtists", props.groupName);
-    }
-  }
-);
-
-onMounted(() => {
-  if (props.connection.state == HubConnectionState.Connected) {
-    props.connection.invoke("GetContributingArtists", props.groupName);
-  }
-});
-
-props.connection.on("ContributingArtists", (allArtists: Artist[]) => {
-  contributors.value = allArtists;
+  emit("openModal", visible.value);
 });
 
 function toggleModal() {
@@ -145,7 +119,8 @@ function flattenArtEncode(): string {
   return arr.flat().join("");
 }
 
-async function upload() {
+function Upload() {
+  emit("disconnect");
   loading.value = true;
 
   LoginService.isLoggedIn().then((isLoggedIn) => {
@@ -155,11 +130,9 @@ async function upload() {
       newArt.isPublic = newPrivacy.value;
       newArt.pixelGrid.deepCopy(layerStore.grids[0]);
       newArt.id = props.art.id;
-      newArt.pixelGrid.encodedGrid = flattenArtEncode();
-      if (props.connected) {
-        newArt.artistName = contributors.value.map((artist) => artist.name);
-        newArt.artistId = contributors.value.map((artist) => artist.id);
-      }
+      newArt.pixelGrid.encodedGrid = flattenArtEncode(); 
+      newArt.artistId = props.art.artistId;
+      newArt.artistName = props.art.artistName;
 
       ArtAccessService.saveArt(newArt)
         .then((data: Art) => {
