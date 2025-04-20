@@ -4,7 +4,8 @@
     :severity="liked ? 'primary' : 'secondary'"
     :icon="liked ? 'pi pi-heart-fill' : 'pi pi-heart'"
     :label="(likes + localLike).toString()"
-    @click.stop="likedClicked()" />
+    @click.stop="likedClicked()"
+  />
 </template>
 <script setup lang="ts">
 import Button from "primevue/button";
@@ -27,7 +28,7 @@ const toast = useToast();
 
 onMounted(async () => {
   LoginService.isLoggedIn().then((value) => (loggedIn.value = value));
-
+  isLiked();
   localLike.value = 0;
 });
 
@@ -77,4 +78,3 @@ async function likedClicked() {
   // Calculate new number of likes
 }
 </script>
-

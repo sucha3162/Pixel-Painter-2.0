@@ -7,7 +7,5 @@ namespace MyTestVueApp.Server.Interfaces
         public Task<IEnumerable<Notification>> GetNotificationsForArtist(int artistId);
         public Task<bool> MarkComment(int commentId);
         public Task<bool> MarkLike(int artId, int artistId);
-
-
     }
 }

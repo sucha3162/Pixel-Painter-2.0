@@ -20,7 +20,6 @@ namespace MyTestVueApp.Server.Entities
         public bool CurrentUserIsOwner { get; set; } = false;
         public bool CurrentUserIsAdmin { get; set; } = false;
 
-
         public void SetArtists(List<Artist> artists)
         {
             ArtistId = artists.Select((artist) => artist.Id).ToArray();

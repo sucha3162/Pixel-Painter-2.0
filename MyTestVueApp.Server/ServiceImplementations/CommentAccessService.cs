@@ -26,6 +26,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
             AppConfig = appConfig;
             Logger = logger;
         }
+        /// <summary>
+        /// Gets all comments that relate to an artpiece
+        /// </summary>
+        /// <param name="id">Id of the artwork that the commetns belong to</param>
+        /// <returns>Returns an IEnumerable(array) of Comments</returns>
         public async Task<IEnumerable<Comment>> GetCommentsByArtId(int id)
         {
             try
@@ -83,6 +88,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
+        /// <summary>
+        /// Goes into the database to change the message of a comment made by a user
+        /// </summary>
+        /// <param name="commentId">Id of the comment to be altered</param>
+        /// <param name="newMessage">New text of the comment</param>
+        /// <returns>Returns 0 if the Id is not specific, -1, if it fails, or 1+ if it updated the comment</returns>
         public async Task<int> EditComment(int commentId, string newMessage)
         {
             var connectionString = AppConfig.Value.ConnectionString;
@@ -129,7 +140,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-        
+        /// <summary>
+        /// Deletes a comment in the database
+        /// </summary>
+        /// <param name="commentId">Id of the comment to be deleted</param>
+        /// <returns>Returns 0 if the Id is not specific enough, -1 if it fails, and 1+ if it removed a comment</returns>
         public async Task<int> DeleteComment(int commentId)
         {
             var connectionString = AppConfig.Value.ConnectionString;
@@ -196,7 +211,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-
+        /// <summary>
+        /// Creates a comment in the database
+        /// </summary>
+        /// <param name="commenter">Artist who is leaving a comment</param>
+        /// <param name="comment">Comment object being added to the database</param>
+        /// <returns>Returns the newly added comment object</returns>
         public async Task<Comment> CreateComment(Artist commenter, Comment comment)
         {
             comment.ArtistId = commenter.Id;
@@ -231,7 +251,13 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="commenter"></param>
+        /// <param name="comment1"></param>
+        /// <param name="comment2"></param>
+        /// <returns></returns>
         public async Task<Comment> CreateReply(Artist commenter, Comment comment1, Comment comment2)
         {
             comment1.ArtistId = commenter.Id;
@@ -267,61 +293,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-
-        public async Task<IEnumerable<Comment>> GetCommentByReplyId(int replyId)
-        {
-            try
-            {
-                var comments = new List<Comment>();
-                var connectionString = AppConfig.Value.ConnectionString;
-
-                using (var connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
-                    //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
-                    var query = @$"
-                   SELECT 
-                        Comment.Id, 
-                        Comment.ArtistId, 
-                        Comment.ArtID, 
-                        Comment.[Message],
-	                    Artist.[Name] as CommenterName,
-                        Comment.CreationDate,
-                        Comment.ReplyId
-                    FROM Comment  
-                    JOIN Artist ON Artist.id = Comment.ArtistId
-                    WHERE Comment.ReplyId = @replyId;";
-
-                    using (var command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.Add(new SqlParameter("@replyId", replyId));
-                        using (var reader = await command.ExecuteReaderAsync())
-                        {
-                            while (reader.Read())
-                            {
-                                Comment comment = new Comment
-                                { //Art Table + NumLikes and NumComments
-                                    Id = reader.GetInt32(0),
-                                    ArtistId = reader.GetInt32(1),
-                                    ArtId = reader.GetInt32(2),
-                                    Message = reader.GetString(3),
-                                    CommenterName = reader.GetString(4),
-                                    CreationDate = reader.GetDateTime(5),
-                                    ReplyId = reader.IsDBNull(6) ? -1 : reader.GetInt32(6)
-                                };
-                                comments.Add(comment);
-                            }
-                        }
-                    }
-                    return comments;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogCritical(ex, "Error retrieving replies");
-                throw;
-            }
-        }
+        /// <summary>
+        /// Gets a comment based on it's Id field
+        /// </summary>
+        /// <param name="id">Id of the comment to be returned</param>
+        /// <returns>A Comment</returns>
         public async Task<Comment> GetCommentByCommentId(int id)
         {
             try
@@ -376,6 +352,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw ex;
             }
         }
+        /// <summary>
+        /// Gets a list of comments made by a specific user
+        /// </summary>
+        /// <param name="id">Id of the user who made comments</param>
+        /// <returns>A list of comments a user made</returns>
         public async Task<IEnumerable<Comment>> GetCommentByUserId(int id)
         {
             try
@@ -430,6 +411,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
+        /// <summary>
+        /// Gets a list of Comments that respond to another comment
+        /// </summary>
+        /// <param name="id">Comment that the returned comments reference</param>
+        /// <returns>A list of reply comments</returns>
         public async Task<IEnumerable<Comment>> GetReplyByCommentId(int id)
         {
             try

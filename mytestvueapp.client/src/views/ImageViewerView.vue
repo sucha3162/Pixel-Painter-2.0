@@ -195,15 +195,15 @@ const id = Number(route.params.id);
 const uploadDate = ref<Date>(new Date());
 const user = ref<boolean>(false);
 const showFilters = ref(false);
-const ShowTones = ref(false);
-const Names = ref<String[]>([]);
+const showTones = ref(false);
+const names = ref<String[]>([]);
 
 onMounted(async () => {
   ArtAccessService.getArtById(id)
     .then((promise: Art) => {
       art.value = promise;
       uploadDate.value = new Date(promise.creationDate);
-      Names.value = art.value.artistName;
+      names.value = art.value.artistName;
     })
     .catch(() => {
       router.push("/gallery");
@@ -226,7 +226,7 @@ function editArt() {
 }
 
 function updateComments() {
-  CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
+  CommentAccessService.getCommentsByArtId(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });
 }

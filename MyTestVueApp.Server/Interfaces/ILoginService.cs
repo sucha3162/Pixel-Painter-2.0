@@ -13,7 +13,6 @@ namespace MyTestVueApp.Server.Interfaces
         public void DeleteArtist(int artistId);
         public Task<Artist> GetArtistById(int id);
         public Task<bool> IsUserAdmin(string userId);
-
         public Task<Artist> GetArtistByName(string name);
         public Task<IEnumerable<Artist>> GetAllArtists();
     }

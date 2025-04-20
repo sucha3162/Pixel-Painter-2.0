@@ -31,8 +31,14 @@ namespace MyTestVueApp.Server.Controllers
             LoginService = loginService;
         }
 
+        /// <summary>
+        /// Gets all comments of an artwork
+        /// </summary>
+        /// <param name="artId">Id of the art the comments belong to</param>
+        /// <returns>A list of comments</returns>
         [HttpGet]
         [Route("GetCommentsByArtId")]
+        [ProducesResponseType(typeof(List<Comment>), 200)]
         public async Task<IActionResult> GetCommentsByArtId([FromQuery] int artId)
         {
             try
@@ -60,6 +66,10 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Update a comment in the database
+        /// </summary>
+        /// <param name="altComment">New comment object</param>
         [HttpPut]
         [Route("EditComment")]
         public async Task<IActionResult> EditComment([FromBody] Comment altComment)
@@ -107,6 +117,10 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Removes a comment from the database
+        /// </summary>
+        /// <param name="commentId">Id of the comment to be removed</param>
         [HttpDelete]
         [Route("DeleteComment")]
         public async Task<IActionResult> DeleteComment([FromQuery] int commentId)
@@ -157,8 +171,14 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Add a comment to the database
+        /// </summary>
+        /// <param name="comment">Comment to be added to the database</param>
+        /// <returns>A comment object</returns>
         [HttpPost]
         [Route("CreateComment")]
+        [ProducesResponseType(typeof(Comment), 200)]
         public async Task<IActionResult> CreateComment([FromBody] Comment comment)
         {
             try

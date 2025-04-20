@@ -35,7 +35,7 @@ namespace MyTestVueApp.Server.Hubs
         {
             Manager.AddUser(Context.ConnectionId, artist, groupName); 
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-            await Clients.Group(groupName).SendAsync("Send", $"{artist.name} has joined the group {groupName}.");
+            await Clients.Group(groupName).SendAsync("Send", $"{artist.Name} has joined the group {groupName}.");
            
             await Clients.Client(Context.ConnectionId).SendAsync("GroupConfig", Manager.GetGroup(groupName).CanvasSize, Manager.GetGroup(groupName).BackgroundColor, Manager.GetGroup(groupName).GetPixelsAsList());
             await Clients.Client(Context.ConnectionId).SendAsync("Members", Manager.GetGroup(groupName).CurrentMembers);
@@ -50,7 +50,7 @@ namespace MyTestVueApp.Server.Hubs
             Manager.AddUser(Context.ConnectionId, artist, groupName);
 
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-            await Clients.Group(groupName).SendAsync("Send", $"{artist.name} has joined the group {groupName}.");
+            await Clients.Group(groupName).SendAsync("Send", $"{artist.Name} has joined the group {groupName}.");
         }
 
         public async Task LeaveGroup(string groupName, Artist member)

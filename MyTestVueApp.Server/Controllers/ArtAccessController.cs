@@ -25,8 +25,12 @@ namespace MyTestVueApp.Server.Controllers
             LoginService = loginService;
         }
 
+        /// <summary>
+        /// Gets All Art
+        /// </summary>
         [HttpGet]
         [Route("GetAllArt")]
+        [ProducesResponseType(typeof(List<Art>), 200)]
         public async Task<IActionResult> GetAllArt()
         {
             try
@@ -41,8 +45,14 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Obtains all art that a user has liked
+        /// </summary>
+        /// <param name="artistId">Id of the artist being checked</param>
+        /// <returns>A list of art objects</returns>
         [HttpGet]
         [Route("GetLikedArt")]
+        [ProducesResponseType(typeof(List<Art>), 200)]
         public async Task<IActionResult> GetLikedArt([FromQuery] int artistId)
         {
             try
@@ -56,9 +66,14 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
-
+        /// <summary>
+        /// Gets all art made by a user
+        /// </summary>
+        /// <param name="id">Id of user</param>
+        /// <returns>A list of art objects</returns>
         [HttpGet]
         [Route("GetAllArtByUserID")]
+        [ProducesResponseType(typeof(List<Art>), 200)]
         public async Task<IActionResult> GetAllArtByUserID([FromQuery] int id)
         {
             try
@@ -73,9 +88,13 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
-        //Remove
+        /// <summary>
+        /// Gets the current user's art from the database
+        /// </summary>
+        /// <returns>A list of Art Objects</returns>
         [HttpGet]
         [Route("GetCurrentUsersArt")]
+        [ProducesResponseType(typeof(List<Art>), 200)]
         public async Task<IActionResult> GetCurrentUsersArt()
         {
             try
@@ -107,9 +126,14 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
-
+        /// <summary>
+        /// Gets an artwork from the database
+        /// </summary>
+        /// <param name="id">Id of the artwork</param>
+        /// <returns>An art object</returns>
         [HttpGet]
         [Route("GetArtById")]
+        [ProducesResponseType(typeof(Art), 200)]
         public async Task<IActionResult> GetArtById([FromQuery] int id)
         {
             try
@@ -167,16 +191,15 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
-        
-        /*[HttpGet]
-        [Route("GetArtists")]
-        public async Task<IActionResult> GetAllArtists(int artId)
-        {
-            return Ok(await ArtAccessService.GetArtistsByArtId(artId));
-        }*/
 
+        /// <summary>
+        /// Add/Update an art in the database
+        /// </summary>
+        /// <param name="art">New Art object</param>
+        /// <returns></returns>
         [HttpPut]
         [Route("SaveArt")]
+        [ProducesResponseType(typeof(Art), 200)]
         public async Task<IActionResult> SaveArt([FromBody, BindRequired]Art art)
         {
             try
@@ -201,7 +224,7 @@ namespace MyTestVueApp.Server.Controllers
                     }
                     else //Update art
                     {
-                        var result = await ArtAccessService.UpdateArt(artist, art);
+                        var result = await ArtAccessService.UpdateArt(art);
                         if (result == null)
                         {
                             return BadRequest("Could not update this art");
@@ -223,69 +246,10 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
-
-        /*[HttpPost]
-        [Route("SaveArtCollab")]
-        public async Task<IActionResult> SaveArtCollab(Art art)
-        {
-            try
-            {
-                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userSubId))
-                {
-                    var artist = await LoginService.GetUserBySubId(userSubId);
-
-                    if (artist == null)
-                    {
-                        throw new AuthenticationException("User does not have permission for this action");
-                    }
-
-                    if (art.Id == 0) //New art
-                    {
-                        var result = await ArtAccessService.SaveNewArtMulti(art);
-                        // If there are attatched contributing artists
-                        foreach (int artistId in art.ArtistId)
-                        {
-                            ArtAccessService.AddContributingArtist(art.Id, artistId);
-                        }
-                        return Ok(result);
-                    }
-                    else //Update art
-                    {
-                        return BadRequest("Could not update this art");
-                    }
-                }
-                else
-                {
-                    return BadRequest("User not logged in");
-                }
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return Problem(ex.Message);
-            }
-        }*/
-
-        /*[HttpGet]
-        [Route("IsMyArt")]
-        public async Task<bool> IsMyArt(int id)
-        {
-            var art = ArtAccessService.GetArtById(id);
-            bool ismine = false;
-
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
-            {
-                var artist = await LoginService.GetUserBySubId(userId);
-
-                ismine = (art.artistId.Contains(artist.id));
-            }
-            return ismine;
-        }*/
-
-
+        /// <summary>
+        /// Removes an artwork from the database
+        /// </summary>
+        /// <param name="artId">Id of the art to be removed</param>
         [HttpDelete]
         [Route("DeleteArt")]
         public async Task<IActionResult> DeleteArt([FromQuery] int artId)
@@ -322,6 +286,10 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Removes an artist from an artworks contributers list
+        /// </summary>
+        /// <param name="artId">Id of the artwork to remove the user from</param>
         [HttpDelete]
         [Route("DeleteContributingArtist")]
         public async Task<IActionResult> DeleteContrbutingArtist([FromQuery] int artId)
@@ -365,7 +333,6 @@ namespace MyTestVueApp.Server.Controllers
             {
                 return Problem(ex.Message);
             }
-
         }
     }
 }

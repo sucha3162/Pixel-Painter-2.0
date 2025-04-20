@@ -4,6 +4,7 @@ using ImageMagick;
 using MyTestVueApp.Server.Interfaces;
 using MyTestVueApp.Server.ServiceImplementations;
 using MyTestVueApp.Server.Models;
+using MyTestVueApp.Server.Entities;
 
 namespace MyTestVueApp.Server.Controllers
 {
@@ -18,8 +19,13 @@ namespace MyTestVueApp.Server.Controllers
             Logger = logger;
         }
 
+        /// <summary>
+        /// Download a gif
+        /// </summary>
+        /// <param name="gifModel">Gif object to be downloaded</param>
         [HttpPost]
         [Route("CreateGif")]
+        [ProducesResponseType(typeof(File), 200)] //Someone will have to update
         public async Task<IActionResult> CreateGif([FromBody] GIFModel gifModel)
         {
             if (gifModel.Frames == null || gifModel.Frames.Length == 0)

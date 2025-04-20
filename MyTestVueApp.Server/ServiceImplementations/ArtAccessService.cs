@@ -19,11 +19,9 @@ namespace MyTestVueApp.Server.ServiceImplementations
             LoginService = loginService;
         }
         /// <summary>
-        /// This function grabs all art from
-        /// the database and returns them as
-        /// a list to be used on the frontend
+        /// Gets all artworks from the database
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A List of Art objects</returns>
         public async Task<IEnumerable<Art>> GetAllArt()
         {
             var paintings = new List<Art>();
@@ -81,6 +79,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
             return paintings;
         }
+        /// <summary>
+        /// Gets an artwork by it's Id
+        /// </summary>
+        /// <param name="id">Id of the artwork to be retrieved</param>
+        /// <returns>An art object</returns>
         public async Task<Art> GetArtById(int id)
         {
             var connectionString = AppConfig.Value.ConnectionString;
@@ -141,7 +144,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
             return null;
         }
-
+        /// <summary>
+        /// Grabs all artwork than and artist made
+        /// </summary>
+        /// <param name="artistId">Id of the artist</param>
+        /// <returns>A list of artworks</returns>
         public async Task<IEnumerable<Art>> GetArtByArtist(int artistId)
         {
             var paintings = new List<Art>();
@@ -193,7 +200,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 return paintings;
             }
         }
-
+        /// <summary>
+        /// Gets all art that a user has liked
+        /// </summary>
+        /// <param name="artistId">Id of the user</param>
+        /// <returns>A list of art objects</returns>
         public async Task<IEnumerable<Art>> GetLikedArt(int artistId)
         {
             var paintings = new List<Art>();
@@ -252,6 +263,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
+        /// <summary>
+        /// Adds a new artwork to the database
+        /// </summary>
+        /// <param name="artist">User who is creating the art</param>
+        /// <param name="art">Artwork being added to the database</param>
+        /// <returns>The art object being created</returns>
         public async Task<Art> SaveNewArt(Artist artist, Art art) //Single Artist
         {
             try
@@ -291,44 +308,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
-        public async Task<Art> SaveNewArtMulti(Art art)//Multi artist
-        {
-            try
-            {
-                art.CreationDate = DateTime.UtcNow;
-
-                using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
-                {
-                    connection.Open();
-
-                    var query = @"
-                    INSERT INTO Art (Title, Width, Height, Encode, CreationDate, IsPublic)
-                    VALUES (@Title, @Width, @Height, @Encode, @CreationDate, @IsPublic);
-                    SELECT SCOPE_IDENTITY();
-                ";
-                    using (var command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@Title", art.Title);
-                        command.Parameters.AddWithValue("@Width", art.PixelGrid.Width);
-                        command.Parameters.AddWithValue("@Height", art.PixelGrid.Height);
-                        command.Parameters.AddWithValue("@Encode", art.PixelGrid.EncodedGrid);
-                        command.Parameters.AddWithValue("@CreationDate", art.CreationDate);
-                        command.Parameters.AddWithValue("@IsPublic", art.IsPublic);
-
-                        var newArtId = await command.ExecuteScalarAsync();
-                        art.Id = Convert.ToInt32(newArtId);
-                    }
-                }
-
-                return art;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Error in SaveArt");
-                throw;
-            }
-        }
-
+        /// <summary>
+        /// Adds an artist to the database with the artwork they helped create
+        /// </summary>
+        /// <param name="artId">Art Id that is being reference</param>
+        /// <param name="artistId">Artist's Id who is being added</param>
         public async void AddContributingArtist(int artId, int artistId)
         {
             try
@@ -354,7 +338,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
-        public async Task<Art> UpdateArt(Artist artist, Art art)
+        /// <summary>
+        /// Updates an artwork in the database
+        /// </summary>
+        /// <param name="art">Updated version of the artwork</param>
+        /// <returns>The updated artwork object</returns>
+        public async Task<Art> UpdateArt(Art art)
         {
             try
             {
@@ -401,7 +390,10 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
 
         }
-
+        /// <summary>
+        /// Removes an artwork from the database
+        /// </summary>
+        /// <param name="ArtId">Id of the artwork to be removed</param>
         public async void DeleteArt(int ArtId) //change to admin only and have it so users can remove themselves from art pieces
         {
             try
@@ -426,6 +418,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
+        /// <summary>
+        /// Gets a list of artists who worked on an artwork
+        /// </summary>
+        /// <param name="id">Id of the artwork being referenced</param>
+        /// <returns>A list of Artists</returns>
         public async Task<IEnumerable<Artist>> GetArtistsByArtId(int id)
         {
             var contributingArtists = new Artist();
@@ -459,6 +456,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
+        /// <summary>
+        /// Removes an artist from a list of users who worked on an artwork
+        /// </summary>
+        /// <param name="ArtId">Id of the art that the user is being removed from</param>
+        /// <param name="ArtistId">Id of the artist being removed</param>
         public async void DeleteContributingArtist(int ArtId,int ArtistId)
         {
             try

@@ -14,38 +14,36 @@ namespace MyTestVueApp.Server.ServiceImplementations
         {
             Groups.Add(groupName, new Group(groupName, canvas, canvasSize, backgroundColor));
         }
-
         public void AddUser(string connectionId, Artist artist, string groupName)
         {
-            Console.WriteLine("AddUser: (" + connectionId + ", " + artist.id + ", " + groupName); // Presentation
+            Console.WriteLine("AddUser: (" + connectionId + ", " + artist.Id + ", " + groupName); // Presentation
             if (Groups.ContainsKey(groupName))
             {
                 ArtistLookup.Add(connectionId, artist);
                 Groups[groupName].AddMember(artist);
-                if (Records.ContainsKey(artist.id))
+                if (Records.ContainsKey(artist.Id))
                 {
                     Console.WriteLine("User already exists, so adding to connections!"); // Presentation
-                    Records[artist.id].Connections.Add(new(connectionId, groupName));
+                    Records[artist.Id].Connections.Add(new(connectionId, groupName));
                 } else
                 {
                     Console.WriteLine("New User!"); // Presentation
-                    Records.Add(artist.id, new(connectionId, artist.id, groupName));
+                    Records.Add(artist.Id, new(connectionId, artist.Id, groupName));
                 }
             }
             Console.WriteLine(Records.Count());
 
         }
-
         public void RemoveUserFromGroup(string connectionId, Artist artist, string groupName)
         {
             Console.WriteLine("#Users before removal: " + Groups[groupName].CurrentMembers.Count); //Presentation
 
-            if (!Records.ContainsKey(artist.id))
+            if (!Records.ContainsKey(artist.Id))
             {
                 throw new ArgumentException("This artist is not tracked by the connection manager, so we cant remove them!");
             }
 
-            MembershipRecord record = Records[artist.id];
+            MembershipRecord record = Records[artist.Id];
             List<ConnectionBinding> allUserConnections = new();
             ConnectionBinding? connectionToDelete = null;
 
@@ -81,7 +79,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             if (record.Connections.Count == 0)
             { // Remove record from records if the Artist doesnt have any open connections;
                 Console.WriteLine("Artist has zero connections. Removing from List!"); // Presentation
-                Records.Remove(artist.id);
+                Records.Remove(artist.Id);
             }
           
             Console.WriteLine("Remaining Users: " +  Groups[groupName].CurrentMembers.Count); // Presentation
@@ -95,13 +93,13 @@ namespace MyTestVueApp.Server.ServiceImplementations
         public void RemoveUserFromAllGroups(string connectionId)
         {
 
-            if (!ArtistLookup.ContainsKey(connectionId) || !Records.ContainsKey(ArtistLookup[connectionId].id) )
+            if (!ArtistLookup.ContainsKey(connectionId) || !Records.ContainsKey(ArtistLookup[connectionId].Id) )
             {
                 throw new ArgumentException("RemoveUserFromGroup: This connection doesnt exist, so we cannot remove it!");
             }
 
             Artist artist = ArtistLookup[connectionId];
-            MembershipRecord record = Records[artist.id];
+            MembershipRecord record = Records[artist.Id];
             HashSet<string> groups = new();
             foreach (ConnectionBinding cb in record.Connections) {
                 groups.Add(cb.groupName);

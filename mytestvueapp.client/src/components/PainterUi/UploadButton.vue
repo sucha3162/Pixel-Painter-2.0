@@ -119,7 +119,7 @@ function flattenArtEncode(): string {
   return arr.flat().join("");
 }
 
-function Upload() {
+function upload() {
   emit("disconnect");
   loading.value = true;
 
@@ -130,7 +130,7 @@ function Upload() {
       newArt.isPublic = newPrivacy.value;
       newArt.pixelGrid.deepCopy(layerStore.grids[0]);
       newArt.id = props.art.id;
-      newArt.pixelGrid.encodedGrid = flattenArtEncode(); 
+      newArt.pixelGrid.encodedGrid = flattenArtEncode();
       newArt.artistId = props.art.artistId;
       newArt.artistName = props.art.artistName;
 

@@ -4,7 +4,6 @@
 <script setup lang="ts">
 import Art from "@/entities/Art";
 import Button from "primevue/button";
-import { PixelGrid } from "@/entities/PixelGrid";
 import GIFCreationService from "@/services/GIFCreationService";
 import { useLayerStore } from "@/store/LayerStore";
 
@@ -97,13 +96,10 @@ function saveToFile() {
 }
 
 function saveGIF() {
-  let workingGrid: string[][];
   let urls: string[] = [];
   let grids = layerStore.grids;
 
   for (let i = 0; i < grids.length; i++) {
-    workingGrid = grids[i].grid;
-
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
     if (!context) {

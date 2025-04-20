@@ -17,7 +17,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
             AppConfig = appConfig;
             Logger = logger;
         }
-
+        /// <summary>
+        /// Insert's into the database what artwork an artist has liked
+        /// </summary>
+        /// <param name="artId">Id being lliked</param>
+        /// <param name="artist">Id of the artist who liked the artwork</param>
+        /// <returns>0 if invalid input, -1 if the input failed, and 1+ if it succeeded</returns>
         public async Task<int> InsertLike(int artId, Artist artist)
         {
             var connectionString = AppConfig.Value.ConnectionString;
@@ -58,7 +63,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-        
+        /// <summary>
+        /// Removes the like relation from the database
+        /// </summary>
+        /// <param name="artId">Artwork being unliked</param>
+        /// <param name="artist">Artist who is unliking the artwork</param>
+        /// <returns>0 if bad input, -1 if it fails, 1+ if it succeeds</returns>
         public async Task<int> RemoveLike(int artId, Artist artist)
         {
             var connectionString = AppConfig.Value.ConnectionString;
@@ -99,7 +109,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-
+        /// <summary>
+        /// Checks to see if an artwork is liked by the user
+        /// </summary>
+        /// <param name="artId">Id of the artwork being checked</param>
+        /// <param name="artist">Id of the user who would've liked the post</param>
+        /// <returns>Returns true if it is liked by the given artist, false otherwise</returns>
         public async Task<bool> IsLiked(int artId, Artist artist) {
             var connectionString = AppConfig.Value.ConnectionString;
             using (SqlConnection connection = new SqlConnection(connectionString)) 
@@ -122,6 +137,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
+        /// <summary>
+        /// Gets all likes an artwork has
+        /// </summary>
+        /// <param name="artworkId">Id of the artwork being referenced</param>
+        /// <returns>A list of Like objects</returns>
         public async Task<IEnumerable<Like>> GetLikesByArtwork(int artworkId)
         {
             var likes = new List<Like>();
@@ -161,6 +181,13 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
             return likes;
         }
+        /// <summary>
+        /// Gets the Like object that belong to the artist and artwork referenced
+        /// </summary>
+        /// <param name="artId">Id of the art being checked</param>
+        /// <param name="artistId">Id of the artist who would've made the like</param>
+        /// <returns>A Like object if found, null otherwise</returns>
+        /// <exception cref="ArgumentException"></exception>
         public async Task<Like> GetLikeByIds(int artId, int artistId)
         {
             var connectionString = AppConfig.Value.ConnectionString;

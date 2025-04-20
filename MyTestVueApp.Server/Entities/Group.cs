@@ -45,7 +45,7 @@ namespace MyTestVueApp.Server.Entities
 
         public void RemoveMember(Artist member)
         {
-            var itemToRemove = CurrentMembers.FirstOrDefault(mem => mem.id == member.id);
+            var itemToRemove = CurrentMembers.FirstOrDefault(mem => mem.Id == member.Id);
             if(itemToRemove != null)
                 CurrentMembers.Remove(itemToRemove);
         }
