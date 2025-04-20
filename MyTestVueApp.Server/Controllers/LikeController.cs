@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MyTestVueApp.Server.Configuration;
+using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
 using MyTestVueApp.Server.ServiceImplementations;
 using System.Security.Authentication;
@@ -28,6 +29,10 @@ namespace MyTestVueApp.Server.Controllers
             LoginService = loginService;
         }
 
+        /// <summary>
+        /// Marks the current user to like an artwork
+        /// </summary>
+        /// <param name="artId">Id of the art the user is liking</param>
         [HttpPost]
         [Route("InsertLike")]
         public async Task<IActionResult> InsertLike([FromQuery] int artId)
@@ -75,6 +80,10 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Remove a like from the database
+        /// </summary>
+        /// <param name="artId">Id of the art the user is unliking</param>
         [HttpDelete]
         [Route("RemoveLike")]
         public async Task<IActionResult> RemoveLike([FromQuery] int artId)
@@ -122,8 +131,14 @@ namespace MyTestVueApp.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Checks if artwork is liked by current user
+        /// </summary>
+        /// <param name="artId">Id of the art being checked</param>
+        /// <returns>True if it is liked, false otherwise</returns>
         [HttpGet]
         [Route("IsLiked")]
+        [ProducesResponseType(typeof(bool), 200)]
         public async Task<IActionResult> IsLiked([FromQuery] int artId)
         {
             try

@@ -68,8 +68,13 @@ namespace MyTestVueApp.Server.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Checks if a user is logged in
+        /// </summary>
+        /// <returns>True if they are logged in, false otherwise</returns>
         [HttpGet]
         [Route("IsLoggedIn")]
+        [ProducesResponseType(typeof(bool), 200)]
         public async Task<IActionResult> IsLoggedIn()
         {   
             if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
@@ -79,10 +84,13 @@ namespace MyTestVueApp.Server.Controllers
             }
             return Ok(false);
         }
-
+        /// <summary>
+        /// Get all artists
+        /// </summary>
+        /// <returns>A list of artists</returns>
         [HttpGet]
         [Route("GetAllArtists")]
-
+        [ProducesResponseType(typeof(List<Artist>), 200)]
         public async Task<IActionResult> GetAllArtists()
         {
             try
@@ -95,9 +103,13 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
-
+        /// <summary>
+        /// Get the current user's information
+        /// </summary>
+        /// <returns>A artist object</returns>
         [HttpGet]
         [Route("GetCurrentUser")]
+        [ProducesResponseType(typeof(Artist), 200)]
         public async Task<IActionResult> GetCurrentUser()
         {
             try
@@ -118,16 +130,25 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
-
+        /// <summary>
+        /// Get an artist by their name
+        /// </summary>
+        /// <param name="name">Name of the artist</param>
+        /// <returns>An artist object</returns>
         [HttpGet]
         [Route("GetArtistByName")]
+        [ProducesResponseType(typeof(Artist), 200)]
         public async Task<Artist> GetArtistByName([FromQuery] string name)
         {
             return await LoginService.GetArtistByName(name);
         }
-
+        /// <summary>
+        /// Check to see if a user is an admin
+        /// </summary>
+        /// <returns>True if the user is an admin, false otherwise</returns>
         [HttpGet]
         [Route("GetIsAdmin")]
+        [ProducesResponseType(typeof(bool), 200)]
         public async Task<IActionResult> GetIsAdmin()
         {
             try
@@ -154,9 +175,14 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
-
+        /// <summary>
+        /// Updates the current user's username
+        /// </summary>
+        /// <param name="newUsername">New Username</param>
+        /// <returns>True if successful, false otherwise</returns>
         [HttpPut]
         [Route("UpdateUsername")]
+        [ProducesResponseType(typeof(bool), 200)]
         public async Task<IActionResult> UpdateUsername([FromQuery] string newUsername)
         {
             try
@@ -180,7 +206,10 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
-
+        /// <summary>
+        /// Removes the current user from the database
+        /// </summary>
+        /// <param name="id">Id of the user to remove</param>
         [HttpDelete]
         [Route("DeleteArtist")]
         public async Task<IActionResult> DeleteArtist([FromQuery] int id)
@@ -223,7 +252,6 @@ namespace MyTestVueApp.Server.Controllers
             {
                 return Problem(ex.Message);
             }
-
         }
     }
 }

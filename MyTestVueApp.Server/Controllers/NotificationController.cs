@@ -24,9 +24,14 @@ namespace MyTestVueApp.Server.Controllers
             CommentService = commentService;
             LikeService = likeService;
         }
-
+        /// <summary>
+        /// Gets all notifications for a user
+        /// </summary>
+        /// <param name="userId">Id of the user to get notifications for</param>
+        /// <returns>A list of notifications</returns>
         [HttpGet]
         [Route("GetNotifications")]
+        [ProducesResponseType(typeof(List<Notification>), 200)]
         public async Task<IActionResult> GetNotifications([FromQuery] string userId){
             try
             {
@@ -50,7 +55,10 @@ namespace MyTestVueApp.Server.Controllers
                 return StatusCode(500);
             }
         }
-
+        /// <summary>
+        /// Marks a comment as viewed in the database
+        /// </summary>
+        /// <param name="commentId">Comment to mark</param>
         [HttpPost]
         [Route("MarkCommentViewed")]
         public async Task<IActionResult> MarkCommentViewed([FromBody] int commentId)
@@ -84,7 +92,10 @@ namespace MyTestVueApp.Server.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-
+        /// <summary>
+        /// Marks a like viewed in the database
+        /// </summary>
+        /// <param name="likeModel">Id of the art, and id of the artist</param>
         [HttpPost]
         [Route("MarkLikeViewed")]
         public async Task<IActionResult> MarkLikeViewed([FromBody] LikesModel likeModel)
