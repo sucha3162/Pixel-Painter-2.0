@@ -61,7 +61,7 @@ export default class LoginService {
       const response = await fetch("/login/GetCurrentUser");
 
       if (!response.ok) {
-        console.log("Response was not ok");
+        throw new Error("Error retrieving user");
       }
 
       const data = await response.json();
@@ -134,16 +134,4 @@ export default class LoginService {
       throw error;
     }
   }
-  // public static async DeleteCurrentArtist(id: number): Promise<void> {
-  //   try {
-  //     const response = await fetch(`/login/DeleteCurrentArtist?id=${id}`);
-
-  //     if (!response.ok) {
-  //       throw new Error("Error: Bad response");
-  //     }
-  //   } catch (error) {
-  //     console.error;
-  //     throw error;
-  //   }
-  // }
 }
