@@ -253,8 +253,8 @@ const createGroup = (groupName: string) => {
           .catch((err) => {toast.add({
             severity: "error",
             summary: "Error",
-            detail: err,
-            life: 3000
+            detail: err.toString().slice(err.toString().indexOf("HubException:")),
+            life: 4000
             })
             connection.stop();
           });
@@ -270,8 +270,8 @@ const joinGroup = (groupName: string) => {
           .catch((err) => {toast.add({
             severity: "error",
             summary: "Error",
-            detail: err,
-            life: 3000
+            detail: err.toString().slice(err.toString().indexOf("HubException:")),
+            life: 4000 
             });
             connection.stop();
           });
@@ -289,8 +289,10 @@ const connect = (groupname: string, newGroup: boolean) => {
         } else {
           joinGroup(groupname);
         }
-        art.value.artistId = [artist.value.id];
-        art.value.artistName = [artist.value.name];
+        if (art.value.artistId[0] == 0) {
+          art.value.artistId = [artist.value.id];
+          art.value.artistName = [artist.value.name];
+        }
       })
       .catch((err) => console.error("Error connecting to Hub:", err));
   } else {
