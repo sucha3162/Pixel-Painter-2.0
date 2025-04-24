@@ -217,10 +217,8 @@ function Upload() {
         newArt.pixelGrid.DeepCopy(layerStore.grids[0]);
         newArt.id = props.art.id;
         newArt.pixelGrid.encodedGrid = flattenArtEncode();
-        if (props.connected) {
-          newArt.artistName = contributors.value.map((artist) => artist.name);
-          newArt.artistId = contributors.value.map((artist) => artist.id);
-        }
+        newArt.artistId = props.art.artistId;
+        newArt.artistName = props.art.artistName;
 
         ArtAccessService.SaveArt(newArt)
           .then((data: Art) => {

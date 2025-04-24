@@ -221,7 +221,6 @@ onMounted(() => {
     });
   updateComments();
   getIsAdmin();
-  GifDisplay();
 });
 
 function editArt() {
