@@ -278,32 +278,32 @@ const joinGroup = (groupName: string) => {
 }
 
 const connect = (groupname: string, newGroup: boolean) => {
-  groupName.value = groupname;
-  if (artist.value.id != 0) {
-    connection
-      .start()
-      .then(() => {
-        console.log("Connected to SignalR!");
-        if (newGroup) {
-          createGroup(groupname);
-        } else {
-          joinGroup(groupname);
-        }
-        if (art.value.artistId[0] == 0) {
-          art.value.artistId = [artist.value.id];
-          art.value.artistName = [artist.value.name];
-        }
-      })
-      .catch((err) => console.error("Error connecting to Hub:", err));
-  } else {
+  if (artist.value.id == 0) { // User is not logged in!
     toast.add({
       severity: "error",
       summary: "Error",
       detail: "Please log in before collaborating!",
       life: 3000
     });
+    return;
   }
-};
+
+  groupName.value = groupname;
+  if (art.value.artistId[0] == 0) {
+    art.value.artistId = [artist.value.id];
+    art.value.artistName = [artist.value.name];
+  }
+
+  connection.start()
+    .then(() => {
+      if (newGroup) {
+        createGroup(groupname);
+      } else {
+        joinGroup(groupname);
+      }
+    })
+    .catch((err) => console.error("Error connecting to Hub:", err));
+} 
 
 const disconnect = () => {
   connection.invoke("LeaveGroup", groupName.value, artist.value)
