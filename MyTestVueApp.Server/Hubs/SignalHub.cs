@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using MyTestVueApp.Server.Interfaces;
 using MyTestVueApp.Server.Entities;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 
 namespace MyTestVueApp.Server.Hubs
@@ -33,6 +34,12 @@ namespace MyTestVueApp.Server.Hubs
 
         public async Task JoinGroup(string groupName, Artist artist)
         {
+            if (!Manager.GroupExists(groupName))
+            {
+                Logger.LogError("User attempted to join a group that doesnt exist!");
+                throw new HubException("User attempted to join a group that doesnt exist!");
+            }
+
             Manager.AddUser(Context.ConnectionId, artist, groupName); 
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
             await Clients.Group(groupName).SendAsync("Send", $"{artist.name} has joined the group {groupName}.");
@@ -45,7 +52,14 @@ namespace MyTestVueApp.Server.Hubs
 
 
         public async Task CreateGroup(string groupName, Artist artist, string[][][] canvas, int canvasSize, string backgroundColor)
-        { 
+        {
+            if (Manager.GroupExists(groupName))
+            {
+                await Clients.Caller.SendAsync("Error", "This group already exists!");
+                Logger.LogError("User attempted to create a group that already exists!");
+                throw new HubException("User attempted to create a group that already exists!");
+            }
+
             Manager.AddGroup(groupName,canvas,canvasSize,backgroundColor);
             Manager.AddUser(Context.ConnectionId, artist, groupName);
 

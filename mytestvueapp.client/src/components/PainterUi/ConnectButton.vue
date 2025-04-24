@@ -28,7 +28,7 @@
                             <Column field="memberCount" header="Count" class="w-2 p-1 h-1"></Column>
                             <column class="w-1 p-1 h-1">
                                 <template #body="{data}">
-                                    <Button label="Join" class="p-1 m-0" @click="groupname = data.groupName; connect()"></Button>
+                                    <Button label="Join" class="p-1 m-0" @click="groupname = data.groupName; connect(false)"></Button>
                                 </template>
                             </column>
                         </DataTable>
@@ -59,7 +59,7 @@
             <Button
                 label="Create"
                 severity="secondary"
-                @click="connect()"
+                @click="connect(true)"
                 autofocus
             />
         </template>
@@ -96,8 +96,8 @@ function ToggleModal() {
   }
 }
 
-    function connect() {
-        emit("connect", groupname.value);
+    function connect(newGroup: boolean) {
+        emit("connect", groupname.value, newGroup);
         visible.value = !visible.value;
     }
 

@@ -240,23 +240,55 @@ connection.on("BackgroundColor", (backgroundColor: string) => {
   art.value.pixelGrid.backgroundColor = backgroundColor;
 });
 
-const connect = (groupname: string) => {
+const createGroup = (groupName: string) => {
+  let grids = layerStore.getGridArray();
+  connection.invoke(
+            "CreateGroup",
+            groupName,
+            artist.value,
+            grids,
+            layerStore.grids[0].width,
+            layerStore.grids[0].backgroundColor
+          ).then(() => connected.value = !connected.value)
+          .catch((err) => {toast.add({
+            severity: "error",
+            summary: "Error",
+            detail: err,
+            life: 3000
+            })
+            connection.stop();
+          });
+
+}
+
+const joinGroup = (groupName: string) => {
+  connection.invoke(
+            "JoinGroup",
+            groupName,
+            artist.value
+          ).then(() => connected.value = !connected.value)
+          .catch((err) => {toast.add({
+            severity: "error",
+            summary: "Error",
+            detail: err,
+            life: 3000
+            });
+            connection.stop();
+          });
+}
+
+const connect = (groupname: string, newGroup: boolean) => {
+  groupName.value = groupname;
   if (artist.value.id != 0) {
     connection
       .start()
       .then(() => {
-        let grids = layerStore.getGridArray();
         console.log("Connected to SignalR!");
-        connection.invoke(
-          "CreateOrJoinGroup",
-          groupname,
-          artist.value,
-          grids,
-          layerStore.grids[0].width,
-          layerStore.grids[0].backgroundColor
-        );
-        groupName.value = groupname;
-        connected.value = !connected.value;
+        if (newGroup) {
+          createGroup(groupname);
+        } else {
+          joinGroup(groupname);
+        }
         art.value.artistId = [artist.value.id];
         art.value.artistName = [artist.value.name];
       })
