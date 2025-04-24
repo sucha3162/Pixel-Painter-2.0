@@ -210,7 +210,7 @@ function Upload() {
         newArt.id = props.art.id;
         newArt.pixelGrid.encodedGrid = flattenArtEncode();
         newArt.artistId = props.art.artistId;
-        newArt.artistName= props.art.artistName;
+        newArt.artistName = props.art.artistName;
 
         ArtAccessService.SaveArt(newArt)
           .then((data: Art) => {
