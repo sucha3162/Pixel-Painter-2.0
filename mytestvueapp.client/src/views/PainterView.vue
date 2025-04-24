@@ -162,6 +162,7 @@ const layerStore = useLayerStore();
 const updateLayers = ref<number>(0);
 const showLayers = ref<boolean>(true);
 const greyscale = ref<boolean>(false);
+const loggedIn = ref<boolean>(false);
 
 // Connection Information
 const connected = ref<boolean>(false);
@@ -278,7 +279,7 @@ const joinGroup = (groupName: string) => {
 }
 
 const connect = (groupname: string, newGroup: boolean) => {
-  if (artist.value.id == 0) { // User is not logged in!
+  if (!loggedIn.value) {
     toast.add({
       severity: "error",
       summary: "Error",
@@ -373,14 +374,18 @@ onMounted(async () => {
   document.addEventListener("keydown", handleKeyDown);
   window.addEventListener("beforeunload", handleBeforeUnload);
 
-  //Get the current user
-  LoginService.GetCurrentUser().then((user: Artist) => {
-    if (user.id == 0) {
-      artist.value.id = 0;
-      artist.value.name = "Guest";
-    }
-    artist.value = user;
-  });
+    //Get the current user
+    LoginService.isLoggedIn().then((isLoggedIn:boolean) => {
+      loggedIn.value = isLoggedIn;
+      if(isLoggedIn) {
+        LoginService.GetCurrentUser().then((user: Artist) => {
+        artist.value = user;
+        });
+      } else {
+        artist.value.id = 0;
+        artist.value.name = "Guest";
+      }
+    }).catch((err) => console.log(err));
 
   if (route.params.id) {
     const id: number = parseInt(route.params.id as string);
