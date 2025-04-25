@@ -192,6 +192,9 @@ connection.on("NewMember", (newartist: Artist) => {
 
 connection.on("Members", (artists: Artist[]) => {
   console.log("Recieved All Members");
+  art.value.artistId = [];
+  art.value.artistName = [];
+  artistStore.artists = [];
   artists.forEach((artist) => {
     if (!art.value.artistId.includes(artist.id)) {
       art.value.artistId.push(artist.id);
