@@ -39,6 +39,14 @@
             icon="pi pi-comment"
             :label="art.numComments?.toString() || ''"
           />
+          <Button
+            v-if="art.isGif"
+            rounded
+            severity="secondary"
+            icon="pi pi-comment"
+            disabled
+            >Gif</Button
+          >
         </div>
       </template>
     </Card>

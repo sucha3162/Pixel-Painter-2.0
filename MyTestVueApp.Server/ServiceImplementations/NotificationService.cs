@@ -34,7 +34,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             foreach (Art artwork in artworks)
             {
                 //Get notified on who commented on your art
-                var comments = commentService.GetCommentsByArtId(artwork.id);
+                var comments = commentService.GetCommentsByArtId(artwork.Id);
                 foreach(Comment comment in comments)
                 {
                     if(comment.artistId == artistId || comment.creationDate < thirtyDaysAgo) //Make sure it is not the user, or over 30 days old
@@ -51,13 +51,13 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             type = 0,
                             user = comment.commenterName,
                             viewed = comment.Viewed,
-                            artName = artwork.title
+                            artName = artwork.Title
                         };
                         notifications.Add(notification);
                     }
                 }
                 //Get notified on who liked your art
-                var likes = likeService.GetLikesByArtwork(artwork.id);
+                var likes = likeService.GetLikesByArtwork(artwork.Id);
                 foreach(Like like in likes) 
                 {
                     if (like.ArtistId == artistId || like.LikedOn < thirtyDaysAgo) //Make sure it is not the user, or over 30 days old
@@ -72,7 +72,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         type = 1,
                         user = like.Artist,
                         viewed = like.Viewed,
-                        artName = artwork.title
+                        artName = artwork.Title
                     };
                     notifications.Add(notification);
                 }

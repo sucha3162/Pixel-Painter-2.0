@@ -4,7 +4,6 @@
 <script setup lang="ts">
 import Art from "@/entities/Art";
 import Button from "primevue/button";
-import { PixelGrid } from "@/entities/PixelGrid";
 import GIFCreationService from "@/services/GIFCreationService";
 import { useLayerStore } from "@/store/LayerStore";
 

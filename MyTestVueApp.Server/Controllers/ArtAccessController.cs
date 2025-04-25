@@ -28,14 +28,14 @@ namespace MyTestVueApp.Server.Controllers
         [Route("GetAllArt")]
         public IEnumerable<Art> GetAllArt()
         {
-            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
+            return ArtAccessService.GetAllArt().Where(art => art.IsPublic).OrderByDescending(art => art.CreationDate);
         }
 
         [HttpGet]
         [Route("GetAllArtByUserID")]
         public IEnumerable<Art> GetAllArtByUserID(int id)
         {
-            return ArtAccessService.GetArtByArtist(id).Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
+            return ArtAccessService.GetArtByArtist(id).Where(art => art.IsPublic).OrderByDescending(art => art.CreationDate);
         }
 
         [HttpGet]
@@ -52,9 +52,9 @@ namespace MyTestVueApp.Server.Controllers
         {
             if (isAscending)
             {
-                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.numLikes);
+                return ArtAccessService.GetAllArt().Where(art => art.IsPublic).OrderBy(art => art.NumLikes);
             }
-            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.numLikes);
+            return ArtAccessService.GetAllArt().Where(art => art.IsPublic).OrderByDescending(art => art.NumLikes);
         }
 
         [HttpGet]
@@ -63,9 +63,9 @@ namespace MyTestVueApp.Server.Controllers
         {
             if (isAscending)
             {
-                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.numComments);
+                return ArtAccessService.GetAllArt().Where(art => art.IsPublic).OrderBy(art => art.NumComments);
             }
-            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.numComments);
+            return ArtAccessService.GetAllArt().Where(art => art.IsPublic).OrderByDescending(art => art.NumComments);
         }
 
         [HttpGet]
@@ -74,9 +74,9 @@ namespace MyTestVueApp.Server.Controllers
         {
             if (isAscending)
             {
-                return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderBy(art => art.creationDate);
+                return ArtAccessService.GetAllArt().Where(art => art.IsPublic).OrderBy(art => art.CreationDate);
             }
-            return ArtAccessService.GetAllArt().Where(art => art.isPublic).OrderByDescending(art => art.creationDate);
+            return ArtAccessService.GetAllArt().Where(art => art.IsPublic).OrderByDescending(art => art.NumComments);
         }
 
         [HttpGet]
@@ -95,7 +95,7 @@ namespace MyTestVueApp.Server.Controllers
                     }
 
                     var result = ArtAccessService.GetAllArt();
-                    return Ok(result.Where(art => art.artistId.Contains(artist.id)).OrderByDescending(art => art.creationDate));
+                    return Ok(result.Where(art => art.ArtistId.Contains(artist.id)).OrderByDescending(art => art.CreationDate));
                    
                 }
                 else
@@ -122,14 +122,14 @@ namespace MyTestVueApp.Server.Controllers
                     return BadRequest("Art not found");
                 }
 
-                if (art.isPublic)
+                if (art.IsPublic)
                 {
                     if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                     {
                         var artist = await LoginService.GetUserBySubId(userId);
                         if (artist != null)
                         {
-                            art.currentUserIsOwner = (art.artistId.Contains(artist.id));
+                            art.CurrentUserIsOwner = (art.ArtistId.Contains(artist.id));
                         }
                     }
                     return Ok(art);
@@ -139,8 +139,8 @@ namespace MyTestVueApp.Server.Controllers
                     if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                     {
                         var artist = await LoginService.GetUserBySubId(userId);
-                        art.currentUserIsOwner = (art.artistId.Contains(artist.id));
-                        if (art.currentUserIsOwner)
+                        art.CurrentUserIsOwner = (art.ArtistId.Contains(artist.id));
+                        if (art.CurrentUserIsOwner)
                         {
 
                             return Ok(art);
@@ -155,6 +155,20 @@ namespace MyTestVueApp.Server.Controllers
                         return Unauthorized("User does not have permission for this action");
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+        [HttpGet]
+        [Route("GetGif")]
+        public async Task<IActionResult> GetGif(int id)
+        {
+            try
+            {
+                var gif = await ArtAccessService.GetGif(id);
+                return Ok(gif);
             }
             catch (Exception ex)
             {
@@ -184,7 +198,7 @@ namespace MyTestVueApp.Server.Controllers
                         return BadRequest("User not logged in");
                     }
 
-                    if (art.id == 0) //New art
+                    if (art.Id == 0) //New art
                     {
                         var result = await ArtAccessService.SaveNewArt(artist, art);
                         return Ok(result);
@@ -195,6 +209,51 @@ namespace MyTestVueApp.Server.Controllers
                         if (result == null)
                         {
                             return BadRequest("Could not update this art");
+                        }
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return BadRequest("User not logged in");
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+        [HttpPut]
+        [Route("SaveGif")]
+        public async Task<IActionResult> SaveGif([FromBody] Art[] art, int fps)
+        {
+            try
+            {
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userSubId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userSubId);
+
+                    if (artist == null)
+                    {
+                        return BadRequest("User not logged in");
+                    }
+
+                    if (art[0].Id == 0) //New Gif
+                    {
+                        var result = await ArtAccessService.SaveGif(artist, art);
+                        return Ok(result);
+                    }
+                    else //Update Gif
+                    {
+                        var result = await ArtAccessService.UpdateGif(art,fps);
+                        if (result == null)
+                        {
+                            return BadRequest("Could not update this gif"); //need to update fps as well
                         }
                         return Ok(result);
                     }
@@ -229,13 +288,13 @@ namespace MyTestVueApp.Server.Controllers
                         return BadRequest("User not logged in");
                     }
 
-                    if (art.id == 0) //New art
+                    if (art.Id == 0) //New art
                     {
                         var result = await ArtAccessService.SaveNewArtMulti(art);
                         // If there are attatched contributing artists
-                        foreach (int artistId in art.artistId)
+                        foreach (int artistId in art.ArtistId)
                         {
-                            ArtAccessService.AddContributingArtist(art.id, artistId);
+                            ArtAccessService.AddContributingArtist(art.Id, artistId);
                         }
                         return Ok(result);
                     }
@@ -270,7 +329,7 @@ namespace MyTestVueApp.Server.Controllers
             {
                 var artist = await LoginService.GetUserBySubId(userId);
 
-                ismine = (art.artistId.Contains(artist.id));
+                ismine = (art.ArtistId.Contains(artist.id));
             }
             return ismine;
         }
@@ -289,7 +348,7 @@ namespace MyTestVueApp.Server.Controllers
                     var artist = await LoginService.GetUserBySubId(userId);
                     var art = ArtAccessService.GetArtById(artId);
 
-                    if (!(art.artistId.Contains(artist.id)) && !artist.isAdmin)
+                    if (!(art.ArtistId.Contains(artist.id)) && !artist.isAdmin)
                     {
                         return Unauthorized("User is not authorized for this action");
                     }

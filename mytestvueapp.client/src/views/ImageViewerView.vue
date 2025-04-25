@@ -1,15 +1,16 @@
 <template>
   <div class="justify-content-center flex w-full h-full align-items-center">
-    <div class="border-2">
+    <div v-if="!art.isGif && art" class="border-2">
       <MyCanvas
         v-model="squareColor"
-        v-if="art"
+        v-if="!art.isGif && art"
         :key="art.id"
         :art="art"
         :pixelSize="20"
         :canvas-number="1"
       />
     </div>
+    <div><img v-if="GifURL" :src="GifURL" alt="" /></div>
     <Card class="w-20rem ml-5">
       <template #content>
         <h3 class="flex">
@@ -21,7 +22,7 @@
           <div
             :style="{
               textDecoration: hover ? 'underline' : 'none',
-              cursor: hover ? 'pointer' : 'none',
+              cursor: hover ? 'pointer' : 'none'
             }"
             v-for="(artist, index) in art.artistName"
             :key="index"
@@ -32,9 +33,6 @@
           >
             {{ artist }}
           </div>
-          <!-- <RouterLink to="/accountpage">
-            <Button>Account Page</Button>
-          </RouterLink> -->
         </div>
         <div>Uploaded on {{ uploadDate.toLocaleDateString() }}</div>
 
@@ -139,7 +137,7 @@
     </Card>
   </div>
 
-  <h2 class="px-4">{{ allComments.length }} Comments</h2>
+  <h2 class="px-4">{{ totalNumComments }} Comments</h2>
 
   <div class="px-6">
     <!-- Initial comment. Reply to image -->
@@ -161,11 +159,10 @@ import SaveImageToFile from "@/components/PainterUi/SaveImageToFile.vue";
 import DeleteArtButton from "@/components/DeleteArtButton.vue";
 import Art from "@/entities/Art";
 import MyCanvas from "@/components/MyCanvas/MyCanvas.vue";
-import { ref, onMounted, toRaw } from "vue";
 import Comment from "@/entities/Comment";
 import CommentOnArt from "@/components/Comment/CommentOnArt.vue";
 import ArtAccessService from "../services/ArtAccessService";
-import { useRoute, RouterLink } from "vue-router";
+import { useRoute } from "vue-router";
 import CommentAccessService from "../services/CommentAccessService";
 import NewComment from "@/components/Comment/NewComment.vue";
 import Card from "primevue/card";
@@ -174,9 +171,9 @@ import Button from "primevue/button";
 import router from "@/router";
 import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
-import type { Color } from "pixi.js";
+import GIFCreationService from "@/services/GIFCreationService";
 import { useLayerStore } from "@/store/LayerStore";
-import type { Tooltip } from "primevue";
+import { onMounted, ref } from "vue";
 
 const layerStore = useLayerStore();
 
@@ -193,12 +190,15 @@ const route = useRoute();
 const toast = useToast();
 const art = ref<Art>(new Art());
 const allComments = ref<Comment[]>([]);
+const totalNumComments = ref<number>(0);
 const id = Number(route.params.id);
 const uploadDate = ref(new Date());
 const user = ref<boolean>(false);
 const showFilters = ref(false);
 const ShowTones = ref(false);
 const Names = ref<String[]>([]);
+const GifURL = ref<string>("");
+const urls = ref<string[]>([]);
 
 onMounted(() => {
   ArtAccessService.getArtById(id)
@@ -206,6 +206,9 @@ onMounted(() => {
       art.value = promise as Art;
       uploadDate.value = new Date(promise.creationDate);
       Names.value = art.value.artistName;
+      if (promise.isGif) {
+        GifDisplay();
+      }
     })
     .catch(() => {
       router.push("/gallery");
@@ -240,12 +243,14 @@ function getIsAdmin() {
 }
 
 function buildCommentTree(comments: Comment[]): Comment[] {
+  totalNumComments.value = 0;
   const commentMap: { [id: number]: Comment } = {};
   const roots: Comment[] = [];
 
   // Create a map of comments by their ID
   for (const comment of comments) {
     commentMap[comment.id!] = { ...comment, replies: [] }; // Ensure `replies` is initialized
+    totalNumComments.value++;
   }
 
   // Build the tree by associating replies with their parents
@@ -273,10 +278,6 @@ const squareColor = ref<string>("blue");
 const toneOne = ref<string>("#ff0000");
 const toneTwo = ref<string>("#0000ff");
 
-//const changeColor = () => {
-//  squareColor.value = squareColor.value === "blue" ? "red" : "blue"; // Toggle color
-//};
-//
 const GreyScaleFilter = () => {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     if (promise.pixelGrid.encodedGrid) {
@@ -315,11 +316,6 @@ const rgbToHex = (r: number, g: number, b: number) =>
     })
     .join("");
 function rgbToGrayscale(red: number, green: number, blue: number) {
-  /* remember: if you multiply a number by a decimal between 0
-    and 1, it will make the number smaller. That's why we don't
-    need to divide the result by three - unlike the previous
-    example - because it's already balanced. */
-
   let r = red * 0.3; // ------> Red is low
   let g = green * 0.59; // ---> Green is high
   let b = blue * 0.11; // ----> Blue is very low
@@ -426,6 +422,18 @@ function ResetFilters() {
   Deu.value = false;
   sepia.value = false;
   ArtAccessService.getArtById(id).then((promise: Art) => {
+    if (promise.isGif) {
+      ArtAccessService.GetGif(promise.id).then((promiseGif: Art[]) => {
+        urls.value = ArtToGif(promiseGif);
+        GIFCreationService.createGIFcode(urls.value, promiseGif[0].gifFps).then(
+          (Blob) => {
+            //console.log(Blob);
+            GifURL.value = Blob;
+          }
+        );
+      });
+    }
+
     if (promise.pixelGrid.encodedGrid)
       squareColor.value = promise.pixelGrid.encodedGrid;
   });
@@ -492,6 +500,9 @@ function InverseGammaCorrection(OldColor: number): number {
   let expo = 1 / 2.2;
   let NewColor = Math.pow(OldColor, expo);
   NewColor = NewColor * 255;
+  if (NewColor > 255) {
+    NewColor = 255;
+  }
   return NewColor;
 }
 function RGBtoLMS(rgbcolors: number[]): number[][] {
@@ -596,6 +607,17 @@ function LMStoRGB(LMScolors: number[][]): number[] {
   reformatedcolors[2] = RGBcolors[2][0];
   return reformatedcolors;
 }
+
+/*
+ Calculations made from:
+Digital Video Colourmaps for
+Checking the Legibility of
+Displays by Dichromats
+Francoise Vie�not,Hans Brettel,John D. Mollon
+
+https://vision.psychol.cam.ac.uk/jdmollon/papers/colourmaps.pdf
+*/
+
 function FilterProtanope(currentGrid: string): string {
   let newGrid: string = "";
   let currentcolorrgb: number[] = [];
@@ -611,6 +633,12 @@ function FilterProtanope(currentGrid: string): string {
       GammaCorrection(currentcolorrgb[1]),
       GammaCorrection(currentcolorrgb[2])
     ];
+
+    //after gamma adjustment
+    currentcolorrgb[0] = 0.992052 * currentcolorrgb[0] + 0.003974;
+    currentcolorrgb[1] = 0.992052 * currentcolorrgb[1] + 0.003974;
+    currentcolorrgb[2] = 0.992052 * currentcolorrgb[2] + 0.003974;
+
     currentcolorlms = RGBtoLMS(currentcolorrgb);
     newcolorlms = LMStoProtanopes(currentcolorlms);
     newrgb = LMStoRGB(newcolorlms);
@@ -656,6 +684,11 @@ function FilterDeu(currentGrid: string): string {
       GammaCorrection(currentcolorrgb[1]),
       GammaCorrection(currentcolorrgb[2])
     ];
+    //after gamma adjustment Deu
+    currentcolorrgb[0] = 0.957237 * currentcolorrgb[0] + 0.0213814;
+    currentcolorrgb[1] = 0.957237 * currentcolorrgb[1] + 0.0213814;
+    currentcolorrgb[2] = 0.957237 * currentcolorrgb[2] + 0.0213814;
+
     currentcolorlms = RGBtoLMS(currentcolorrgb);
     newcolorlms = LMStoDeuteranopes(currentcolorlms);
     newrgb = LMStoRGB(newcolorlms);
@@ -672,7 +705,7 @@ function FilterDeu(currentGrid: string): string {
   }
   return newGrid;
 }
-const DeuFilter = () => {
+async function DeuFilter() {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     if (promise.pixelGrid.encodedGrid) {
       if (Deu.value == false) {
@@ -689,6 +722,80 @@ const DeuFilter = () => {
         filtered.value = false;
         return;
       }
+  });
+}
+function ArtToGif(Paintings: Art[]): string[] {
+  let url: string[] = [];
+  Paintings.forEach((element) => {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    if (!context) {
+      throw new Error("Could not get context");
+    }
+    const image = context.createImageData(
+      element.pixelGrid.width,
+      element.pixelGrid.height
+    );
+    var hexBegin = 0;
+    var hexEnd = 6;
+    canvas.width = element.pixelGrid.width;
+    canvas.height = element.pixelGrid.height;
+
+    for (let x = 0; x < element.pixelGrid.height; x++) {
+      for (let y = 0; y < element.pixelGrid.width; y++) {
+        let pixelHex;
+
+        pixelHex = element.pixelGrid.encodedGrid?.substring(hexBegin, hexEnd);
+        if (pixelHex) pixelHex = pixelHex.replace("#", "").toUpperCase();
+        const index = (x + y * element.pixelGrid.width) * 4;
+        if (pixelHex)
+          image?.data.set(
+            [
+              parseInt(pixelHex.substring(0, 2), 16),
+              parseInt(pixelHex.substring(2, 4), 16),
+              parseInt(pixelHex.substring(4, 6), 16),
+              255
+            ],
+            index
+          );
+        hexBegin += 6;
+        hexEnd += 6;
+      }
+    }
+    context?.putImageData(image, 0, 0);
+
+    let upsizedCanvas = document.createElement("canvas");
+    upsizedCanvas.width = 360;
+    upsizedCanvas.height = 360;
+    let upsizedContext = upsizedCanvas.getContext("2d");
+    if (!upsizedContext) {
+      throw new Error("Could not get context");
+    }
+    upsizedContext.imageSmoothingEnabled = false;
+    upsizedContext.drawImage(
+      canvas,
+      0,
+      0,
+      upsizedCanvas.width,
+      upsizedCanvas.height
+    );
+    let dataURL = upsizedCanvas.toDataURL("image/png");
+    const strings = dataURL.split(",");
+    url.push(strings[1]);
+  });
+  return url;
+}
+
+const GifDisplay = () => {
+  ArtAccessService.getArtById(id).then((promise: Art) => {
+    ArtAccessService.GetGif(promise.gifID).then((promiseGif: Art[]) => {
+      urls.value = ArtToGif(promiseGif);
+      GIFCreationService.createGIFcode(urls.value, promiseGif[0].gifFps).then(
+        (Blob) => {
+          GifURL.value = Blob;
+        }
+      );
+    });
   });
 };
 </script>

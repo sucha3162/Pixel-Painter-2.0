@@ -30,6 +30,7 @@
         </Button>
         <UploadButton
           :art="art"
+          :fps="fps"
           :connection="connection"
           :connected="connected"
           :group-name="groupName"
@@ -80,10 +81,11 @@
     <template #end>
       <Button
         icon="pi pi-times"
-      class="mr-2"
-      severity="primary"
-      label="Clear"
-      @click="clear()"/>
+        class="mr-2"
+        severity="primary"
+        label="Clear"
+        @click="clear()"
+      />
       <Button
         icon="pi pi-expand"
         class="mr-2"
@@ -147,7 +149,6 @@ import ConnectButton from "@/components/PainterUi/ConnectButton.vue";
 
 //Other
 import * as SignalR from "@microsoft/signalr";
-import { FillStyle } from "pixi.js";
 import { useLayerStore } from "@/store/LayerStore";
 
 //variables
@@ -294,6 +295,9 @@ const endPix = ref<Vector2>(new Vector2(0, 0));
 let tempGrid: string[][] = [];
 
 const art = ref<Art>(new Art());
+//if anyone has an easier way to set this lmk
+art.value.isGif = layerStore.grids[0].isGif;
+art.value.pixelGrid.isGif = layerStore.grids[0].isGif;
 
 let selectedFrame = ref(1);
 let lastFrame = ref(1);
@@ -456,7 +460,7 @@ watch(
       tempGrid = JSON.parse(
         JSON.stringify(layerStore.grids[layerStore.layer].grid)
       );
-			canvas.value?.drawLayers(next);
+      canvas.value?.drawLayers(next);
     } else {
       layerStore.layer = next;
       tempGrid = JSON.parse(JSON.stringify(layerStore.grids[next].grid));
@@ -565,7 +569,7 @@ function DrawAtCoords(coords: Vector2[]) {
         for (let j = 0; j < layerStore.grids[layerStore.layer].width; j++) {
           layerStore.grids[layerStore.layer].grid[i][j] = tempGrid[i][j];
 
-					canvas.value?.updateCell(layerStore.layer, i, j, tempGrid[i][j]);
+          canvas.value?.updateCell(layerStore.layer, i, j, tempGrid[i][j]);
         }
       }
     }
@@ -612,12 +616,12 @@ function DrawAtCoords(coords: Vector2[]) {
                 layerStore.grids[layerStore.layer].grid[coord.x + i][
                   coord.y + j
                 ] = "empty";
-								canvas.value?.updateCell(
-									layerStore.layer,
-									coord.x + i,
-									coord.y + j,
-									"empty"
-								);
+                canvas.value?.updateCell(
+                  layerStore.layer,
+                  coord.x + i,
+                  coord.y + j,
+                  "empty"
+                );
               }
             }
           }
@@ -651,19 +655,19 @@ function DrawAtCoords(coords: Vector2[]) {
           layerStore.grids[layerStore.layer].grid[coord.x][coord.y] =
             cursor.value.color;
 
-					canvas.value?.updateCell(
-						layerStore.layer,
-						coord.x,
-						coord.y,
-						cursor.value.color
-					);
+          canvas.value?.updateCell(
+            layerStore.layer,
+            coord.x,
+            coord.y,
+            cursor.value.color
+          );
         }
       }
     }
   });
-	if (layerStore.grids[0].isGif) {
-		canvas.value?.drawLayers(layerStore.layer);
-	}
+  if (layerStore.grids[0].isGif) {
+    canvas.value?.drawLayers(layerStore.layer);
+  }
 }
 
 function fill(
@@ -676,8 +680,8 @@ function fill(
     const oldColor = layerStore.grids[layerStore.layer].grid[x][y];
     layerStore.grids[layerStore.layer].grid[x][y] = color;
 
-		canvas.value?.updateCell(layerStore.layer, x, y, color);
-    
+    canvas.value?.updateCell(layerStore.layer, x, y, color);
+
     vectors.push(new Vector2(x, y));
     if ("empty" !== color) {
       if (x + 1 < layerStore.grids[layerStore.layer].width) {
@@ -714,7 +718,7 @@ function randomizeGrid() {
         .padStart(6, "0");
       layerStore.grids[layerStore.layer].grid[i][j] = color;
 
-			canvas.value?.updateCell(layerStore.layer, i, j, color);
+      canvas.value?.updateCell(layerStore.layer, i, j, color);
 
       if (connected.value) {
         let coords: Vector2[] = [];
@@ -737,15 +741,15 @@ function fallingSand() {
           const below = pixelGrid.grid[x][y + 1];
           pixelGrid.grid[x][y + 1] = pixelGrid.grid[x][y];
 
-					canvas.value?.updateCell(
-						layerStore.layer,
-						x,
-						y + 1,
-						pixelGrid.grid[x][y]
-					);
+          canvas.value?.updateCell(
+            layerStore.layer,
+            x,
+            y + 1,
+            pixelGrid.grid[x][y]
+          );
 
           pixelGrid.grid[x][y] = below;
-					canvas.value?.updateCell(layerStore.layer, x, y, below);
+          canvas.value?.updateCell(layerStore.layer, x, y, below);
         } else {
           //generate a random number either -1 or 1
           const random = Math.random() > 0.5 ? 1 : -1;
@@ -759,15 +763,15 @@ function fallingSand() {
             const belowRight = pixelGrid.grid[x + random][y + 1];
             pixelGrid.grid[x + random][y + 1] = pixelGrid.grid[x][y];
 
-						canvas.value?.updateCell(
-							layerStore.layer,
-							x + random,
-							y + 1,
-							pixelGrid.grid[x][y]
-						);
+            canvas.value?.updateCell(
+              layerStore.layer,
+              x + random,
+              y + 1,
+              pixelGrid.grid[x][y]
+            );
             pixelGrid.grid[x][y] = belowRight;
 
-						canvas.value?.updateCell(layerStore.layer, x, y, belowRight);
+            canvas.value?.updateCell(layerStore.layer, x, y, belowRight);
           }
         }
       }
@@ -781,7 +785,7 @@ function clear(): void {
     for (let j = 0; j < layerStore.grids[layerStore.layer].height; j++) {
       layerStore.grids[layerStore.layer].grid[i][j] = "empty";
       canvas.value?.updateCell(layerStore.layer, i, j, "empty");
-      coords.push(new Vector2(i,j));
+      coords.push(new Vector2(i, j));
     }
   }
 
@@ -1084,7 +1088,6 @@ function handleKeyDown(event: KeyboardEvent) {
     }
   }
 }
-
 function LocalSave() {
   layerStore.save();
 }

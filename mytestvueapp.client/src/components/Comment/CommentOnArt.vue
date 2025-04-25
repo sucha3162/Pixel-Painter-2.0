@@ -108,15 +108,15 @@ const items = ref([
     icon: "pi pi-trash",
     command: () => {
       DeleteComment();
-    },
+    }
   },
   {
     label: "Edit",
     icon: "pi pi-pencil",
     command: () => {
       editing.value = true;
-    },
-  },
+    }
+  }
 ]);
 
 watch(editing, () => {
@@ -127,7 +127,7 @@ onMounted(() => {
   getIsAdmin();
 });
 const props = defineProps<{
-    comment: Comment;
+  comment: Comment;
 }>();
 
 function getIsAdmin() {
@@ -148,7 +148,7 @@ const SubmitEdit = () => {
           severity: "error",
           summary: "Error",
           detail: "Failed to edit comment",
-          life: 3000,
+          life: 3000
         });
       });
   }
@@ -172,23 +172,25 @@ onMounted(() => {
   dateFormatted.value = getRelativeTime(differenceMinutes);
 });
 
-function adjustForTimezone(date: Date): Date{
+function adjustForTimezone(date: Date): Date {
   var timeOffsetInMS: number = date.getTimezoneOffset() * 60000;
   date.setTime(date.getTime() - timeOffsetInMS);
   return date;
 }
 
-function getRelativeTime(minutes: number): string {  
+function getRelativeTime(minutes: number): string {
   if (minutes === 0) return `Just now`;
   if (minutes < 60) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-  if (minutes < 1440) return `${Math.floor(minutes / 60)} hour${Math.floor(minutes / 60) > 1 ? "s" : ""} ago`;
+  if (minutes < 1440)
+    return `${Math.floor(minutes / 60)} hour${Math.floor(minutes / 60) > 1 ? "s" : ""} ago`;
 
   const days = Math.round(minutes / (60 * 24));
 
   if (days < 7) return `${days} day${days > 1 ? "s" : ""} ago`;
-  if (days < 30) return `${Math.floor(days / 7)} week${Math.floor(days / 7)>1 ? "s" : ""} ago`;
-  if (days < 365) return `${Math.floor(days / 30.437)} month${Math.floor(days / 30.437) > 1 ? "s" : ""} ago`;
-
+  if (days < 30)
+    return `${Math.floor(days / 7)} week${Math.floor(days / 7) > 1 ? "s" : ""} ago`;
+  if (days < 365)
+    return `${Math.floor(days / 30.437)} month${Math.floor(days / 30.437) > 1 ? "s" : ""} ago`;
 
   const years = Math.floor(days / 365);
   return `${years} year${years > 1 ? "s" : ""} ago`;

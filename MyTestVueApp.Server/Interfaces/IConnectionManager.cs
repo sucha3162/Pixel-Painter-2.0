@@ -17,5 +17,6 @@ namespace MyTestVueApp.Server.Interfaces
         public IEnumerable<Artist> GetUsersInGroup(string groupName);
         public IEnumerable<Artist> GetContributingArtists(string groupName);
         public bool GroupExists(string groupName);
+        public bool HasConnection(string connectionId);
     }
 }

@@ -39,7 +39,6 @@
           onIcon="pi pi-image"
           offLabel="GIF"
           offIcon="pi pi-images"
-          @click=""
         />
       </template>
     </Card>
@@ -75,12 +74,11 @@ const isImage = ref(true);
 function updateLocalStorage() {
   layerStore.empty(); //just in case
 
-
   let pixelGrid = new PixelGrid(
     resolution.value,
     resolution.value,
     backgroundColor.value,
-    !isImage.value, // Constructor wants isGif so pass in !isImage
+    !isImage.value // Constructor wants isGif so pass in !isImage
   );
 
   layerStore.pushGrid(pixelGrid);

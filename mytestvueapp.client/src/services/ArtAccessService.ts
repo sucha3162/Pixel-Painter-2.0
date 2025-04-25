@@ -202,7 +202,7 @@ export default class ArtAccessService {
       const response = await fetch(request, {
         method: "POST",
         body: JSON.stringify(art),
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" }
       });
       const json = await response.json();
 
@@ -214,6 +214,54 @@ export default class ArtAccessService {
       throw error;
     }
   }
+
+  public static async SaveGif(art: Art[]): Promise<Art> {
+    try {
+      for (let i = 0; i < art.length; i++) {
+        art[i].creationDate = new Date().toISOString();
+      }
+
+      const request = "/artaccess/SaveGif";
+
+      const response = await fetch(request, {
+        method: "PUT",
+        body: JSON.stringify(art),
+        headers: { "Content-Type": "application/json" }
+      });
+      const json = await response.json();
+
+      const artpiece = json as Art[];
+
+      return artpiece[0];
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+    }
+    public static async GetGif(GifId: number): Promise<Art[]> {
+        try {
+            const response = await fetch(`/artaccess/GetGif?id=${GifId}`);
+
+            if (!response.ok) {
+                throw new Error("Error: Bad response");
+            }
+
+            const json = await response.json();
+            const GifArt: Art[] = [];
+
+            for (const jsonArt of json) {
+                let art = new Art();
+                art = jsonArt as Art;
+
+                GifArt.push(art);
+            }
+
+            return GifArt;
+        } catch (error) {
+            console.error;
+            throw error;
+        }
+    }
 
   public static async DeleteArt(ArtId: number): Promise<void> {
     try {

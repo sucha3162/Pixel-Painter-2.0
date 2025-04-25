@@ -7,7 +7,9 @@ namespace MyTestVueApp.Server.ServiceImplementations
     {
         // groupName, Group
         Dictionary<string, Group> Groups = new();
+        // ConnectionID, Artist
         Dictionary<string, Artist> ArtistLookup = new();
+        //artistId, MembershipRecord
         Dictionary<int, MembershipRecord> Records = new();
 
         public void AddGroup(string groupName, string[][][] canvas, int canvasSize, string backgroundColor)
@@ -17,28 +19,22 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         public void AddUser(string connectionId, Artist artist, string groupName)
         {
-            Console.WriteLine("AddUser: (" + connectionId + ", " + artist.id + ", " + groupName); // Presentation
             if (Groups.ContainsKey(groupName))
             {
                 ArtistLookup.Add(connectionId, artist);
                 Groups[groupName].AddMember(artist);
                 if (Records.ContainsKey(artist.id))
                 {
-                    Console.WriteLine("User already exists, so adding to connections!"); // Presentation
                     Records[artist.id].Connections.Add(new(connectionId, groupName));
                 } else
                 {
-                    Console.WriteLine("New User!"); // Presentation
                     Records.Add(artist.id, new(connectionId, artist.id, groupName));
                 }
             }
-            Console.WriteLine(Records.Count());
-
         }
 
         public void RemoveUserFromGroup(string connectionId, Artist artist, string groupName)
         {
-            Console.WriteLine("#Users before removal: " + Groups[groupName].CurrentMembers.Count); //Presentation
 
             if (!Records.ContainsKey(artist.id))
             {
@@ -80,14 +76,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
             if (record.Connections.Count == 0)
             { // Remove record from records if the Artist doesnt have any open connections;
-                Console.WriteLine("Artist has zero connections. Removing from List!"); // Presentation
                 Records.Remove(artist.id);
             }
           
-            Console.WriteLine("Remaining Users: " +  Groups[groupName].CurrentMembers.Count); // Presentation
             if (Groups[groupName].IsEmpty())
             { // Delete group if it is empty
-                Console.WriteLine("Deleting Group"); // Presentation
                 Groups.Remove(groupName);
             }
         }
@@ -162,6 +155,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
         public bool GroupExists(string groupName)
         {
             return Groups.ContainsKey(groupName);
+        }
+
+        public bool HasConnection(string connectionId)
+        {
+            return ArtistLookup.ContainsKey(connectionId);
         }
     }
 }

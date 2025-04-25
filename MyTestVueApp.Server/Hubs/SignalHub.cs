@@ -96,16 +96,19 @@ namespace MyTestVueApp.Server.Hubs
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            if (exception != null)
+            if (Manager.HasConnection(Context.ConnectionId))
             {
                 try
                 {
                     Manager.RemoveUserFromAllGroups(Context.ConnectionId);
-                } catch (ArgumentException ex)
+                }
+                catch (ArgumentException ex)
                 {
                     Logger.LogError(ex.Message);
                 }
-
+            }
+            if (exception != null)
+            {
                 Logger.LogError($"Error, Disconnected: {exception.Message}");
             }
             await base.OnDisconnectedAsync(exception);
