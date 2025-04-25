@@ -484,7 +484,6 @@ function gammaCorrection(OldColor: number): number {
   return NewColor;
 }
 function inverseGammaCorrection(OldColor: number): number {
-  // console.log(OldColor);
   if (OldColor < 0) {
     Math.abs(OldColor);
   }

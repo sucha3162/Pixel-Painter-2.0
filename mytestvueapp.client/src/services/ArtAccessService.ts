@@ -9,7 +9,6 @@ export default class ArtAccessService {
         throw new Error("Error grabbign art");
       }
       const json = await response.json();
-      console.log(json);
 
       const allArt: Art[] = [];
 

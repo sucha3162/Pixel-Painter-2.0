@@ -63,8 +63,6 @@ import ArtAccessService from "@/services/ArtAccessService";
 import { useToast } from "primevue/usetoast";
 import router from "@/router";
 import LoginService from "@/services/LoginService";
-import { HubConnectionState } from "@microsoft/signalr";
-import Artist from "@/entities/Artist";
 import { useLayerStore } from "@/store/LayerStore";
 
 const layerStore = useLayerStore();
