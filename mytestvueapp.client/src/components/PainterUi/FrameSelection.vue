@@ -17,7 +17,8 @@
         <Button :icon="frame.icon"
                 :class="frame.class"
                 :severity="frame.severity"
-                @click="switchFrame(frame.id)" />
+                @click="switchFrame(frame.id)" 
+                @contextmenu.prevent="deleteFrame(frame.id)"/>
       </template>
 
       <Button class="ml-1"
@@ -58,7 +59,7 @@ onBeforeMount(() => {
     frames.value.push({
       id: i,
       icon: "pi pi-image",
-      class: "mr-1",
+      class: "m-1",
       severity: "secondary"
     });
   }
@@ -78,7 +79,7 @@ function addFrame() {
   frames.value.push({
     id: frameStore.grids.length,
     icon: "pi pi-image",
-    class: "mr-1",
+    class: "m-1",
     severity: "secondary"
   });
   frameStore.pushGrid(
@@ -89,6 +90,7 @@ function addFrame() {
       frameStore.grids[0].isGif
     )
   );
+  switchFrame(frames.value.length - 1);
 }
 
 function removeFrame() {
@@ -111,6 +113,26 @@ function switchFrame(frameID: number) {
   selectedFrame.value = frameID;
   frameStore.layer = frameID;
 }
+
+  function deleteFrame(frameID: number) {
+    if (frames.value.length > 1) {
+      if (confirm("Are you sure you want to delete frame " + (frameID + 1) + "?")) {
+        frames.value.splice(frameID, 1);
+				frameStore.removeGrid(frameID);
+
+        for (var i = 0; i < frames.value.length; i++) {
+					frames.value[i].id = i;
+        }
+
+				if (selectedFrame.value == 0) {
+					switchFrame(selectedFrame.value);
+				} else if (selectedFrame.value >= frameID) {
+          switchFrame(selectedFrame.value - 1);
+        }
+      }
+    }
+  }
+
 </script>
 
 <style>
