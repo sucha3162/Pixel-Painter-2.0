@@ -67,26 +67,26 @@
 </template>
 
 <script setup lang="ts">
-    import { ref, watch } from "vue";
-    import Button from "primevue/button";
-    import Dialog from "primevue/dialog";
-    import InputText from "primevue/inputtext";
-    import { DataTable, Column } from "primevue";
-    import SocketService from "@/services/SocketService";
-    import GroupAdvert from "@/entities/GroupAdvert";
-    import {Tabs, TabList, Tab, TabPanels, TabPanel } from "primevue";
+import { ref, watch } from "vue";
+import Button from "primevue/button";
+import Dialog from "primevue/dialog";
+import InputText from "primevue/inputtext";
+import { DataTable, Column } from "primevue";
+import SocketService from "@/services/SocketService";
+import GroupAdvert from "@/entities/GroupAdvert";
+import {Tabs, TabList, Tab, TabPanels, TabPanel } from "primevue";
 
-    const emit = defineEmits(["openModal","connect", "disconnect"]);
+const emit = defineEmits(["openModal","connect", "disconnect"]);
 
 const props = defineProps<{
   connected: boolean;
   isGif: boolean;
 }>();
 
-    const visible = ref(false);
-    const groupname = ref("");
-    const groups = ref<GroupAdvert[]>([]);
-    const tab = ref(0);
+const visible = ref(false);
+const groupname = ref("");
+const groups = ref<GroupAdvert[]>([]);
+const tab = ref(0);
 
 function ToggleModal() {
   if (!props.connected) {
