@@ -18,20 +18,6 @@ namespace MyTestVueApp.Server.Hubs
             Logger = logger;
         }
 
-        public async Task CreateOrJoinGroup(string groupName, Artist artist, string[][][] canvas, int canvasSize, string backgroundColor)
-        {
-            Logger.LogInformation("GroupName: " + groupName + " GroupExists: " + Manager.GroupExists(groupName));
-            if (Manager.GroupExists(groupName))
-            {
-                Logger.LogInformation("Joining Group!");
-                await JoinGroup(groupName, artist);
-            } else
-            {
-                Logger.LogInformation("Creating Group!");
-                await CreateGroup(groupName, artist, canvas, canvasSize, backgroundColor);
-            }
-        }
-
         public async Task JoinGroup(string groupName, Artist artist)
         {
             if (!Manager.GroupExists(groupName))
@@ -51,16 +37,15 @@ namespace MyTestVueApp.Server.Hubs
         }
 
 
-        public async Task CreateGroup(string groupName, Artist artist, string[][][] canvas, int canvasSize, string backgroundColor)
+        public async Task CreateGroup(string groupName, Artist artist, List<string> contributors, string[][][] canvas, int canvasSize, string backgroundColor)
         {
             if (Manager.GroupExists(groupName))
             {
-                await Clients.Caller.SendAsync("Error", "This group already exists!");
                 Logger.LogError("User attempted to create a group that already exists!");
                 throw new HubException("User attempted to create a group that already exists!");
             }
 
-            Manager.AddGroup(groupName,canvas,canvasSize,backgroundColor);
+            Manager.AddGroup(groupName, contributors, canvas,canvasSize,backgroundColor);
             Manager.AddUser(Context.ConnectionId, artist, groupName);
 
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);

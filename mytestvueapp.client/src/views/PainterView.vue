@@ -247,6 +247,7 @@ const createGroup = (groupName: string) => {
             "CreateGroup",
             groupName,
             artist.value,
+            art.value.artistName,
             grids,
             layerStore.grids[0].width,
             layerStore.grids[0].backgroundColor
