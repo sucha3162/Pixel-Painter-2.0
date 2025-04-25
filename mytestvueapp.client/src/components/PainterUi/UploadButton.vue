@@ -63,7 +63,9 @@ import { useToast } from "primevue/usetoast";
 import router from "@/router";
 import LoginService from "@/services/LoginService";
 import { useLayerStore } from "@/store/LayerStore";
+import { useArtistStore } from "@/store/ArtistStore";
 const layerStore = useLayerStore();
+const artistStore = useArtistStore();
 const toast = useToast();
 const visible = ref(false);
 const loading = ref(false);
@@ -165,6 +167,7 @@ function Upload() {
                   life: 3000
                 });
                 layerStore.empty();
+                artistStore.empty();
                 localStorage.clear();
                 router.push("/art/" + data.id); //may need fix
               } else {
@@ -222,6 +225,7 @@ function Upload() {
                 life: 3000
               });
               layerStore.empty();
+              artistStore.empty();
               localStorage.clear();
               router.push("/art/" + data.id);
             } else {

@@ -25,7 +25,7 @@
           icon="pi pi-ban"
           label="Quit"
           severity="secondary"
-          @click="ResetArt()"
+          @click="ResetArt(); disconnect()"
         >
         </Button>
         <UploadButton
@@ -194,7 +194,8 @@ connection.on("Members", (artists: Artist[]) => {
   console.log("Recieved All Members");
   art.value.artistId = [];
   art.value.artistName = [];
-  artistStore.artists = [];
+  artistStore.clearStorage();
+  artistStore.empty();
   artists.forEach((artist) => {
     if (!art.value.artistId.includes(artist.id)) {
       art.value.artistId.push(artist.id);
@@ -275,7 +276,10 @@ const joinGroup = (groupName: string) => {
             "JoinGroup",
             groupName,
             artist.value
-          ).then(() => connected.value = !connected.value)
+          ).then(() => {
+            connected.value = !connected.value
+            artistStore.empty();
+          })
           .catch((err) => {toast.add({
             severity: "error",
             summary: "Error",
@@ -315,6 +319,7 @@ const connect = (groupname: string, newGroup: boolean) => {
 } 
 
 const disconnect = () => {
+  if (connected.value) {
   connection.invoke("LeaveGroup", groupName.value, artist.value)
     .then(() => {
       connection
@@ -325,7 +330,9 @@ const disconnect = () => {
         .catch((err) => console.error("Error Disconnecting:", err));
     })
     .catch((err) => console.error("Error Leaving Group:", err));
+  }
 };
+
 //End of Connection Information
 const cursor = ref<Cursor>(
   new Cursor(new Vector2(-1, -1), PainterTool.getDefaults()[1], 1, "000000")
@@ -1023,7 +1030,8 @@ function setEndVector() {
 function ResetArt() {
   layerStore.clearStorage();
   layerStore.empty();
-  artistStore.$reset();
+  artistStore.clearStorage();
+  artistStore.empty();
 
   if (art.value.pixelGrid.isGif) {
     let tempCount = 0;
@@ -1140,6 +1148,7 @@ function handleKeyDown(event: KeyboardEvent) {
 }
 function LocalSave() {
   layerStore.save();
+  artistStore.save();
 }
 </script>
 <style scoped>

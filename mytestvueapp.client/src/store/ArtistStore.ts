@@ -7,4 +7,23 @@ export const useArtistStore = defineStore('artists', {
             artists: [] as Artist[]
         }
     },
+    actions: {
+         init() {
+              const store = localStorage.getItem('artists') as string;
+              if (store) {
+                const parsedArtists = JSON.parse(store);
+                this.artists = parsedArtists.map((artist: any) => Object.assign(new Artist(), artist));
+              }
+            },
+        save() {
+            localStorage.setItem('artists', JSON.stringify(this.artists));
+        },
+        empty() {
+            this.artists = [] as Artist[];
+          },
+        clearStorage() {
+            localStorage.removeItem('artists');
+        }
+
+    }
 })

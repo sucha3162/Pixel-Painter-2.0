@@ -95,6 +95,7 @@ namespace MyTestVueApp.Server.Hubs
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
+            Logger.LogInformation("[Disconnecting] CID:" + Context.ConnectionId);
             if (Manager.HasConnection(Context.ConnectionId))
             {
                 try
@@ -105,6 +106,9 @@ namespace MyTestVueApp.Server.Hubs
                 {
                     Logger.LogError(ex.Message);
                 }
+            } else
+            {
+                Logger.LogError("Manager doesnt have that connection ID!");
             }
             if (exception != null)
             {

@@ -40,15 +40,18 @@ import Toolbar from "primevue/toolbar";
 import Notification from "./NotificationRedirect.vue";
 import LoginService from "@/services/LoginService";
 import { useLayerStore } from "@/store/LayerStore"
+import { useArtistStore } from "@/store/ArtistStore"
 
 const visible = ref(false);
 const password = ref(null);
 const layerStore = useLayerStore();
+const artistStore = useArtistStore();
 
 const isLoggedIn = ref(false);
 
 onMounted(() => {
   layerStore.init();
+  artistStore.init();
 
   LoginService.isLoggedIn().then((result) => {
     isLoggedIn.value = result;
