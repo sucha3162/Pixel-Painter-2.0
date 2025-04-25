@@ -31,13 +31,13 @@ namespace MyTestVueApp.Server.Hubs
             await Clients.Group(groupName).SendAsync("Send", $"{artist.name} has joined the group {groupName}.");
            
             await Clients.Client(Context.ConnectionId).SendAsync("GroupConfig", Manager.GetGroup(groupName).CanvasSize, Manager.GetGroup(groupName).BackgroundColor, Manager.GetGroup(groupName).GetPixelsAsList());
-            await Clients.Client(Context.ConnectionId).SendAsync("Members", Manager.GetGroup(groupName).CurrentMembers);
+            await Clients.Client(Context.ConnectionId).SendAsync("Members", Manager.GetGroup(groupName).MemberRecord);
             
             await Clients.Group(groupName).SendAsync("NewMember", artist);
         }
 
 
-        public async Task CreateGroup(string groupName, Artist artist, List<string> contributors, string[][][] canvas, int canvasSize, string backgroundColor)
+        public async Task CreateGroup(string groupName, Artist artist, List<Artist> contributors, string[][][] canvas, int canvasSize, string backgroundColor)
         {
             if (Manager.GroupExists(groupName))
             {

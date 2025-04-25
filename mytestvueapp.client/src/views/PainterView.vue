@@ -150,6 +150,7 @@ import ConnectButton from "@/components/PainterUi/ConnectButton.vue";
 //Other
 import * as SignalR from "@microsoft/signalr";
 import { useLayerStore } from "@/store/LayerStore";
+import { useArtistStore } from "@/store/ArtistStore";
 
 //variables
 const route = useRoute();
@@ -159,6 +160,7 @@ const intervalId = ref<number>(-1);
 const keyBindActive = ref<boolean>(true);
 const artist = ref<Artist>(new Artist());
 const layerStore = useLayerStore();
+const artistStore = useArtistStore();
 const updateLayers = ref<number>(0);
 const showLayers = ref<boolean>(true);
 const greyscale = ref<boolean>(false);
@@ -183,6 +185,7 @@ connection.on("NewMember", (newartist: Artist) => {
   if (!art.value.artistId.includes(newartist.id)) {
     art.value.artistId.push(newartist.id);
     art.value.artistName.push(newartist.name);
+    artistStore.artists.push(newartist);
   }
   console.log("NewMember-Members: " + art.value.artistName.join(" "));
 });
@@ -193,6 +196,7 @@ connection.on("Members", (artists: Artist[]) => {
     if (!art.value.artistId.includes(artist.id)) {
       art.value.artistId.push(artist.id);
       art.value.artistName.push(artist.name);
+      artistStore.artists.push(artist);
     }
   });
   console.log("Members-Members: " + art.value.artistName.join(" "));
@@ -247,7 +251,7 @@ const createGroup = (groupName: string) => {
             "CreateGroup",
             groupName,
             artist.value,
-            art.value.artistName,
+            artistStore.artists,
             grids,
             layerStore.grids[0].width,
             layerStore.grids[0].backgroundColor
@@ -418,6 +422,9 @@ onMounted(async () => {
     art.value.pixelGrid.width = layerStore.grids[0].width;
     art.value.pixelGrid.height = layerStore.grids[0].height;
     tempGrid = JSON.parse(JSON.stringify(layerStore.grids[0].grid));
+    console.log("Store: " + artistStore.artists.map(artist => artist.name).join(','));
+    art.value.artistId = artistStore.artists.map(artist => artist.id);
+    art.value.artistName = artistStore.artists.map(artist => artist.name);
   }
 });
 
@@ -1013,6 +1020,7 @@ function setEndVector() {
 function ResetArt() {
   layerStore.clearStorage();
   layerStore.empty();
+  artistStore.$reset();
 
   if (art.value.pixelGrid.isGif) {
     let tempCount = 0;
@@ -1021,7 +1029,6 @@ function ResetArt() {
       tempCount++;
     }
   }
-
   router.push("/new");
 }
 

@@ -12,7 +12,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
         //artistId, MembershipRecord
         Dictionary<int, MembershipRecord> Records = new();
 
-        public void AddGroup(string groupName, List<string> contributors, string[][][] canvas, int canvasSize, string backgroundColor)
+        public void AddGroup(string groupName, List<Artist> contributors, string[][][] canvas, int canvasSize, string backgroundColor)
         {
             Groups.Add(groupName, new Group(groupName, contributors, canvas, canvasSize, backgroundColor));
         }
@@ -132,7 +132,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             return Groups[groupName].CurrentMembers;
         }
 
-        public IEnumerable<string> GetContributingArtists(string groupName)
+        public IEnumerable<Artist> GetContributingArtists(string groupName)
         {
             return Groups[groupName].MemberRecord;
         }

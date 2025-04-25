@@ -11,11 +11,11 @@ namespace MyTestVueApp.Server.Entities
         public int CanvasSize { get; set; } = 32;
         public string BackgroundColor { get; set; } = "#FFFFFF";
         public List<Artist> CurrentMembers { get; set; } = new();
-        public List<string> MemberRecord { get; set; } = new();
+        public List<Artist> MemberRecord { get; set; } = new();
         public List<string[][]> Pixels { get; set; } = new List<string[][]>();
 
         
-        public Group(string groupName, List<string> contributors, string[][][] canvas, int canvasSize, string backgroundColor): this(groupName)
+        public Group(string groupName, List<Artist> contributors, string[][][] canvas, int canvasSize, string backgroundColor): this(groupName)
         {
             Name = groupName;
             foreach(string[][] grid in canvas){
@@ -38,9 +38,9 @@ namespace MyTestVueApp.Server.Entities
             {
                 CurrentMembers.Add(member);
             }
-            if (!MemberRecord.Any(mr => mr == member.name))
+            if (!MemberRecord.Any(mr => mr.id == member.id))
             {
-                MemberRecord.Add(member.name);
+                MemberRecord.Add(member);
             }
         }
 
