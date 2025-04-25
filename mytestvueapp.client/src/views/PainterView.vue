@@ -455,17 +455,9 @@ watch(selectedFrame, () => {
 watch(
   () => layerStore.layer,
   (next, prev) => {
-    if (layerStore.grids[0].isGif) {
-      layerStore.layer = selectedFrame.value;
-      tempGrid = JSON.parse(
-        JSON.stringify(layerStore.grids[layerStore.layer].grid)
-      );
-      canvas.value?.drawLayers(next);
-    } else {
-      layerStore.layer = next;
-      tempGrid = JSON.parse(JSON.stringify(layerStore.grids[next].grid));
-      canvas.value?.drawLayers(next);
-    }
+    layerStore.layer = Math.max(next, 0);
+    tempGrid = JSON.parse(JSON.stringify(layerStore.grids[layerStore.layer].grid));
+    canvas.value?.drawLayers(layerStore.layer);
   }
 );
 
