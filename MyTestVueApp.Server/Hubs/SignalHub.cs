@@ -108,7 +108,7 @@ namespace MyTestVueApp.Server.Hubs
                 }
             } else
             {
-                Logger.LogError("Manager doesnt have that connection ID!");
+                Logger.LogInformation("Manager doesnt have that connection ID!");
             }
             if (exception != null)
             {
