@@ -237,9 +237,13 @@ namespace MyTestVueApp.Server.Controllers
                         var result = await ArtAccessService.SaveNewArt(artist, art);
                         foreach (int artistId in art.ArtistId)
                         {
+                            if(artistId == artist.Id)
+                            {
+                                continue;
+                            }
                             ArtAccessService.AddContributingArtist(art.Id, artistId);
                         }
-                        return Ok(result.Id);
+                        return Ok(result);
                     }
                     else //Update art
                     {
@@ -248,7 +252,7 @@ namespace MyTestVueApp.Server.Controllers
                         {
                             return BadRequest("Could not update this art");
                         }
-                        return Ok(result.Id);
+                        return Ok(result);
                     }
                 }
                 else

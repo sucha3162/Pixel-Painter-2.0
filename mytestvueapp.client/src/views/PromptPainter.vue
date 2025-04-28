@@ -8,7 +8,8 @@
           class="w-auto p-2"
           v-model="backgroundColor"
           id="backgroundColorPick"
-          format="hex"></ColorPicker>
+          format="hex"
+        ></ColorPicker>
         <br />
         <label for="resolution">Resolution: </label>
         <InputNumber
@@ -19,7 +20,8 @@
           buttonLayout="horizontal"
           suffix=" px"
           :min="1"
-          :max="64">
+          :max="64"
+        >
           <template #incrementbuttonicon>
             <span class="pi pi-plus" />
           </template>
@@ -36,17 +38,20 @@
           onLabel="Image"
           onIcon="pi pi-image"
           offLabel="GIF"
-          offIcon="pi pi-images" />
+          offIcon="pi pi-images"
+        />
       </template>
     </Card>
   </div>
   <div
-    class="absolute bottom-0 bg-primary flex align-items-center justify-content-center w-full h-10rem">
+    class="absolute bottom-0 bg-primary flex align-items-center justify-content-center w-full h-10rem"
+  >
     <Button
       rounded
       label="Start Painting"
       icon="pi pi-pencil"
-      @click="updateLocalStorage()"></Button>
+      @click="updateLocalStorage()"
+    ></Button>
   </div>
 </template>
 <script setup lang="ts">
@@ -63,7 +68,7 @@ import { useLayerStore } from "@/store/LayerStore";
 const layerStore = useLayerStore();
 
 const resolution = ref<number>(32);
-const backgroundColor = ref<string>("#FFFFFF");
+const backgroundColor = ref<string>("ffffff");
 const isImage = ref<boolean>(true);
 
 function updateLocalStorage() {
@@ -93,4 +98,3 @@ onMounted(() => {
   border: solid 1px !important;
 }
 </style>
-

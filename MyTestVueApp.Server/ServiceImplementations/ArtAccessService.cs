@@ -280,7 +280,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
         /// </summary>
         /// <param name="artist">User who is creating the art</param>
         /// <param name="art">Artwork being added to the database</param>
-        /// <returns>The art object being created</returns>
+        /// <returns>The id of the art created</returns>
         public async Task<Art> SaveNewArt(Artist artist, Art art) //Single Artist
         {
             try
