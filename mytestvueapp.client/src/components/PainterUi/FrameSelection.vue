@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import Button from "primevue/button";
 import FloatingCard from "./FloatingCard.vue";
-import { ref, onBeforeMount } from "vue";
+import { ref, onBeforeMount, nextTick } from "vue";
 import { useLayerStore } from "@/store/LayerStore";
 import { PixelGrid } from "@/entities/PixelGrid";
 
@@ -110,8 +110,15 @@ function switchFrame(frameID: number) {
   });
   frames.value[frameID].severity = "primary";
 
-  selectedFrame.value = frameID;
-  frameStore.layer = frameID;
+  if (frameID == selectedFrame.value && selectedFrame.value === 0) {
+		frameStore.layer = -1;
+    nextTick(() => {
+      frameStore.layer = 0;
+    });
+  } else {
+		frameStore.layer = frameID;
+  }
+	selectedFrame.value = frameID;
 }
 
   function deleteFrame(frameID: number) {
@@ -124,7 +131,7 @@ function switchFrame(frameID: number) {
 					frames.value[i].id = i;
         }
 
-				if (selectedFrame.value == 0) {
+        if (selectedFrame.value == 0) {
 					switchFrame(selectedFrame.value);
 				} else if (selectedFrame.value >= frameID) {
           switchFrame(selectedFrame.value - 1);
