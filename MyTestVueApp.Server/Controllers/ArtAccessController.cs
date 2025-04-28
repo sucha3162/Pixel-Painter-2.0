@@ -178,6 +178,25 @@ namespace MyTestVueApp.Server.Controllers
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+        /// <summary>
+        /// Gets a gif from the database
+        /// </summary>
+        /// <param name="id">Id of the gif to grab</param>
+        [HttpGet]
+        [Route("GetGifById")]
+        [ProducesResponseType(typeof(Art[]), 200)]
+        public async Task<IActionResult> GetGifById(int id)
+        {
+            try
+            {
+                var gif = await ArtAccessService.GetGif(id);
+                return Ok(gif);
+            }
             catch (ArgumentException ex)
             {
                 return NotFound(ex.Message);

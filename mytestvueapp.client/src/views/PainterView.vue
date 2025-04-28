@@ -30,6 +30,7 @@
         </Button>
         <UploadButton
           :art="art"
+          :fps="fps"
           :connection="connection"
           :connected="connected"
           :group-name="groupName"
@@ -296,6 +297,9 @@ let tempGrid: string[][] = [];
 
 const art = ref<Art>(new Art());
 const selectedFrame = ref<number>(1);
+//if anyone has an easier way to set this lmk
+art.value.isGif = layerStore.grids[0].isGif;
+art.value.pixelGrid.isGif = layerStore.grids[0].isGif;
 
 const fps = ref<number>(4);
 const currentPallet = ref<string[]>([]);

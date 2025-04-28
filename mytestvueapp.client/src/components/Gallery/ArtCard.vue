@@ -34,7 +34,15 @@
             rounded
             severity="secondary"
             icon="pi pi-comment"
-            :label="art.numComments?.toString() || ''" />
+            :label="art.numComments?.toString() || ''"
+          />
+          <Button
+            v-if="art.isGif"
+            rounded
+            severity="secondary"
+            disabled
+            >Gif</Button
+          >
         </div>
       </template>
     </Card>

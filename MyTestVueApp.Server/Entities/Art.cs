@@ -15,10 +15,15 @@ namespace MyTestVueApp.Server.Entities
 
         //Optional external values
         public string[] ArtistName { get; set; }
+        public bool IsGif { get; set; }
+        public int GifID { get; set; }
+        public int GifFrameNum { get; set; }
+        public int GifFps { get; set; }
         public int NumLikes { get; set; }
         public int NumComments { get; set; }
         public bool CurrentUserIsOwner { get; set; } = false;
-        public bool CurrentUserIsAdmin { get; set; } = false;
+        public bool currentUserIsAdmin { get; set; } = false;
+
 
         public void SetArtists(List<Artist> artists)
         {

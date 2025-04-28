@@ -69,7 +69,6 @@ const isImage = ref<boolean>(true);
 function updateLocalStorage() {
   layerStore.empty(); //just in case
 
-
   let pixelGrid = new PixelGrid(
     resolution.value,
     resolution.value,

@@ -18,6 +18,11 @@ export default class Art {
   currentUserIsOwner: boolean;
   isLiked: boolean;
 
+  isGif: boolean;
+  gifID: number;
+  gifFrameNum: number;
+  gifFps: number;
+
   constructor() {
     this.id = 0;
     this.title = "";
@@ -30,6 +35,11 @@ export default class Art {
     this.numComments = 0;
     this.pixelGrid = new PixelGrid(1, 1, "FF0000", false);
     this.currentUserIsOwner = false;
+
+    this.isGif = false;
+    this.gifFrameNum = 0;
+    this.gifID = 0;
+    this.gifFps = 0;
     this.isLiked = false;
   }
 }
