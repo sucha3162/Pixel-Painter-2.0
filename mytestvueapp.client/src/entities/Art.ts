@@ -26,8 +26,8 @@ export default class Art {
   constructor() {
     this.id = 0;
     this.title = "";
-    this.artistId = [0];
-    this.artistName = [""];
+    this.artistId = [];
+    this.artistName = [];
 
     this.creationDate = "";
     this.isPublic = false;

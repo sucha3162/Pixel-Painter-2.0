@@ -110,7 +110,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
 	                    Art.Encode, 
 	                    Art.CreationDate,
 	                    Art.isPublic,
-                        Art.IsGif,
+                        Art.IsGIF,
                         Art.GifId,
 	                    COUNT(distinct Likes.ArtistId) as Likes, 
 	                    Count(distinct Comment.Id) as Comments  
@@ -119,7 +119,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     LEFT JOIN Comment ON Art.ID = Comment.ArtID  
                     LEFT JOIN ContributingArtists ON Art.Id = ContributingArtists.ArtId
                     WHERE Art.ID = @artId 
-                    GROUP BY Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic;
+                    GROUP BY Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic, Art.IsGIF, Art.gifId;
                     ";
 
                 using (var command = new SqlCommand(query, connection))
