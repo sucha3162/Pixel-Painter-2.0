@@ -27,7 +27,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     Records[artist.Id].Connections.Add(new(connectionId, groupName));
                 } else
                 {
-                    Records.Add(artist.Id, new(connectionId, artist.id, groupName));
+                    Records.Add(artist.Id, new(connectionId, artist.Id, groupName));
                 }
             }
         }
