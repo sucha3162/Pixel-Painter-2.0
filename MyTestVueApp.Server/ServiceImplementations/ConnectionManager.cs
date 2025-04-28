@@ -33,8 +33,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
             {
                 Records.Add(artist.id, new(connectionId, artist.id, groupName));
             }
-
-            Console.WriteLine("[AddUser] ConnectionIds: " + string.Join(",", ArtistLookup.Keys));
         }
 
         public void RemoveUserFromGroup(string connectionId, Artist artist, string groupName)
@@ -49,8 +47,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
             List<ConnectionBinding> allConnectionsToGroup = new();
             ConnectionBinding? connectionToDelete = null;
 
-            Console.WriteLine("[RUFG] record: " + string.Join(",", record.Connections));
-
             foreach(ConnectionBinding binding in record.Connections)
             {
                 if (binding.groupName == groupName)
@@ -62,8 +58,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     }
                 }    
             }
-            Console.WriteLine("TCOn: " + connectionId + " " + groupName);
-            Console.WriteLine("connectionToDelete:" + (connectionToDelete == null) + "ConnectionCount: " + allConnectionsToGroup.Count);
 
             if (connectionToDelete == null || allConnectionsToGroup.Count == 0) 
             { // Invalid request
@@ -90,8 +84,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
             { // Delete group if it is empty
                 Groups.Remove(groupName);
             }
-
-            Console.WriteLine("[RemoveUserFromGroup] ConnectionIds: " + string.Join(",", ArtistLookup.Keys));
         }
 
         public void RemoveUserFromAllGroups(string connectionId)
@@ -120,11 +112,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     throw;
                 }
             }
-        }
-
-        private void terminateConnection()
-        {
-
         }
 
         public IEnumerable<Group> GetGroups()

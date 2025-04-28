@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.SignalR;
 using MyTestVueApp.Server.Interfaces;
 using MyTestVueApp.Server.Entities;
-using Microsoft.AspNetCore.Http.HttpResults;
-
 
 namespace MyTestVueApp.Server.Hubs
 {
@@ -95,7 +93,6 @@ namespace MyTestVueApp.Server.Hubs
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            Logger.LogInformation("[Disconnecting] CID:" + Context.ConnectionId);
             if (Manager.HasConnection(Context.ConnectionId))
             {
                 try
@@ -106,10 +103,8 @@ namespace MyTestVueApp.Server.Hubs
                 {
                     Logger.LogError(ex.Message);
                 }
-            } else
-            {
-                Logger.LogInformation("Manager doesnt have that connection ID!");
             }
+
             if (exception != null)
             {
                 Logger.LogError($"Error, Disconnected: {exception.Message}");

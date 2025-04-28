@@ -181,13 +181,10 @@ connection.on("Send", (user: string, msg: string) => {
 });
 
 connection.on("NewMember", (newartist: Artist) => {
-  console.log("NewMember Fired!");
   if (!art.value.artistId.includes(newartist.id)) {
     art.value.artistId.push(newartist.id);
     art.value.artistName.push(newartist.name);
     artistStore.addArtist(newartist);
-    console.log("NewMember: added newartist to pinia")
-    console.log(art.value.artistName.join(','));
   }
 });
 
@@ -196,16 +193,13 @@ connection.on("Members", (artists: Artist[]) => {
   art.value.artistName = [];
   artistStore.clearStorage();
   artistStore.empty();
-  console.log("Members: Cleared and reset local store and pinia");
   artists.forEach((artist) => {
     if (!art.value.artistId.includes(artist.id)) {
       art.value.artistId.push(artist.id);
       art.value.artistName.push(artist.name);
       artistStore.addArtist(artist);
-      console.log("Members: Added artist to pinia");
     }
   });
-  console.log("Artists: " + artistStore.artists.join(","));
 });
 
 connection.onclose((error) => {
@@ -437,7 +431,6 @@ onMounted(async () => {
     art.value.pixelGrid.width = layerStore.grids[0].width;
     art.value.pixelGrid.height = layerStore.grids[0].height;
     tempGrid = JSON.parse(JSON.stringify(layerStore.grids[0].grid));
-    console.log("OnMounted: " + artistStore.artists.map(artist => artist.name).join(','));
     art.value.artistId = artistStore.artists.map(artist => artist.id);
     art.value.artistName = artistStore.artists.map(artist => artist.name);
   }
@@ -1037,7 +1030,6 @@ function ResetArt() {
   layerStore.empty();
   artistStore.clearStorage();
   artistStore.empty();
-  console.log("ResetArt: Cleared storage and Pinia");
 
   if (art.value.pixelGrid.isGif) {
     let tempCount = 0;
@@ -1155,7 +1147,6 @@ function handleKeyDown(event: KeyboardEvent) {
 function LocalSave() {
   layerStore.save();
   artistStore.save();
-  console.log("LocalSave: Saved pinia to localStore");
 }
 </script>
 <style scoped>
