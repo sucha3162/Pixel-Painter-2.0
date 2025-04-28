@@ -181,11 +181,13 @@ connection.on("Send", (user: string, msg: string) => {
 });
 
 connection.on("NewMember", (newartist: Artist) => {
+  console.log("NewMember Fired!");
   if (!art.value.artistId.includes(newartist.id)) {
     art.value.artistId.push(newartist.id);
     art.value.artistName.push(newartist.name);
-    artistStore.artists.push(newartist);
+    artistStore.addArtist(newartist);
     console.log("NewMember: added newartist to pinia")
+    console.log(art.value.artistName.join(','));
   }
 });
 
@@ -199,7 +201,7 @@ connection.on("Members", (artists: Artist[]) => {
     if (!art.value.artistId.includes(artist.id)) {
       art.value.artistId.push(artist.id);
       art.value.artistName.push(artist.name);
-      artistStore.artists.push(artist);
+      artistStore.addArtist(artist);
       console.log("Members: Added artist to pinia");
     }
   });
@@ -259,7 +261,10 @@ const createGroup = (groupName: string) => {
             grids,
             layerStore.grids[0].width,
             layerStore.grids[0].backgroundColor
-          ).then(() => connected.value = !connected.value)
+          ).then(() => {
+            connected.value = !connected.value;
+          }
+        )
           .catch((err) => {toast.add({
             severity: "error",
             summary: "Error",
@@ -301,9 +306,10 @@ const connect = (groupname: string, newGroup: boolean) => {
   }
 
   groupName.value = groupname;
-  if (art.value.artistId[0] == 0) {
+  if (art.value.artistId[0] == 0 || art.value.artistId.length == 0) {
     art.value.artistId = [artist.value.id];
     art.value.artistName = [artist.value.name];
+    artistStore.addArtist(artist.value);
   }
 
   connection.start()

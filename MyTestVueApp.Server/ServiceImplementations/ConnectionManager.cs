@@ -122,6 +122,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
 
+        private void terminateConnection()
+        {
+
+        }
+
         public IEnumerable<Group> GetGroups()
         {
             return Groups.Values;

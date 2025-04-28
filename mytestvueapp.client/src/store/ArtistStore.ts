@@ -15,6 +15,11 @@ export const useArtistStore = defineStore('artists', {
                 this.artists = parsedArtists.map((artist: any) => Object.assign(new Artist(), artist));
               }
             },
+        addArtist(artist: Artist) {
+            if (!this.artists.includes(artist)) {
+                this.artists.push(artist);
+            }
+        },
         save() {
             localStorage.setItem('artists', JSON.stringify(this.artists));
         },
