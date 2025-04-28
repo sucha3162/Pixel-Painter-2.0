@@ -133,15 +133,14 @@ function deleteLayer(idx: number) {
     layers.value.splice(idx, 1);
     layerStore.removeGrid(idx);
 
-    layers.value.forEach((layer, index) => {
-      layers.value[index] = index;
-    });
+
+    layers.value = layers.value.map((_, index) => index);
 
     if (!layers.value.some((layer) => layer === selectedLayer.value)) {
       selectedLayer.value = layers.value[layers.value.length - 1] ?? 1;
       layerStore.layer = selectedLayer.value;
-    } else {
-      selectedLayer.value--;
+    } else if (idx <= selectedLayer.value) {
+      selectedLayer.value = Math.max(selectedLayer.value-1, 0)
       layerStore.layer--;
     }
   }

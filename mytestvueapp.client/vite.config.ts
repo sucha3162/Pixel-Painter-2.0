@@ -76,6 +76,10 @@ export default defineConfig({
       "^/GIFCreation": {
         target,
         secure: false,
+      },
+      "^/socket/": {
+        target,
+        secure: false,
       }
     },
     port: 5173,
