@@ -4,7 +4,7 @@
     icon=""
     @click="visible = !visible"
     severity="danger"
-    class="block m-2"></Button>
+    class="block m-2" />
 
   <Dialog
     v-model:visible="visible"

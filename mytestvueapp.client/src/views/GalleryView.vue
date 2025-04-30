@@ -159,21 +159,6 @@ function changePage(page: number) {
   currentPage.value = page;
 }
 
-// function searchAndFilter() {
-//   if (displayArt.value) {
-//     displayArt.value = displayArt.value.filter((Art) =>
-//       Art.artistName
-//         .toString()
-//         .toLowerCase()
-//         .includes(filter.value.toLowerCase())
-//     );
-
-//     displayArt.value = displayArt.value.filter((Art) =>
-//       Art.title.toLowerCase().includes(search.value.toLowerCase())
-//     );
-//   }
-// }
-
 function handleCheckBox() {
   // Gets called when the ascending checkbox is clicked
   sortGallery();

@@ -230,7 +230,7 @@ function editArt() {
   router.push(`/paint/${id}`);
 }
 
-function updateComments() {
+async function updateComments() {
   CommentAccessService.getCommentsByArtId(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });
@@ -476,7 +476,7 @@ function filterSepia(currentGrid: string): string {
   }
   return newGrid;
 }
-const sepiaFilter = () => {
+async function sepiaFilter () {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     if (promise.pixelGrid.encodedGrid) {
       if (sepia.value == false) {
@@ -655,7 +655,7 @@ function filterProtanope(currentGrid: string): string {
   }
   return newGrid;
 }
-const protanopeFilter = () => {
+async function () {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     if (promise.pixelGrid.encodedGrid) {
       if (prota.value == false) {
@@ -789,7 +789,7 @@ function ArtToGif(Paintings: Art[]): string[] {
   return url;
 }
 
-const GifDisplay = () => {
+async function GifDisplay() {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     ArtAccessService.GetGif(promise.gifID).then((promiseGif: Art[]) => {
       urls.value = ArtToGif(promiseGif);

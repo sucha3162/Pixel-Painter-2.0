@@ -22,7 +22,6 @@ namespace MyTestVueApp.Server.Entities
         public int NumLikes { get; set; }
         public int NumComments { get; set; }
         public bool CurrentUserIsOwner { get; set; } = false;
-        public bool currentUserIsAdmin { get; set; } = false;
 
 
         public void SetArtists(List<Artist> artists)

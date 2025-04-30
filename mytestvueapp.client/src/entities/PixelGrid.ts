@@ -48,17 +48,6 @@ export class PixelGrid {
     return grid;
   } 
 
-  //Randomize the grid with random colors
-  randomizeGrid(): void {
-    for (let i = 0; i < this.height; i++) {
-      for (let j = 0; j < this.width; j++) {
-        this.grid[i][j] =
-          ((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0");
-      }
-    }
-    this.encodedGrid = Codec.Encode(this);
-  }
-
   //Update the grid with another grid
   deepCopy(decodedGrid: PixelGrid): void {
     this.width = decodedGrid.width;

@@ -187,7 +187,6 @@ namespace MyTestVueApp.Server.ServiceImplementations
         /// <param name="artId">Id of the art being checked</param>
         /// <param name="artistId">Id of the artist who would've made the like</param>
         /// <returns>A Like object if found, null otherwise</returns>
-        /// <exception cref="ArgumentException"></exception>
         public async Task<Like> GetLikeByIds(int artId, int artistId)
         {
             var connectionString = AppConfig.Value.ConnectionString;

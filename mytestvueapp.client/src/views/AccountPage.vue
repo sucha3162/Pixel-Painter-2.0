@@ -9,17 +9,18 @@
             <Button
               label="Account Settings"
               :severity="route.hash == '#settings' ? 'primary' : 'secondary'"
-              @click="changeHash('#settings')" />
+              @click="changeHash('#settings')" 
+            />
             <Button
+              label="Creator's Art'"
               :severity="route.hash == '#created_art' ? 'primary' : 'secondary'"
               @click="changeHash('#created_art')"
-              >Creator's Art</Button
-            >
+            />
             <Button
+              label="Liked Art"
               :severity="route.hash == '#liked_art' ? 'primary' : 'secondary'"
               @click="changeHash('#liked_art')"
-              >Liked Art</Button
-            >
+            />
           </div>
         </template>
       </Card>

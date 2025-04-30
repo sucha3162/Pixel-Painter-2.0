@@ -178,6 +178,10 @@ namespace MyTestVueApp.Server.Controllers
                     }
                 }
             }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
             catch (Exception ex)
             {
                 return Problem(ex.Message);

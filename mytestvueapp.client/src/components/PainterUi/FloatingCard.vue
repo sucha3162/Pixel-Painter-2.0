@@ -4,13 +4,13 @@
     :label="buttonLabel"
     :severity="openDialog ? 'primary' : 'secondary'"
     :icon="buttonIcon"
-    class="mr-2"></Button>
+    class="mr-2" />
   <Dialog
     :position="position"
     v-model:visible="openDialog"
     :header="header"
     :style="{ width: width }">
-    <slot></slot>
+    <slot />
   </Dialog>
 </template>
 <script setup lang="ts">

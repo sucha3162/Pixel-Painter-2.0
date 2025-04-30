@@ -4,7 +4,7 @@
     icon=""
     @click="visible = !visible"
     severity="danger"
-    class="block"></Button>
+    class="block" />
 
   <Dialog
     v-model:visible="visible"
@@ -21,7 +21,7 @@
       placeholder="Title"
       class="w-full"
       v-model="confirmText"
-      autofocus></InputText>
+      autofocus />
 
     <template #footer>
       <Button

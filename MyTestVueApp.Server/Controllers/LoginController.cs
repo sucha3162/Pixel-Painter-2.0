@@ -76,13 +76,20 @@ namespace MyTestVueApp.Server.Controllers
         [Route("IsLoggedIn")]
         [ProducesResponseType(typeof(bool), 200)]
         public async Task<IActionResult> IsLoggedIn()
-        {   
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+        {
+            try
             {
-                var artist = await LoginService.GetUserBySubId(userId);
-                return Ok(artist != null);
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    return Ok(artist != null);
+                }
+                return Ok(false);
             }
-            return Ok(false);
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
         /// <summary>
         /// Get all artists
@@ -138,9 +145,17 @@ namespace MyTestVueApp.Server.Controllers
         [HttpGet]
         [Route("GetArtistByName")]
         [ProducesResponseType(typeof(Artist), 200)]
-        public async Task<Artist> GetArtistByName([FromQuery] string name)
+        public async Task<IActionResult> GetArtistByName([FromQuery] string name)
         {
-            return await LoginService.GetArtistByName(name);
+            try
+            {
+                var artist = await LoginService.GetArtistByName(name);
+                return Ok(artist);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
         /// <summary>
         /// Check to see if a user is an admin
@@ -163,12 +178,15 @@ namespace MyTestVueApp.Server.Controllers
                         return Ok(true);
                     }
                     else { return Ok(false); }
-
                 }
                 else
                 {
-                    return BadRequest("User is not logged in");
+                    throw new ArgumentException("User is not logged in");
                 }
+            } 
+            catch(ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {

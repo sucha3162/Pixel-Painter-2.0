@@ -9,23 +9,23 @@
         <span style="font-style: italic; color: gray">{{ dateFormatted }}</span>
       </div>
       <div class="ml-2">
-        <span v-if="!editing" style="word-break: break-word">{{
-          comment.message
-        }}</span>
+        <span v-if="!editing" style="word-break: break-word">
+          {{ comment.message}}
+        </span>
         <div v-else>
           <InputText
             v-model:="newMessage"
             placeholder="Add a comment..."
-            class="w-full mt-2"></InputText>
+            class="w-full mt-2" />
           <div class="flex flex-row-reverse mt-2 gap-2">
             <Button
               label="Submit"
               @click="submitEdit"
-              :disabled="newMessage == ''"></Button>
+              :disabled="newMessage == ''" />
             <Button
               label="Cancel"
               severity="secondary"
-              @click="editing = false"></Button>
+              @click="editing = false" />
           </div>
         </div>
       </div>
@@ -37,7 +37,7 @@
           rounded
           text
           label="Reply"
-          severity="secondary"></Button>
+          severity="secondary" />
         <Button
           v-if="comment.currentUserIsOwner || user"
           icon="pi pi-ellipsis-h"
@@ -50,7 +50,7 @@
           class="ml-4 mb-2"
           :parent-comment="comment"
           @new-comment="emit('deleteComment'), (showReply = false)"
-          @close-reply="showReply = false"></NewComment>
+          @close-reply="showReply = false" />
 
         <!-- Show replies to comments -->
         <!-- <Button class="ml-3 mb-2" @click="">Show Replies</Button> -->
@@ -65,7 +65,7 @@
       v-for="Comment in comment.replies"
       :key="Comment.id"
       :comment="Comment"
-      @delete-comment="emit('deleteComment')"></CommentOnArt>
+      @delete-comment="emit('deleteComment')" />
   </div>
 </template>
 
