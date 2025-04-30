@@ -476,7 +476,7 @@ function filterSepia(currentGrid: string): string {
   }
   return newGrid;
 }
-async function sepiaFilter () {
+async function sepiaFilter() {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     if (promise.pixelGrid.encodedGrid) {
       if (sepia.value == false) {
@@ -492,7 +492,7 @@ async function sepiaFilter () {
       }
     }
   });
-};
+}
 function gammaCorrection(OldColor: number): number {
   let NewColor = (OldColor / 255) ** 2.2;
   return NewColor;
@@ -655,7 +655,7 @@ function filterProtanope(currentGrid: string): string {
   }
   return newGrid;
 }
-async function () {
+async function protanopeFilter() {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     if (promise.pixelGrid.encodedGrid) {
       if (prota.value == false) {
@@ -671,7 +671,7 @@ async function () {
       }
     }
   });
-};
+}
 function filterDeu(currentGrid: string): string {
   let newGrid: string = "";
   let currentcolorrgb: number[] = [];
@@ -800,5 +800,5 @@ async function GifDisplay() {
       );
     });
   });
-};
+}
 </script>

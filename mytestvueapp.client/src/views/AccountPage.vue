@@ -9,10 +9,10 @@
             <Button
               label="Account Settings"
               :severity="route.hash == '#settings' ? 'primary' : 'secondary'"
-              @click="changeHash('#settings')" 
+              @click="changeHash('#settings')"
             />
             <Button
-              label="Creator's Art'"
+              label="Creator's Art"
               :severity="route.hash == '#created_art' ? 'primary' : 'secondary'"
               @click="changeHash('#created_art')"
             />
@@ -37,28 +37,32 @@
                     :disabled="!isEditing"
                     class="mr-1"
                     v-model="newUsername"
-                    variant="filled" />
+                    variant="filled"
+                  />
                 </div>
                 <Button
                   v-if="!isEditing && (user || curArtist?.name == artist.name)"
                   severity="secondary"
                   rounded
                   icon="pi pi-pencil"
-                  @click="isEditing = true" />
+                  @click="isEditing = true"
+                />
                 <span v-else class="">
                   <Button
                     severity="danger"
                     text
                     rounded
                     icon="pi pi-times"
-                    @click="cancelEdit()" />
+                    @click="cancelEdit()"
+                  />
                   <Button
                     severity="success"
                     text
                     rounded
                     icon="pi pi-check"
                     @click="updateUsername()"
-                    :disabled="errorMessage != ''" />
+                    :disabled="errorMessage != ''"
+                  />
                 </span>
               </div>
               <Message
@@ -67,19 +71,22 @@
                 severity="error"
                 variant="simple"
                 size="small"
-                class="mt-2" />
+                class="mt-2"
+              />
             </div>
             <div class="align-items-stretch flex">
               <Button
                 class="block m-2"
                 label="logout"
                 icon="pi pi-sign-out"
-                @click="logout()" />
+                @click="logout()"
+              />
               <Button
                 class="block m-2"
                 label="Delete Artist"
                 severity="danger"
-                @click="confirmDelete()" />
+                @click="confirmDelete()"
+              />
             </div>
           </template>
         </Card>
@@ -92,7 +99,8 @@
             :key="art.id"
             :art="art"
             :size="7"
-            :position="art.id" />
+            :position="art.id"
+          />
         </div>
       </div>
       <div v-if="route.hash == '#liked_art'">
@@ -103,7 +111,8 @@
             :key="art.id"
             :art="art"
             :size="7"
-            :position="art.id" />
+            :position="art.id"
+          />
         </div>
       </div>
     </div>
@@ -249,4 +258,3 @@ function changeHash(hash: string) {
   window.location.hash = hash;
 }
 </script>
-
