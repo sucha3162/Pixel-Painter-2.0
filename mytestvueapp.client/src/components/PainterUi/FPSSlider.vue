@@ -37,7 +37,7 @@ import FloatingCard from "./FloatingCard.vue";
 import { ref } from "vue";
 import Slider from "primevue/slider";
 
-const fps = ref<number>(4);
+const fps = defineModel<number>("fps", { default: 4 });
 
 function increaseFPS() {
   if (fps.value < 10) {

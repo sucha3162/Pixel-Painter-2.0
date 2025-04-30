@@ -345,9 +345,6 @@ let tempGrid: string[][] = [];
 
 const art = ref<Art>(new Art());
 const selectedFrame = ref<number>(1);
-//if anyone has an easier way to set this lmk
-art.value.isGif = layerStore.grids[0].isGif;
-art.value.pixelGrid.isGif = layerStore.grids[0].isGif;
 
 const fps = ref<number>(4);
 const currentPallet = ref<string[]>([]);
@@ -374,9 +371,7 @@ const cursorPositionComputed = computed(
 
 //lifecycle hooks
 onBeforeRouteLeave((to, from, next) => {
-  if (to.path != "/new" && !to.path.includes("/art")) {
-    layerStore.save();
-  }
+  layerStore.save();  
   next();
 });
 
@@ -403,6 +398,7 @@ onMounted(async () => {
         art.value.id = data.id;
         art.value.title = data.title;
         art.value.isPublic = data.isPublic;
+        art.value.isGif = layerStore.grids[0].isGif;
 
         canvas.value?.recenter();
         art.value.pixelGrid.backgroundColor =
@@ -421,6 +417,7 @@ onMounted(async () => {
     router.push("/new");
   } else {
     canvas.value?.recenter();
+    art.value.isGif = layerStore.grids[0].isGif;
     art.value.pixelGrid.isGif = layerStore.grids[0].isGif;
     art.value.pixelGrid.backgroundColor = layerStore.grids[0].backgroundColor;
     art.value.pixelGrid.width = layerStore.grids[0].width;
