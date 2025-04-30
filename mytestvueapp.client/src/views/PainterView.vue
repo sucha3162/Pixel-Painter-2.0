@@ -25,7 +25,7 @@
           icon="pi pi-ban"
           label="Quit"
           severity="secondary"
-          @click="ResetArt(); disconnect()"
+          @click="resetArt(); disconnect()"
         >
         </Button>
         <UploadButton
@@ -672,8 +672,11 @@ function drawAtCoords(coords: Vector2[]) {
       ) {
         if (cursor.value.selectedTool.label === "Pipette") {
           let tmp = layerStore.grids[layerStore.layer].grid[coord.x][coord.y];
-          if (tmp === "empty")
+          if (tmp === "empty") {
             cursor.value.color = art.value.pixelGrid.backgroundColor;
+          } else {
+            cursor.value.color = tmp;
+          }
         } else if (cursor.value.selectedTool.label === "Bucket") {
           if (
             layerStore.grids[layerStore.layer].grid[coord.x][coord.y] !=

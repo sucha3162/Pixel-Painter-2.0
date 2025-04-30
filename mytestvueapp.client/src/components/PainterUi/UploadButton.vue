@@ -153,10 +153,10 @@ function upload() {
           newArt.artistId = props.art.artistId;
           newArt.artistName = props.art.artistName;
           newArt.gifFps = props.fps;
-          paintings.value.push(newArt);
+          paintings.push(newArt);
         }
-        if (paintings.value)
-          ArtAccessService.SaveGif(paintings.value)
+        if (paintings)
+          ArtAccessService.SaveGif(paintings)
             .then((data: Art) => {
               if (data.id != undefined) {
                 toast.add({
