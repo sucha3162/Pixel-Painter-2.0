@@ -155,7 +155,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
         #endregion
         /// <summary>
-        /// Used for grabbing a certain adjextive in the array of adjectives
+        /// Used for grabbing a certain adjective in the array of adjectives
         /// </summary>
         /// <param name="index">Location of the adjective to grab</param>
         /// <returns>An adjective string</returns>
