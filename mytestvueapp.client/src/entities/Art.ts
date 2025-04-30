@@ -16,6 +16,7 @@ export default class Art {
   numLikes: number;
   numComments: number;
   currentUserIsOwner: boolean;
+  isLiked: boolean;
 
   isGif: boolean;
   gifID: number;
@@ -25,8 +26,8 @@ export default class Art {
   constructor() {
     this.id = 0;
     this.title = "";
-    this.artistId = [0];
-    this.artistName = [""];
+    this.artistId = [];
+    this.artistName = [];
 
     this.creationDate = "";
     this.isPublic = false;
@@ -39,5 +40,6 @@ export default class Art {
     this.gifFrameNum = 0;
     this.gifID = 0;
     this.gifFps = 0;
+    this.isLiked = false;
   }
 }

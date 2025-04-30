@@ -2,17 +2,16 @@ namespace MyTestVueApp.Server.Entities
 { // ArtId, ArtName, ArtistId, Width, ArtLength, Encode, CreationDate, IsPublic
     public class Comment
     { // Art Table
-        
-        public int id { get; set; }
-        public int artistId { get; set; }
-        public int artId { get; set; }
-        public string message { get; set; }
-        public string commenterName { get; set; }
-        public DateTime creationDate { get; set; }
+        public int Id { get; set; }
+        public int ArtistId { get; set; }
+        public int ArtId { get; set; }
+        public string Message { get; set; }
+        public string CommenterName { get; set; }
+        public DateTime CreationDate { get; set; }
         public bool Viewed { get; set; }
 
         //Represents the id that this comment is replying to
-        public int replyId { get; set; }
-        public bool currentUserIsOwner { get; set; } = false;
+        public int ReplyId { get; set; }
+        public bool CurrentUserIsOwner { get; set; } = false;
     }
 }

@@ -7,20 +7,20 @@
           <div class="text-3xl p-font-bold">{{ curArtist.name }}</div>
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
+              label="Account Settings"
               :severity="route.hash == '#settings' ? 'primary' : 'secondary'"
-              @click="ChangeHash('#settings')"
-              >Account Settings</Button
-            >
+              @click="changeHash('#settings')"
+            />
             <Button
+              label="Creator's Art"
               :severity="route.hash == '#created_art' ? 'primary' : 'secondary'"
-              @click="ChangeHash('#created_art')"
-              >Creator's Art</Button
-            >
+              @click="changeHash('#created_art')"
+            />
             <Button
+              label="Liked Art"
               :severity="route.hash == '#liked_art' ? 'primary' : 'secondary'"
-              @click="ChangeHash('#liked_art')"
-              >Liked Art</Button
-            >
+              @click="changeHash('#liked_art')"
+            />
           </div>
         </template>
       </Card>
@@ -53,26 +53,26 @@
                     text
                     rounded
                     icon="pi pi-times"
-                    @click="CancelEdit()"
+                    @click="cancelEdit()"
                   />
                   <Button
                     severity="success"
                     text
                     rounded
                     icon="pi pi-check"
-                    @click="UpdateUsername()"
+                    @click="updateUsername()"
                     :disabled="errorMessage != ''"
                   />
                 </span>
               </div>
               <Message
+                :label="errorMessage"
                 v-if="errorMessage != ''"
                 severity="error"
                 variant="simple"
                 size="small"
                 class="mt-2"
-                >{{ errorMessage }}</Message
-              >
+              />
             </div>
             <div class="align-items-stretch flex">
               <Button
@@ -85,7 +85,7 @@
                 class="block m-2"
                 label="Delete Artist"
                 severity="danger"
-                @click="ConfirmDelete()"
+                @click="confirmDelete()"
               />
             </div>
           </template>
@@ -119,7 +119,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed } from "vue";
 import LoginService from "@/services/LoginService";
 import ArtAccessService from "@/services/ArtAccessService";
 import router from "@/router";
@@ -133,31 +133,29 @@ import Message from "primevue/message";
 import { useRoute } from "vue-router";
 import type Art from "@/entities/Art";
 import ArtCard from "@/components/Gallery/ArtCard.vue";
-import { RefSymbol } from "@vue/reactivity";
 
 const toast = useToast();
 const route = useRoute();
-const changeArtist = ref(false);
 
 const name = String(route.params.artist);
 const artist = ref<Artist>(new Artist());
 const isEditing = ref<boolean>(false);
-const newUsername = ref("");
+const newUsername = ref<string>("");
 const user = ref<boolean>();
-const curArtist = ref<Artist>(new Artist());
+const curArtist = ref<Artist>(new Artist()); // Selected Artist page to view
 
 var myArt = ref<Art[]>([]);
 var likedArt = ref<Art[]>([]);
 
-onMounted(() => {
-  LoginService.GetCurrentUser().then((user: Artist) => {
+onMounted(async () => {
+  LoginService.getCurrentUser().then((user: Artist) => {
     if (user.id == 0) {
       router.push("/");
       toast.add({
         severity: "error",
         summary: "Warning",
         detail: "User must be logged in to view account page",
-        life: 3000,
+        life: 3000
       });
     }
     newUsername.value = user.name;
@@ -174,19 +172,19 @@ onMounted(() => {
   });
 });
 
-function logout() {
+async function logout() {
   LoginService.logout().then(() => {
     window.location.replace(`/`);
     toast.add({
       severity: "success",
       summary: "Success",
       detail: "User logged out",
-      life: 3000,
+      life: 3000
     });
   });
 }
 
-function CancelEdit() {
+function cancelEdit() {
   isEditing.value = false;
   newUsername.value = artist.value.name;
 }
@@ -203,7 +201,7 @@ const errorMessage = computed<string>(() => {
   return "";
 });
 
-function UpdateUsername() {
+async function updateUsername() {
   LoginService.updateUsername(newUsername.value)
     .then((success) => {
       if (success) {
@@ -211,7 +209,7 @@ function UpdateUsername() {
           severity: "success",
           summary: "Success",
           detail: "Username successfully changed",
-          life: 3000,
+          life: 3000
         });
         artist.value.name = newUsername.value;
         isEditing.value = false;
@@ -220,7 +218,7 @@ function UpdateUsername() {
           severity: "error",
           summary: "Error",
           detail: "Username is already taken. Try another",
-          life: 3000,
+          life: 3000
         });
       }
     })
@@ -229,20 +227,20 @@ function UpdateUsername() {
         severity: "error",
         summary: "Error",
         detail: "An error occurred. Please try again later",
-        life: 3000,
+        life: 3000
       });
     });
 }
 
-function ConfirmDelete() {
-  LoginService.DeleteCurrentArtist(curArtist.value.id)
+async function confirmDelete() {
+  LoginService.deleteArtist(curArtist.value.id)
     .then(() => {
       window.location.href = "/";
       toast.add({
         severity: "success",
         summary: "User Deleted",
         detail: "The User has been deleted successfully",
-        life: 3000,
+        life: 3000
       });
     })
     .catch(() => {
@@ -251,17 +249,12 @@ function ConfirmDelete() {
         summary: "Error",
         detail:
           "error deleting user, please make sure you have spelt it correctly",
-        life: 3000,
+        life: 3000
       });
     });
 }
 
-function ChangeHash(hash: string) {
+function changeHash(hash: string) {
   window.location.hash = hash;
-}
-function getIsAdmin() {
-  LoginService.GetIsAdmin().then((promise: boolean) => {
-    user.value = promise;
-  });
 }
 </script>

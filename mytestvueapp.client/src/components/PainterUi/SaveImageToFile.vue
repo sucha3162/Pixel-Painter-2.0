@@ -17,7 +17,7 @@ function handleClick() {
   if (props.art.pixelGrid.isGif) {
     saveGIF();
   } else {
-    SaveToFile();
+    saveToFile();
   }
 }
 
@@ -42,7 +42,7 @@ function flattenArt(): string[][] {
   return arr;
 }
 
-function SaveToFile() {
+function saveToFile() {
   let grid: string[][];
   if (layerStore.grids.length > 1) {
     grid = flattenArt();
@@ -96,13 +96,10 @@ function SaveToFile() {
 }
 
 function saveGIF() {
-  let workingGrid: string[][];
   let urls: string[] = [];
   let grids = layerStore.grids;
 
   for (let i = 0; i < grids.length; i++) {
-    workingGrid = grids[i].grid;
-
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
     if (!context) {

@@ -13,9 +13,8 @@
 
 <script setup lang="ts">
 import Button from "primevue/button";
-import { ref, onMounted, computed } from "vue";
+import { onMounted, computed } from "vue";
 import router from "@/router";
-import Notification from "@/entities/Notification";
 //services
 import LoginService from "@/services/LoginService";
 import NotificationService from "@/services/NotificationService";
@@ -30,9 +29,9 @@ const notificationsCount = computed(() => {
   );
 });
 
-onMounted(() => {
+onMounted(async () => {
   if (notificationStore.notifications.length === 0) {
-    LoginService.GetCurrentUser().then((user) => {
+    LoginService.getCurrentUser().then((user) => {
       NotificationService.getNotifications(user.id).then((data) => {
         notificationStore.notifications = data;
       });

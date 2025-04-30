@@ -30,7 +30,7 @@
   </Toolbar>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { RouterLink } from "vue-router";
 import { ref, onMounted } from "vue";
 import Button from "primevue/button";
@@ -42,14 +42,12 @@ import LoginService from "@/services/LoginService";
 import { useLayerStore } from "@/store/LayerStore"
 import { useArtistStore } from "@/store/ArtistStore"
 
-const visible = ref(false);
-const password = ref(null);
 const layerStore = useLayerStore();
 const artistStore = useArtistStore();
 
 const isLoggedIn = ref(false);
 
-onMounted(() => {
+onMounted(async () => {
   layerStore.init();
   artistStore.init();
 

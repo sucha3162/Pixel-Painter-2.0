@@ -9,6 +9,7 @@ using MyTestVueApp.Server.Configuration;
 using MyTestVueApp.Server.Entities;
 using MyTestVueApp.Server.Interfaces;
 using MyTestVueApp.Server.ServiceImplementations;
+using System.Security.Authentication;
 
 
 namespace MyTestVueApp.Server.Controllers
@@ -17,10 +18,10 @@ namespace MyTestVueApp.Server.Controllers
     [Route("[controller]")]
     public class CommentController : ControllerBase
     {
-        private ILogger<CommentController> Logger { get; }
-        private ICommentAccessService CommentAccessService { get; }
-        private IOptions<ApplicationConfiguration> AppConfig { get; }
-        private ILoginService LoginService { get; }
+        private readonly ILogger<CommentController> Logger;
+        private readonly ICommentAccessService CommentAccessService;
+        private readonly IOptions<ApplicationConfiguration> AppConfig;
+        private readonly ILoginService LoginService;
          
         public CommentController(ILogger<CommentController> logger, ICommentAccessService commentAccessService, IOptions<ApplicationConfiguration> appConfig, ILoginService loginService)
         {
@@ -30,104 +31,155 @@ namespace MyTestVueApp.Server.Controllers
             LoginService = loginService;
         }
 
+        /// <summary>
+        /// Gets all comments of an artwork
+        /// </summary>
+        /// <param name="artId">Id of the art the comments belong to</param>
+        /// <returns>A list of comments</returns>
         [HttpGet]
         [Route("GetCommentsByArtId")]
-        public async Task<IEnumerable<Comment>> GetCommentsByArtId(int artId)
+        [ProducesResponseType(typeof(List<Comment>), 200)]
+        public async Task<IActionResult> GetCommentsByArtId([FromQuery] int artId)
         {
-            var comments = CommentAccessService.GetCommentsByArtId(artId);
-
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            try
             {
-                var artist = await LoginService.GetUserBySubId(userId);
-                if(artist == null)
-                {
-                    return comments;
-                }
-                foreach (var comment in comments)
-                {
-                    comment.currentUserIsOwner = comment.artistId == artist.id;
-                }
-            }
+                var comments = await CommentAccessService.GetCommentsByArtId(artId);
 
-            return comments;
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    if (artist == null)
+                    {
+                        return Ok(comments);
+                    }
+                    foreach (var comment in comments)
+                    {
+                        comment.CurrentUserIsOwner = comment.ArtistId == artist.Id;
+                    }
+                }
+
+                return Ok(comments);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
-        [HttpGet]
+        /// <summary>
+        /// Update a comment in the database
+        /// </summary>
+        /// <param name="altComment">New comment object</param>
+        [HttpPut]
         [Route("EditComment")]
-        public async Task<IActionResult> EditComment(int commentId, String newMessage)
+        public async Task<IActionResult> EditComment([FromBody] Comment altComment)
         {
-
-            // If the user is logged in
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            try
             {
-                var comment = await CommentAccessService.GetCommentByCommentId(commentId);
-                var subid = await LoginService.GetUserBySubId(userId);
-                if(comment.artistId == subid.id)
-                {    // You can add additional checks here if needed
-                    var rowsChanged = await CommentAccessService.EditComment(commentId, newMessage);
-                    if (rowsChanged > 0) // If the comment has been sucessfuly edited
-                    {
-                        return Ok();
+                // If the user is logged in
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var comment = await CommentAccessService.GetCommentByCommentId(altComment.Id);
+                    var subid = await LoginService.GetUserBySubId(userId);
+                    if (comment.ArtistId == subid.Id)
+                    {    // You can add additional checks here if needed
+                        var rowsChanged = await CommentAccessService.EditComment(altComment.Id, altComment.Message);
+                        if (rowsChanged > 0) // If the comment has been sucessfuly edited
+                        {
+                            return Ok();
+                        }
+                        else
+                        {
+                            throw new ArgumentException("Failed to edit comment.");
+                        }
                     }
                     else
                     {
-                        return BadRequest("Failed to edit comment. User may have already editied this comment.");
+                        throw new AuthenticationException("User does not have permissions for this action.");
                     }
                 }
                 else
                 {
-                    return Unauthorized("User does not have permissions for this action");
+                    throw new AuthenticationException("User is not logged in.");
                 }
             }
-            else
+            catch (ArgumentException ex) 
             {
-                return BadRequest("User is not logged in");
+                return BadRequest(ex.Message);
             }
-            
-
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
-
-        [HttpGet]
+        /// <summary>
+        /// Removes a comment from the database
+        /// </summary>
+        /// <param name="commentId">Id of the comment to be removed</param>
+        [HttpDelete]
         [Route("DeleteComment")]
-        public async Task<IActionResult> DeleteComment(int commentId)
+        public async Task<IActionResult> DeleteComment([FromQuery] int commentId)
         {
-
-            // If the user is logged in
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            try
             {
-                var comment = await CommentAccessService.GetCommentByCommentId(commentId);
-                var artist = await LoginService.GetUserBySubId(userId);
-                var subid = await LoginService.GetUserBySubId(userId);
-                if (comment.artistId == subid.id || artist.isAdmin)
+                // If the user is logged in
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
-                    // You can add additional checks here if needed
-                    var rowsChanged = await CommentAccessService.DeleteComment(commentId);
-                    if (rowsChanged > 0) // If the comment has been deleted
+                    var comment = await CommentAccessService.GetCommentByCommentId(commentId);
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    var subid = await LoginService.GetUserBySubId(userId);
+                    if (comment.ArtistId == subid.Id || artist.IsAdmin)
                     {
-                        return Ok();
+                        // You can add additional checks here if needed
+                        var rowsChanged = await CommentAccessService.DeleteComment(commentId);
+                        if (rowsChanged > 0) // If the comment has been deleted
+                        {
+                            return Ok();
+                        }
+                        else
+                        {
+                            throw new ArgumentException("Failed to edit comment.");
+                        }
                     }
                     else
                     {
-                        return BadRequest("Failed to delete Comment");
+                        throw new AuthenticationException("User does not have permissions for this action");
                     }
+
                 }
                 else
                 {
-                    return Unauthorized("User does not have permissions for this action");
+                    throw new ArgumentException("User is not logged in");
                 }
-
             }
-            else
+            catch (ArgumentException ex)
             {
-                return BadRequest("User is not logged in");
+                return BadRequest(ex.Message);
             }
-
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch(Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
+        /// <summary>
+        /// Add a comment to the database
+        /// </summary>
+        /// <param name="comment">Comment to be added to the database</param>
+        /// <returns>A comment object</returns>
         [HttpPost]
         [Route("CreateComment")]
-        public async Task<IActionResult> CreateComment(Comment comment)
+        [ProducesResponseType(typeof(Comment), 200)]
+        public async Task<IActionResult> CreateComment([FromBody] Comment comment)
         {
             try
             {
@@ -140,13 +192,16 @@ namespace MyTestVueApp.Server.Controllers
                         return Ok(result);
                     }
                 }
-                return BadRequest("User not logged in");
+                throw new AuthenticationException("User not logged in");
+            }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
                 return Problem(ex.Message);
             }
-
         }
     }
 }

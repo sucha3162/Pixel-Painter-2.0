@@ -9,26 +9,23 @@
         <span style="font-style: italic; color: gray">{{ dateFormatted }}</span>
       </div>
       <div class="ml-2">
-        <span v-if="!editing" style="word-break: break-word">{{
-          comment.message
-        }}</span>
+        <span v-if="!editing" style="word-break: break-word">
+          {{ comment.message}}
+        </span>
         <div v-else>
           <InputText
             v-model:="newMessage"
             placeholder="Add a comment..."
-            class="w-full mt-2"
-          ></InputText>
+            class="w-full mt-2" />
           <div class="flex flex-row-reverse mt-2 gap-2">
             <Button
               label="Submit"
-              @click="SubmitEdit"
-              :disabled="newMessage == ''"
-            ></Button>
+              @click="submitEdit"
+              :disabled="newMessage == ''" />
             <Button
               label="Cancel"
               severity="secondary"
-              @click="editing = false"
-            ></Button>
+              @click="editing = false" />
           </div>
         </div>
       </div>
@@ -40,23 +37,20 @@
           rounded
           text
           label="Reply"
-          severity="secondary"
-        ></Button>
+          severity="secondary" />
         <Button
           v-if="comment.currentUserIsOwner || user"
           icon="pi pi-ellipsis-h"
           rounded
           text
           severity="secondary"
-          @click="openMenu()"
-        />
+          @click="openMenu()" />
         <NewComment
           v-if="showReply == true"
           class="ml-4 mb-2"
           :parent-comment="comment"
           @new-comment="emit('deleteComment'), (showReply = false)"
-          @close-reply="showReply = false"
-        ></NewComment>
+          @close-reply="showReply = false" />
 
         <!-- Show replies to comments -->
         <!-- <Button class="ml-3 mb-2" @click="">Show Replies</Button> -->
@@ -71,8 +65,7 @@
       v-for="Comment in comment.replies"
       :key="Comment.id"
       :comment="Comment"
-      @delete-comment="emit('deleteComment')"
-    ></CommentOnArt>
+      @delete-comment="emit('deleteComment')" />
   </div>
 </template>
 
@@ -90,13 +83,13 @@ import LoginService from "../../services/LoginService";
 
 const emit = defineEmits(["deleteComment", "updateComments"]);
 
-const editing = ref(false);
-const newMessage = ref("");
+const editing = ref<boolean>(false);
+const newMessage = ref<string>("");
 const toast = useToast();
-const showReply = ref(false);
-const menu = ref();
+const showReply = ref<boolean>(false);
+const menu = ref<any>();
 const user = ref<boolean>(false);
-const dateFormatted = ref();
+const dateFormatted = ref<string>("");
 
 function openMenu() {
   menu.value.toggle(event);
@@ -107,7 +100,7 @@ const items = ref([
     label: "Delete",
     icon: "pi pi-trash",
     command: () => {
-      DeleteComment();
+      deleteComment();
     }
   },
   {
@@ -123,22 +116,31 @@ watch(editing, () => {
   newMessage.value = props.comment.message ?? "";
 });
 
-onMounted(() => {
+onMounted(async () => {
   getIsAdmin();
+
+  const creationDate = adjustForTimezone(new Date(props.comment.creationDate));
+  const today = new Date();
+
+  const differenceMs = today.getTime() - creationDate.getTime();
+  const differenceMinutes = Math.round(differenceMs / (1000 * 60));
+
+  dateFormatted.value = getRelativeTime(differenceMinutes);
 });
+
 const props = defineProps<{
   comment: Comment;
 }>();
 
-function getIsAdmin() {
-  LoginService.GetIsAdmin().then((promise: boolean) => {
+async function getIsAdmin() {
+  LoginService.getIsAdmin().then((promise: boolean) => {
     user.value = promise;
   });
 }
 
-const SubmitEdit = () => {
+async function submitEdit() {
   if (props.comment.id != null) {
-    CommentAccessService.EditComment(props.comment.id, newMessage.value)
+    CommentAccessService.editComment(props.comment, newMessage.value)
       .then(() => {
         emit("deleteComment");
         editing.value = false;
@@ -152,28 +154,18 @@ const SubmitEdit = () => {
         });
       });
   }
-};
+}
 
-const DeleteComment = () => {
+async function deleteComment() {
   if (props.comment.id != null) {
-    CommentAccessService.DeleteComment(props.comment.id).then(() => {
+    CommentAccessService.deleteComment(props.comment.id).then(() => {
       emit("deleteComment");
     });
   }
-};
-
-onMounted(() => {
-  const creationDate = adjustForTimezone(new Date(props.comment.creationDate));
-  const today = new Date();
-
-  const differenceMs = today.getTime() - creationDate.getTime();
-  const differenceMinutes = Math.round(differenceMs / (1000 * 60));
-
-  dateFormatted.value = getRelativeTime(differenceMinutes);
-});
+}
 
 function adjustForTimezone(date: Date): Date {
-  var timeOffsetInMS: number = date.getTimezoneOffset() * 60000;
+  let timeOffsetInMS: number = date.getTimezoneOffset() * 60000;
   date.setTime(date.getTime() - timeOffsetInMS);
   return date;
 }

@@ -2,12 +2,12 @@
 {
     public class Artist
     {
-        public int id { get; set; } //Public id
-        public string subId { get; set; } //SECRET ID
-        public string name { get; set; }
-        public bool isAdmin { get; set; } = false;
+        public int Id { get; set; } //Public id
+        public string SubId { get; set; } //SECRET ID
+        public string Name { get; set; }
+        public bool IsAdmin { get; set; }
         public bool PrivateProfile { get; set; } = false;
-        public DateTime creationDate { get; set; }
-        public string email { get; set; }
+        public DateTime CreationDate { get; set; }
+        public string Email { get; set; }
     }
 }

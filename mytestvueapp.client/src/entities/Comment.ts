@@ -1,12 +1,10 @@
-import type { ListFormat } from "typescript";
-
 export default class Comment {
   id?: number;
   artistId?: number;
   artId?: number;
   message?: string;
   commenterName?: string;
-  creationDate?: string;
+  creationDate: string;
   replyId?: number;
   currentUserIsOwner?: boolean;
   replies: Comment[];

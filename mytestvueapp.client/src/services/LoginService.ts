@@ -31,8 +31,7 @@ export default class LoginService {
       const response = await fetch(`/login/GetArtistByName?name=${name}`);
       const json = await response.json();
 
-      var artist = json;
-      return artist;
+      return json as Artist;
     } catch (error) {
       console.error;
       throw error;
@@ -46,11 +45,8 @@ export default class LoginService {
 
       const allArtists: Artist[] = [];
 
-      for (const jsonArt of json) {
-        let artist: Artist;
-        artist = jsonArt as Artist;
-
-        allArtists.push(artist);
+      for (const jsonArtist of json) {
+        allArtists.push(jsonArtist as Artist);
       }
 
       return allArtists;
@@ -60,12 +56,12 @@ export default class LoginService {
     }
   }
 
-  public static async GetCurrentUser(): Promise<Artist> {
+  public static async getCurrentUser(): Promise<Artist> {
     try {
       const response = await fetch("/login/GetCurrentUser");
 
       if (!response.ok) {
-        console.log("Response was not ok");
+        throw new Error("Error retrieving user");
       }
 
       const data = await response.json();
@@ -78,7 +74,7 @@ export default class LoginService {
     }
   }
 
-  public static async GetIsAdmin(): Promise<boolean> {
+  public static async getIsAdmin(): Promise<boolean> {
     try {
       const response = await fetch("/login/GetIsAdmin");
 
@@ -100,7 +96,11 @@ export default class LoginService {
   public static async updateUsername(newUsername: any): Promise<boolean> {
     try {
       const response = await fetch(
-        `login/UpdateUsername?newUsername=${newUsername}`
+        `login/UpdateUsername?newUsername=${newUsername}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" }
+        }
       );
 
       if (!response.ok) {
@@ -117,23 +117,14 @@ export default class LoginService {
     }
   }
 
-  public static async DeleteArtist(ArtistName: string): Promise<void> {
+  public static async deleteArtist(id: number): Promise<void> {
     try {
       const response = await fetch(
-        `/login/DeleteArtist?ArtistName=${ArtistName}`
+        `/login/DeleteArtist?id=${id}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" }
+        }
       );
-
-      if (!response.ok) {
-        throw new Error("Error: Bad response");
-      }
-    } catch (error) {
-      console.error;
-      throw error;
-    }
-  }
-  public static async DeleteCurrentArtist(id: number): Promise<void> {
-    try {
-      const response = await fetch(`/login/DeleteCurrentArtist?id=${id}`);
 
       if (!response.ok) {
         throw new Error("Error: Bad response");

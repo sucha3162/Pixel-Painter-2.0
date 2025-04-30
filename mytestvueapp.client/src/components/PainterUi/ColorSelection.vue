@@ -1,11 +1,11 @@
 <template>
   <FloatingCard
     position="left"
-    :header="isBackground ? 'Background Select' : 'Brush Settings'"
+    :header="props.isBackground ? 'Background Select' : 'Brush Settings'"
     width="13rem"
-    :button-icon="isBackground ? 'pi pi-tablet' : 'pi pi-palette'"
+    :button-icon="props.isBackground ? 'pi pi-tablet' : 'pi pi-palette'"
     button-label=""
-    :default-open="!isBackground">
+    :default-open="!props.isBackground">
     <Tabs value="0">
       <TabList>
         <Tab value="0" @click="setCurrentPallet(0)">Default</Tab>
@@ -18,7 +18,7 @@
           v-tooltip.right="
             'Click to add custom color. Double click to remove color.'
           "
-          v-if="!isBackground"
+          v-if="!props.isBackground"
           >Custom</Tab
         >
       </TabList>
@@ -32,7 +32,9 @@
                 @click="selectedColor = color.hex"
                 class="border-1 m-1 w-2rem h-2rem border-round-md"
                 :style="{ backgroundColor: '#' + color.hex }"
-                :v-tooltip.bottom="isBackground ? '' : color.shortcut"></div>
+                v-tooltip.bottom="
+                  props.isBackground ? '' : color.shortcut
+                "></div>
             </div>
             <!-- @input="updateColorFromHex" -->
             <div class="parent">
@@ -43,14 +45,14 @@
                 style="width: 54%"
                 @focus="inputActive"
                 @blur="inputInactive"
-                @input="ValidateHex"
+                @input="validateHex"
                 @keydown.enter="handleEnter" />
             </div>
             <ColorPicker class="m-1" v-model="selectedColor" />
           </div>
-          <div class="mt-1" v-if="!isBackground">Size: {{ size }}</div>
+          <div class="mt-1" v-if="!props.isBackground">Size: {{ size }}</div>
 
-          <div class="px-2" v-if="!isBackground">
+          <div class="px-2" v-if="!props.isBackground">
             <Slider
               class="mt-2"
               v-model="size"
@@ -59,7 +61,7 @@
               v-tooltip.bottom="'Decrease(q),Increase(w)'" />
           </div>
         </TabPanel>
-        <TabPanel value="1" v-if="!isBackground">
+        <TabPanel value="1" v-if="!props.isBackground">
           <div class="flex flex-wrap">
             <div
               id="1"
@@ -142,7 +144,7 @@
                 style="width: 54%"
                 @focus="inputActive"
                 @blur="inputInactive"
-                @input="ValidateHex"
+                @input="validateHex"
                 @keydown.enter="handleEnter" />
             </div>
             <ColorPicker class="m-1" v-model="selectedColor"></ColorPicker>
@@ -183,14 +185,14 @@ const size = defineModel<number>("size", { default: 1 });
 const hexColor = ref<string>("#000000");
 const emit = defineEmits(["DisableKeyBinds", "EnableKeyBinds"]);
 
-let customColors: string[] = new Array(12);
-let arrayDefault: string[] = new Array(12);
-for (let i = 0; i < arrayDefault.length; i++) {
-  arrayDefault[i] = DefaultColor.getDefaultColors()[i].hex;
+const customColors = ref<string[]>(new Array(12));
+const arrayDefault = ref<string[]>(new Array(12));
+for (let i = 0; i < arrayDefault.value.length; i++) {
+  arrayDefault.value[i] = DefaultColor.getDefaultColors()[i].hex;
 }
 let temp = localStorage.getItem("customPallet");
 if (temp) {
-  customColors = JSON.parse(temp);
+  customColors.value = JSON.parse(temp);
 }
 setCurrentPallet(0);
 
@@ -200,47 +202,47 @@ watch(selectedColor, () => {
 
 function setSaved() {
   let tempColor = document.getElementById("1");
-  if (tempColor) tempColor.style.backgroundColor = "#" + customColors[0];
+  if (tempColor) tempColor.style.backgroundColor = "#" + customColors.value[0];
   tempColor = document.getElementById("2");
-  if (tempColor) tempColor.style.backgroundColor = "#" + customColors[1];
+  if (tempColor) tempColor.style.backgroundColor = "#" + customColors.value[1];
   tempColor = document.getElementById("3");
-  if (tempColor) tempColor.style.backgroundColor = "#" + customColors[2];
+  if (tempColor) tempColor.style.backgroundColor = "#" + customColors.value[2];
   tempColor = document.getElementById("4");
-  if (tempColor) tempColor.style.backgroundColor = "#" + customColors[3];
+  if (tempColor) tempColor.style.backgroundColor = "#" + customColors.value[3];
   tempColor = document.getElementById("5");
-  if (tempColor) tempColor.style.backgroundColor = "#" + customColors[4];
+  if (tempColor) tempColor.style.backgroundColor = "#" + customColors.value[4];
   tempColor = document.getElementById("6");
-  if (tempColor) tempColor.style.backgroundColor = "#" + customColors[5];
+  if (tempColor) tempColor.style.backgroundColor = "#" + customColors.value[5];
   tempColor = document.getElementById("7");
-  if (tempColor) tempColor.style.backgroundColor = "#" + customColors[6];
+  if (tempColor) tempColor.style.backgroundColor = "#" + customColors.value[6];
   tempColor = document.getElementById("8");
-  if (tempColor) tempColor.style.backgroundColor = "#" + customColors[7];
+  if (tempColor) tempColor.style.backgroundColor = "#" + customColors.value[7];
   tempColor = document.getElementById("9");
-  if (tempColor) tempColor.style.backgroundColor = "#" + customColors[8];
+  if (tempColor) tempColor.style.backgroundColor = "#" + customColors.value[8];
   tempColor = document.getElementById("0");
-  if (tempColor) tempColor.style.backgroundColor = "#" + customColors[9];
+  if (tempColor) tempColor.style.backgroundColor = "#" + customColors.value[9];
   tempColor = document.getElementById("-");
-  if (tempColor) tempColor.style.backgroundColor = "#" + customColors[10];
+  if (tempColor) tempColor.style.backgroundColor = "#" + customColors.value[10];
   tempColor = document.getElementById("=");
-  if (tempColor) tempColor.style.backgroundColor = "#" + customColors[11];
+  if (tempColor) tempColor.style.backgroundColor = "#" + customColors.value[11];
 }
 
 function updateColors(id: string, index: number) {
   let unique = true;
-  for (let i = 0; i < customColors.length; i++) {
-    if (customColors[i] === selectedColor.value) unique = false;
+  for (let i = 0; i < customColors.value.length; i++) {
+    if (customColors.value[i] === selectedColor.value) unique = false;
   }
   if (unique) {
-    if (!customColors[index]) {
-      customColors[index] = selectedColor.value;
+    if (!customColors.value[index]) {
+      customColors.value[index] = selectedColor.value;
       const currentCustom = document.getElementById(id);
       if (currentCustom) {
         currentCustom.style.backgroundColor = "#" + selectedColor.value;
       }
     }
   }
-  if (customColors[index]) {
-    selectedColor.value = customColors[index];
+  if (customColors.value[index]) {
+    selectedColor.value = customColors.value[index];
   }
   setCurrentPallet(1);
 
@@ -248,7 +250,7 @@ function updateColors(id: string, index: number) {
 }
 
 function deleteColor(id: string, index: number) {
-  customColors[index] = "";
+  customColors.value[index] = "";
   const currentCustom = document.getElementById(id);
   if (currentCustom) {
     currentCustom.style.backgroundColor = "transparent";
@@ -274,7 +276,7 @@ function inputInactive() {
     selectedColor.value = hexColor.value.substring(1, 7);
   }
 }
-function ValidateHex() {
+function validateHex() {
   hexColor.value =
     "#" + hexColor.value.replace(/[^0-9a-fA-F]/g, "").toUpperCase();
   if (hexColor.value.length > 7) {
@@ -295,3 +297,4 @@ function ValidateHex() {
   justify-content: center;
 }
 </style>
+

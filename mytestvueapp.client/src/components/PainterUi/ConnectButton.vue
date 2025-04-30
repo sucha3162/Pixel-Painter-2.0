@@ -4,7 +4,7 @@
     :severity="connected ? 'danger' : 'primary'"
     :disabled="isGif"
     icon="pi pi-wifi"
-    @click="ToggleModal()"
+    @click="toggleModal()"
   />
 
     <Dialog v-model:visible="visible" modal :style="{width:'25rem'}" :show-header="false">
@@ -76,19 +76,19 @@ import SocketService from "@/services/SocketService";
 import GroupAdvert from "@/entities/GroupAdvert";
 import {Tabs, TabList, Tab, TabPanels, TabPanel } from "primevue";
 
-const emit = defineEmits(["openModal","connect", "disconnect"]);
+const emit = defineEmits(["openModal", "connect", "disconnect"]);
 
 const props = defineProps<{
   connected: boolean;
   isGif: boolean;
 }>();
 
-const visible = ref(false);
-const groupname = ref("");
+const visible = ref<boolean>(false);
+const groupname = ref<string>("");
 const groups = ref<GroupAdvert[]>([]);
-const tab = ref(0);
+const tab = ref<number>(0);
 
-function ToggleModal() {
+function toggleModal() {
   if (!props.connected) {
     visible.value = !visible.value;
   } else {
@@ -101,12 +101,12 @@ function ToggleModal() {
         visible.value = !visible.value;
     }
 
-    function disconnect() {
-        emit("disconnect");
-        if (!props.connected) {
-            ToggleModal();
-        }
-    }
+function disconnect() {
+  emit("disconnect");
+  if (!props.connected) {
+    toggleModal();
+  }
+}
 
     watch(visible, () => {
         emit("openModal", visible.value);

@@ -16,10 +16,10 @@ namespace MyTestVueApp.Server.ServiceImplementations
 {
     public class LoginService : ILoginService
     {
-        private IOptions<ApplicationConfiguration> AppConfig { get; }
-        private ILogger<LoginService> Logger { get; }
+        private readonly IOptions<ApplicationConfiguration> AppConfig;
+        private readonly ILogger<LoginService> Logger;
 
-        private string[] adjectives = new string[]
+        private string[] Adjectives = new string[]
         {
             "Happy", "Sad", "Bright", "Dark", "Quick",
             "Slow", "Loud", "Soft", "Smooth", "Rough",
@@ -33,7 +33,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
             "Unknown", "Happy", "Lazy", "Active", "Thoughtful"
         };
 
-        private string[] nouns = new string[]
+        private string[] Nouns = new string[]
         {
             "Apple", "Ball", "Cat", "Dog", "Elephant",
             "Flower", "Guitar", "House", "Ice", "Jacket",
@@ -134,7 +134,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         command.Parameters.AddWithValue("@IsAdmin", false);
                         command.Parameters.AddWithValue("@CreationDate", DateTime.UtcNow);
 
-                        int rowsChanged = command.ExecuteNonQuery();
+                        int rowsChanged = await command.ExecuteNonQueryAsync();
                         if (rowsChanged > 0)
                         {
                             return await GetUserBySubId(subId);
@@ -154,17 +154,28 @@ namespace MyTestVueApp.Server.ServiceImplementations
         }
 
         #endregion
-
+        /// <summary>
+        /// Used for grabbing a certain adjective in the array of adjectives
+        /// </summary>
+        /// <param name="index">Location of the adjective to grab</param>
+        /// <returns>An adjective string</returns>
         private string getAdjective(int index)
         {
-            return adjectives[index];
+            return Adjectives[index];
         }
-
+        /// <summary>
+        /// Used for grabbing specfic a specfic noun in the array of nouns
+        /// </summary>
+        /// <param name="index">Location of the noun to grab</param>
+        /// <returns>A noun string</returns>
         private string getNoun(int index)
         {
-            return nouns[index];
+            return Nouns[index];
         }
-
+        /// <summary>
+        /// Generates a random username for the user through random number generation
+        /// </summary>
+        /// <returns>A new randomly generated username</returns>
         private string generateUsername()
         {
             Random rnd = new Random();
@@ -173,7 +184,10 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
             return username;
         }
-
+        /// <summary>
+        /// Queues all artists in the database and returns them as a list of artists
+        /// </summary>
+        /// <returns>A List of Artists</returns>
         public async Task<IEnumerable<Artist>> GetAllArtists()
         {
             var artistList = new List<Artist>();
@@ -200,12 +214,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         {
                             var artist = new Artist
                             {
-                                id = reader.GetInt32(0),
-                                subId = reader.GetString(1),
-                                name = reader.GetString(2),
-                                isAdmin = reader.GetBoolean(3),
+                                Id = reader.GetInt32(0),
+                                SubId = reader.GetString(1),
+                                Name = reader.GetString(2),
+                                IsAdmin = reader.GetBoolean(3),
                                 PrivateProfile = reader.GetBoolean(4),
-                                creationDate = reader.GetDateTime(5)
+                                CreationDate = reader.GetDateTime(5)
                             };
                             artistList.Add(artist);
                         }
@@ -214,6 +228,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
+        /// <summary>
+        /// Updates the artist's username in the database
+        /// </summary>
+        /// <param name="newUsername">Username string to change the artist's name to</param>
+        /// <param name="subId">Id of the artistto update the name of</param>
+        /// <returns>Returns true if it scueeds, false otherwise</returns>
         public async Task<bool> UpdateUsername(string newUsername, string subId)
         {
             try
@@ -229,7 +249,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     {
                         checkDupCommand.Parameters.AddWithValue("@Name", newUsername);
 
-                        int count = (int)await checkDupCommand.ExecuteScalarAsync();
+                        int count = (int) await checkDupCommand.ExecuteScalarAsync();
                         if (count > 0)
                         {
                             return false;
@@ -243,7 +263,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         command.Parameters.AddWithValue("@SubId", subId);
                         command.Parameters.AddWithValue("@Name", newUsername);
 
-                        int rowsChanged = command.ExecuteNonQuery();
+                        int rowsChanged = await command.ExecuteNonQueryAsync();
                         if (rowsChanged > 0)
                         {
                             return true;
@@ -261,7 +281,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 throw;
             }
         }
-
+        /// <summary>
+        /// Gets an artist from the database, based on the name od the user
+        /// </summary>
+        /// <param name="name">name of the artist</param>
+        /// <returns>Retuends an artist object</returns>
         public async Task<Artist> GetArtistByName(string name)
         {
             var artist = new Artist();
@@ -290,11 +314,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
                             artist = new Artist
                             {
-                                id = reader.GetInt32(0),
-                                subId = reader.GetString(1),
-                                name = reader.GetString(2),
-                                isAdmin = reader.GetBoolean(3),
-                                creationDate = reader.GetDateTime(4),
+                                Id = reader.GetInt32(0),
+                                SubId = reader.GetString(1),
+                                Name = reader.GetString(2),
+                                IsAdmin = reader.GetBoolean(3),
+                                CreationDate = reader.GetDateTime(4),
                                 PrivateProfile = reader.GetBoolean(5),
 
                             };
@@ -306,7 +330,11 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-
+        /// <summary>
+        /// Gets a user from the database based on their google OAuth Id
+        /// </summary>
+        /// <param name="subId">Id of the artist to return</param>
+        /// <returns>An artist object</returns>
         public async Task<Artist> GetUserBySubId(string subId)
         {
             var artist = new Artist();
@@ -337,13 +365,13 @@ namespace MyTestVueApp.Server.ServiceImplementations
                         {
                             artist = new Artist
                             {
-                                id = reader.GetInt32(0),
-                                subId = reader.GetString(1),
-                                name = reader.GetString(2),
-                                isAdmin = reader.GetBoolean(3),
-                                creationDate = reader.GetDateTime(4),
+                                Id = reader.GetInt32(0),
+                                SubId = reader.GetString(1),
+                                Name = reader.GetString(2),
+                                IsAdmin = reader.GetBoolean(3),
+                                CreationDate = reader.GetDateTime(4),
                                 PrivateProfile = reader.GetBoolean(5),
-                                email = reader.GetString(6),
+                                Email = reader.GetString(6),
                             };
                             return artist;
                         }
@@ -353,8 +381,82 @@ namespace MyTestVueApp.Server.ServiceImplementations
 
             return null;
         }
-
+        /// <summary>
+        /// Checks the database to see if a user is an admin or not
+        /// </summary>
+        /// <param name="userId">Id of the user being checked</param>
+        /// <returns>True if the user is an admin, false otherwise</returns>
         public async Task<bool> IsUserAdmin(string userId)
+        {
+            var artist = new Artist();
+
+            var connectionString = AppConfig.Value.ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                var query = @"
+                    SELECT IsAdmin
+                      FROM Artist
+                      WHERE Id = @Id
+                    ";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", userId);
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (reader.Read())
+                        {
+                            artist = new Artist
+                            {
+                                Id = reader.GetInt32(0),
+                                SubId = reader.GetString(1),
+                                Name = reader.GetString(2),
+                                IsAdmin = reader.GetBoolean(3),
+                                CreationDate = reader.GetDateTime(4),
+                                Email = reader.GetString(5),
+                            };
+                            return artist.IsAdmin;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        /// <summary>
+        /// Removes an artist from the databaes
+        /// </summary>
+        /// <param name="ArtistId">Id of the artist to be removed</param>
+        public async void DeleteArtist(int ArtistId)
+        {
+            try
+            {
+                var connectionString = AppConfig.Value.ConnectionString;
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    var deleteArtQuery = "DELETE artist where artist.id =  @ArtistId ";
+                    using (SqlCommand deleteArtCommand = new SqlCommand(deleteArtQuery, connection))
+                    {
+                        deleteArtCommand.Parameters.AddWithValue("@ArtistId", ArtistId);
+                        await deleteArtCommand.ExecuteNonQueryAsync();
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex, "Error in DeleteArt");
+                throw;
+            }
+        }
+        /// <summary>
+        /// Gets a user from the database based on their Id
+        /// </summary>
+        /// <param name="id">Id of the artist being retrieved</param>
+        /// <returns>An artist object</returns>
+        public async Task<Artist> GetArtistById(int id)
         {
             var artist = new Artist();
 
@@ -375,50 +477,26 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     ";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-
+                    command.Parameters.AddWithValue("@Id", id);
                     using (var reader = await command.ExecuteReaderAsync())
                     {
                         while (reader.Read())
                         {
                             artist = new Artist
                             {
-                                id = reader.GetInt32(0),
-                                subId = reader.GetString(1),
-                                name = reader.GetString(2),
-                                isAdmin = reader.GetBoolean(3),
-                                creationDate = reader.GetDateTime(4),
-                                email = reader.GetString(5),
+                                Id = reader.GetInt32(0),
+                                SubId = reader.GetString(1),
+                                Name = reader.GetString(2),
+                                IsAdmin = reader.GetBoolean(3),
+                                CreationDate = reader.GetDateTime(4),
+                                Email = reader.GetString(5),
                             };
-                            return artist.isAdmin;
+                            return artist;
                         }
                     }
                 }
             }
-            return false;
-        }
-        public async Task DeleteArtist(int ArtistId)
-        {
-            try
-            {
-                var connectionString = AppConfig.Value.ConnectionString;
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
-
-                    var deleteArtQuery = "DELETE artist where artist.id =  @ArtistId ";
-                    using (SqlCommand deleteArtCommand = new SqlCommand(deleteArtQuery, connection))
-                    {
-                        deleteArtCommand.Parameters.AddWithValue("@ArtistId", ArtistId);
-                        deleteArtCommand.ExecuteNonQuery();
-                    }
-
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogCritical(ex, "Error in DeleteArt");
-                throw;
-            }
+            return null;
         }
     }
 }

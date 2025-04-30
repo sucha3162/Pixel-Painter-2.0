@@ -11,8 +11,7 @@
     <img
       src="../assets/images/pop_cat.gif"
       alt="cat"
-      style="position: fixed; bottom: 0; right: 0; height: 60%"
-    />
+      style="position: fixed; bottom: 0; right: 0; height: 60%" />
   </div>
 </template>
 
@@ -20,3 +19,4 @@
 import Button from "primevue/button";
 import router from "@/router";
 </script>
+

@@ -11,6 +11,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Logging;
 using MyTestVueApp.Server.ServiceImplementations;
 using MyTestVueApp.Server.Entities;
+using System.Security.Authentication;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace MyTestVueApp.Server.Controllers
 {
@@ -18,9 +20,9 @@ namespace MyTestVueApp.Server.Controllers
     [Route("[controller]")]
     public class LoginController : ControllerBase
     {
-        private IOptions<ApplicationConfiguration> AppConfig { get; }
-        private ILogger<ArtAccessController> Logger { get; }
-        private ILoginService LoginService { get; }
+        private readonly IOptions<ApplicationConfiguration> AppConfig;
+        private readonly ILogger<ArtAccessController> Logger;
+        private readonly ILoginService LoginService;
 
         public LoginController(IOptions<ApplicationConfiguration> appConfig, ILogger<ArtAccessController> logger, ILoginService loginService)
         {
@@ -66,47 +68,102 @@ namespace MyTestVueApp.Server.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Checks if a user is logged in
+        /// </summary>
+        /// <returns>True if they are logged in, false otherwise</returns>
         [HttpGet]
         [Route("IsLoggedIn")]
+        [ProducesResponseType(typeof(bool), 200)]
         public async Task<IActionResult> IsLoggedIn()
         {
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            try
             {
-                var artist = await LoginService.GetUserBySubId(userId);
-                return Ok(artist != null);
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    return Ok(artist != null);
+                }
+                return Ok(false);
             }
-            return Ok(false);
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
-
+        /// <summary>
+        /// Get all artists
+        /// </summary>
+        /// <returns>A list of artists</returns>
         [HttpGet]
         [Route("GetAllArtists")]
-
-        public async Task<IEnumerable<Artist>> GetAllArtists()
+        [ProducesResponseType(typeof(List<Artist>), 200)]
+        public async Task<IActionResult> GetAllArtists()
         {
-            return await LoginService.GetAllArtists();
-        }
-
-        [HttpGet]
-        [Route("GetCurrentUser")]
-        public async Task<IActionResult> GetCurrentUser()
-        {
-            if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+            try
             {
-                var artist = await LoginService.GetUserBySubId(userId);
+                var artist = await LoginService.GetAllArtists();
                 return Ok(artist);
             }
-            return BadRequest("User is not logged in.");
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
-
+        /// <summary>
+        /// Get the current user's information
+        /// </summary>
+        /// <returns>A artist object</returns>
+        [HttpGet]
+        [Route("GetCurrentUser")]
+        [ProducesResponseType(typeof(Artist), 200)]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            try
+            {
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    return Ok(artist);
+                }
+                throw new AuthenticationException("User is not logged in.");
+            }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+        /// <summary>
+        /// Get an artist by their name
+        /// </summary>
+        /// <param name="name">Name of the artist</param>
+        /// <returns>An artist object</returns>
         [HttpGet]
         [Route("GetArtistByName")]
-        public async Task<Artist> GetArtistByName(string name)
+        [ProducesResponseType(typeof(Artist), 200)]
+        public async Task<IActionResult> GetArtistByName([FromQuery] string name)
         {
-            return await LoginService.GetArtistByName(name);
+            try
+            {
+                var artist = await LoginService.GetArtistByName(name);
+                return Ok(artist);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
-
+        /// <summary>
+        /// Check to see if a user is an admin
+        /// </summary>
+        /// <returns>True if the user is an admin, false otherwise</returns>
         [HttpGet]
         [Route("GetIsAdmin")]
+        [ProducesResponseType(typeof(bool), 200)]
         public async Task<IActionResult> GetIsAdmin()
         {
             try
@@ -116,27 +173,35 @@ namespace MyTestVueApp.Server.Controllers
                 {
                     var artist = await LoginService.GetUserBySubId(userId);
                     if(artist == null) { return Ok(false); }
-                    if (artist.isAdmin)
+                    if (artist.IsAdmin)
                     {
                         return Ok(true);
                     }
                     else { return Ok(false); }
-
                 }
                 else
                 {
-                    return BadRequest("User is not logged in");
+                    throw new ArgumentException("User is not logged in");
                 }
+            } 
+            catch(ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
                 return Problem(ex.Message);
             }
         }
-
-        [HttpGet]
+        /// <summary>
+        /// Updates the current user's username
+        /// </summary>
+        /// <param name="newUsername">New Username</param>
+        /// <returns>True if successful, false otherwise</returns>
+        [HttpPut]
         [Route("UpdateUsername")]
-        public async Task<IActionResult> UpdateUsername(string newUsername)
+        [ProducesResponseType(typeof(bool), 200)]
+        public async Task<IActionResult> UpdateUsername([FromQuery] string newUsername)
         {
             try
             {
@@ -147,76 +212,64 @@ namespace MyTestVueApp.Server.Controllers
                 }
                 else
                 {
-                    return BadRequest("User is not logged in");
+                    throw new AuthenticationException("User is not logged in");
                 }
+            }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
                 return Problem(ex.Message);
             }
         }
-
-
-        [HttpGet]
+        /// <summary>
+        /// Removes the current user from the database
+        /// </summary>
+        /// <param name="id">Id of the user to remove</param>
+        [HttpDelete]
         [Route("DeleteArtist")]
-        public async Task<IActionResult> DeleteArtist(string ArtistName)
+        public async Task<IActionResult> DeleteArtist([FromQuery] int id)
         {
-
             try
             {
                 // If the user is logged in
                 if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
                     var artist = await LoginService.GetUserBySubId(userId);
-                    if(artist.name == ArtistName || artist.isAdmin)
+                    if(artist.Id == id)
                     {
-                        await LoginService.DeleteArtist(artist.id);
+                        LoginService.DeleteArtist(artist.Id);
+                        Response.Cookies.Delete("GoogleOAuth");
                         return Ok();
                     }
-                    else { return BadRequest("Username is incorrect"); }
-
+                    else if (artist.IsAdmin)
+                    {
+                        LoginService.DeleteArtist(artist.Id);
+                        return Ok();
+                    }
+                    else {
+                        throw new InvalidCredentialException("User is not allowed to preform this action");
+                    }
                 }
                 else
                 {
-                    return BadRequest("User is not logged in");
+                    throw new AuthenticationException("User is not logged in");
                 }
+            }
+            catch (InvalidCredentialException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
                 return Problem(ex.Message);
             }
-
-        }
-
-        [HttpGet]
-        [Route("DeleteSelectedArtist")]
-        public async Task<IActionResult> DeleteSelectedArtist(int id)
-        {
-
-            try
-            {
-                // If the user is logged in
-                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
-                {
-                    var artist = await LoginService.GetUserBySubId(userId);
-                    if (artist.id == id || artist.isAdmin)
-                    {
-                        await LoginService.DeleteArtist(id);
-                        return Ok();
-                    }
-                    else { return BadRequest("Current User does not have access tot his function"); }
-
-                }
-                else
-                {
-                    return BadRequest("User is not logged in");
-                }
-            }
-            catch (Exception ex)
-            {
-                return Problem(ex.Message);
-            }
-
         }
     }
 }

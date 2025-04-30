@@ -7,11 +7,10 @@
       class="w-full"
       @click="open = true"
       :disabled="!loggedIn"
-      @keyup.enter="PostComment()"
-    ></InputText>
+      @keyup.enter="postComment()"></InputText>
     <div class="flex flex-row-reverse mt-2" v-if="open || parentComment">
-      <Button class="ml-2" @click="PostComment()">Post Comment</Button>
-      <Button severity="secondary" @click="Cancel()">Cancel</Button>
+      <Button class="ml-2" @click="postComment()">Post Comment</Button>
+      <Button severity="secondary" @click="cancel()">Cancel</Button>
     </div>
   </div>
 </template>
@@ -29,9 +28,13 @@ import LoginService from "@/services/LoginService";
 const toast = useToast();
 
 const route = useRoute();
-const open = ref(false);
+const open = ref<boolean>(false);
 const comment = ref<Comment>(new Comment());
-const loggedIn = ref(false);
+const loggedIn = ref<boolean>(false);
+
+const props = defineProps<{
+  parentComment?: Comment;
+}>();
 
 const emit = defineEmits(["newComment", "closeReply"]);
 
@@ -45,39 +48,36 @@ const placeholder = computed(() => {
   }
 });
 
-function PostComment() {
+async function postComment() {
   comment.value.artId = parseInt(route.params.id as string);
   comment.value.replyId = props.parentComment?.id;
-  CommentAccessService.PostComment(comment.value)
+  CommentAccessService.postComment(comment.value)
     .then(() => {
       emit("newComment");
-      Cancel();
+      cancel();
     })
     .catch(() => {
       toast.add({
         severity: "error",
         summary: "Error",
         detail: "Failed to post comment",
-        life: 3000,
+        life: 3000
       });
     });
 }
 
-onMounted(() => {
-  LoginService.GetCurrentUser().then((user) => {
+onMounted(async () => {
+  LoginService.getCurrentUser().then((user) => {
     if (user != null) {
       loggedIn.value = true;
     }
   });
 });
 
-const props = defineProps<{
-  parentComment?: Comment;
-}>();
-
-function Cancel() {
+function cancel() {
   open.value = false;
   comment.value.message = "";
   emit("closeReply");
 }
 </script>
+

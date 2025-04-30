@@ -1,6 +1,6 @@
 import type { PixelGrid } from "@/entities/PixelGrid";
 
-export default function fallingSand(pixelGrid: PixelGrid) {
+export default function FallingSand(pixelGrid: PixelGrid) {
   for (let x = 0; x < pixelGrid.width; x++) {
     for (let y = pixelGrid.height - 1; y >= 0; y--) {
       if (pixelGrid.grid[x][y] !== "empty") {

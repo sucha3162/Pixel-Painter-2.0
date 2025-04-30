@@ -22,14 +22,14 @@ const ctx = ref<CanvasRenderingContext2D | null>(null);
 // Computed property for syncing v-model
 const localGrid = computed({
   get: () => props.modelValue, // Get the color from the parent
-  set: (newGrid) => emit("update:modelValue", newGrid), // Send update to parent
+  set: (newGrid) => emit("update:modelValue", newGrid) // Send update to parent
 });
 const canvasId = computed(() => {
   return `viewer-page-canavs-${props.canvasNumber}`;
 });
-    watch(props, () => {
-        updateCanvas();
-    });
+watch(props, () => {
+  updateCanvas();
+});
 
 onMounted(() => {
   if (canvas.value) {
@@ -61,7 +61,7 @@ function updateCanvas() {
       canvas.value.height = 32 * props.pixelSize;
       ctx.value.scale(
         32 / props.art.pixelGrid.width,
-        32 / props.art.pixelGrid.width,
+        32 / props.art.pixelGrid.width
       );
     }
   }
@@ -70,8 +70,8 @@ function updateCanvas() {
 function render() {
   if (ctx.value && props.art.pixelGrid.encodedGrid) {
     const imageServe = props.art.pixelGrid.encodedGrid;
-    var hexBegin = 0;
-    var hexEnd = 6;
+    let hexBegin = 0;
+    let hexEnd = 6;
     for (
       let column = 0;
       column < props.art.pixelGrid.width * props.pixelSize;
@@ -94,8 +94,8 @@ function render() {
 function renderfilter() {
   if (ctx.value && props.art.pixelGrid.encodedGrid) {
     const imageServe = props.modelValue ? props.modelValue : "";
-    var hexBegin = 0;
-    var hexEnd = 6;
+    let hexBegin = 0;
+    let hexEnd = 6;
     for (
       let column = 0;
       column < props.art.pixelGrid.width * props.pixelSize;
@@ -116,3 +116,4 @@ function renderfilter() {
   }
 }
 </script>
+

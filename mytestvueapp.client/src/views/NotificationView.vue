@@ -1,34 +1,37 @@
 <template>
-  <div>
-    <h1 class="flex align-items-center gap-3 ml-4">Notifications</h1>
+  <h1 class="flex align-items-center gap-3 ml-4">Notifications</h1>
 
-    <div style="overflow-y: auto; height: 60vh">
-        <div v-if="notificationStore.notifications.length == 0" class="SadText">
-            <p>You do not have any notifications at this time</p>
-        </div>
-        <div v-if="store.Theme === 'light'">
-            <div v-for="(notification, index) in notifications"
-                 v-bind:key="index"
-                 :class="notification.viewed ? 'lCardV' : 'lCard'"
-                 @click="MarkViewed(notification)">
-                {{ notification.user }} has
-                <span v-if="notification.type == 1">liked</span><span v-else>commented on</span> your
-                <span v-if="notification.type == 3">comment</span><span v-else>artwork, "{{ notification.artName }}"</span>
-            </div>
-        </div>
-        <div v-else>
-            <div v-for="(notification, index) in notifications"
-                 v-bind:key="index"
-                 :class="notification.viewed ? 'dCardV' : 'dCard'"
-                 @click="MarkViewed(notification)">
-                {{ notification.user }} has
-                <span v-if="notification.type === 1">liked</span>
-                <span v-else-if="notification.type === 0">commented on</span>
-                <span v-else-if="notification.type === 3">replied to</span>
-                your
-                <span v-if="notification.type == 3">comment</span><span v-else>artwork, "{{ notification.artName }}"</span>
-            </div>
-        </div>
+  <div style="overflow-y: auto; height: 60vh">
+    <div v-if="notificationStore.notifications.length == 0" class="SadText">
+      <p>You do not have any notifications at this time</p>
+    </div>
+    <div v-if="store.Theme === 'light'">
+      <div
+        v-for="(notification, index) in notifications"
+        v-bind:key="index"
+        :class="notification.viewed ? 'lCardV' : 'lCard'"
+        @click="markViewed(notification)">
+        {{ notification.user }} has
+        <span v-if="notification.type == 1">liked</span
+        ><span v-else>commented on</span> your
+        <span v-if="notification.type == 3">comment</span
+        ><span v-else>artwork, "{{ notification.artName }}"</span>
+      </div>
+    </div>
+    <div v-else>
+      <div
+        v-for="(notification, index) in notifications"
+        v-bind:key="index"
+        :class="notification.viewed ? 'dCardV' : 'dCard'"
+        @click="markViewed(notification)">
+        {{ notification.user }} has
+        <span v-if="notification.type === 1">liked</span>
+        <span v-else-if="notification.type === 0">commented on</span>
+        <span v-else-if="notification.type === 3">replied to</span>
+        your
+        <span v-if="notification.type == 3">comment</span
+        ><span v-else>artwork, "{{ notification.artName }}"</span>
+      </div>
     </div>
   </div>
 </template>
@@ -48,9 +51,9 @@ const notifications = computed(() => {
 const store = useThemeStore();
 const notificationStore = useNotificationStore();
 
-onMounted(() => {
+onMounted(async () => {
   if (notificationStore.notifications.length === 0) {
-    LoginService.GetCurrentUser().then((data) => {
+    LoginService.getCurrentUser().then((data) => {
       NotificationService.getNotifications(data.id).then((data) => {
         notificationStore.notifications = data;
       });
@@ -58,21 +61,21 @@ onMounted(() => {
   }
 });
 
-async function MarkViewed(notification: Notification) {
+async function markViewed(notification: Notification) {
   if (notification.commentId != -1) {
-    notification.viewed = await MarkComment(notification.commentId);
+    notification.viewed = await markComment(notification.commentId);
   } else {
-    notification.viewed = await MarkLike(
+    notification.viewed = await markLike(
       notification.artId,
       notification.artistId
     );
   }
 }
 
-async function MarkComment(commentId: number): Promise<boolean> {
+async function markComment(commentId: number): Promise<boolean> {
   return await NotificationService.markCommentViewed(commentId);
 }
-async function MarkLike(artId: number, artistId: number): Promise<boolean> {
+async function markLike(artId: number, artistId: number): Promise<boolean> {
   return await NotificationService.markLikeViewed(artId, artistId);
 }
 </script>

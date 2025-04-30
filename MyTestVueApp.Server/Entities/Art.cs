@@ -1,3 +1,5 @@
+using System.Reflection.Metadata.Ecma335;
+
 namespace MyTestVueApp.Server.Entities
 {
     public class Art
@@ -22,23 +24,10 @@ namespace MyTestVueApp.Server.Entities
         public bool CurrentUserIsOwner { get; set; } = false;
 
 
-
-        public void SetArtists(Artist[] artist)
+        public void SetArtists(List<Artist> artists)
         {
-            List<int> Ids;
-            List<String> names;
-            Ids = new List<int>();
-            names = new List<string>();
-            for (int i = 0; i < artist.Length; i++)
-            {
-                Ids.Add(artist[i].id);
-                names.Add(artist[i].name);
-            }
-            ArtistId = Ids.ToArray();
-            ArtistName = names.ToArray();
+            ArtistId = artists.Select((artist) => artist.Id).ToArray();
+            ArtistName = artists.Select(artist => artist.Name).ToArray();
         }
-
-         public bool currentUserIsAdmin { get; set; } = false;
-
     }
 }

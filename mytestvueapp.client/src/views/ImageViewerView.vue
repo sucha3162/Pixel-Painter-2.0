@@ -71,36 +71,36 @@
             <h3>Filters</h3>
             <div>
               <Button
-                @click="GreyScaleFilter"
+                @click="greyScaleFilter"
                 :disabled="filtered && greyscale == false"
                 :severity="greyscale ? 'primary' : 'secondary'"
                 >GreyScale</Button
               >
               <Button
-                @click="ShowTones = !ShowTones"
+                @click="showTones = !showTones"
                 :severity="duotone ? 'primary' : 'secondary'"
                 >DuoTone</Button
               >
               <Button
-                @click="SepiaFilter"
+                @click="sepiaFilter"
                 :disabled="filtered && sepia == false"
                 :severity="sepia ? 'primary' : 'secondary'"
                 >Sepia</Button
               >
               <Button
-                @click="ProtanopeFilter"
+                @click="protanopeFilter"
                 :disabled="filtered && prota == false"
                 :severity="prota ? 'primary' : 'secondary'"
                 >Protonope</Button
               >
               <Button
-                @click="DeuFilter"
-                :disabled="filtered && Deu == false"
-                :severity="Deu ? 'primary' : 'secondary'"
+                @click="deuFilter"
+                :disabled="filtered && deu == false"
+                :severity="deu ? 'primary' : 'secondary'"
                 >Deuteranope</Button
               >
             </div>
-            <div v-if="ShowTones" class="flex flex-column gap-2 mt-4">
+            <div v-if="showTones" class="flex flex-column gap-2 mt-4">
               <h4 class="m-auto">Color 1</h4>
               <h4 class="m-auto">{{ toneOne }}</h4>
               <input
@@ -120,7 +120,7 @@
               <Button
                 :disabled="filtered && duotone == false"
                 :severity="duotone ? 'primary' : 'secondary'"
-                @click="DuoToneFilter(toneOne, toneTwo)"
+                @click="duoToneFilter(toneOne, toneTwo)"
                 >Generate</Button
               >
             </div>
@@ -128,7 +128,7 @@
               class="w-full flex gap-2"
               :disabled="filtered == false"
               severity="danger"
-              @click="ResetFilters"
+              @click="resetFilters"
               >Reset</Button
             >
           </div>
@@ -159,6 +159,7 @@ import SaveImageToFile from "@/components/PainterUi/SaveImageToFile.vue";
 import DeleteArtButton from "@/components/DeleteArtButton.vue";
 import Art from "@/entities/Art";
 import MyCanvas from "@/components/MyCanvas/MyCanvas.vue";
+import { ref, onMounted } from "vue";
 import Comment from "@/entities/Comment";
 import CommentOnArt from "@/components/Comment/CommentOnArt.vue";
 import ArtAccessService from "../services/ArtAccessService";
@@ -173,7 +174,6 @@ import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
 import GIFCreationService from "@/services/GIFCreationService";
 import { useLayerStore } from "@/store/LayerStore";
-import { onMounted, ref } from "vue";
 
 const layerStore = useLayerStore();
 
@@ -183,8 +183,8 @@ const filtered = ref<boolean>(false);
 const duotone = ref<boolean>(false);
 const sepia = ref<boolean>(false);
 const prota = ref<boolean>(false);
-const Deu = ref<boolean>(false);
 const hover = ref(false);
+const deu = ref<boolean>(false);
 
 const route = useRoute();
 const toast = useToast();
@@ -192,20 +192,20 @@ const art = ref<Art>(new Art());
 const allComments = ref<Comment[]>([]);
 const totalNumComments = ref<number>(0);
 const id = Number(route.params.id);
-const uploadDate = ref(new Date());
+const uploadDate = ref<Date>(new Date());
 const user = ref<boolean>(false);
 const showFilters = ref(false);
-const ShowTones = ref(false);
-const Names = ref<String[]>([]);
+const showTones = ref(false);
+const names = ref<String[]>([]);
 const GifURL = ref<string>("");
 const urls = ref<string[]>([]);
 
-onMounted(() => {
+onMounted(async () => {
   ArtAccessService.getArtById(id)
     .then((promise: Art) => {
-      art.value = promise as Art;
+      art.value = promise;
       uploadDate.value = new Date(promise.creationDate);
-      Names.value = art.value.artistName;
+      names.value = art.value.artistName;
       if (promise.isGif) {
         GifDisplay();
       }
@@ -230,14 +230,14 @@ function editArt() {
   router.push(`/paint/${id}`);
 }
 
-function updateComments() {
-  CommentAccessService.getCommentsById(id).then((promise: Comment[]) => {
+async function updateComments() {
+  CommentAccessService.getCommentsByArtId(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });
 }
 
-function getIsAdmin() {
-  LoginService.GetIsAdmin().then((promise: boolean) => {
+async function getIsAdmin() {
+  LoginService.getIsAdmin().then((promise: boolean) => {
     user.value = promise;
   });
 }
@@ -278,11 +278,15 @@ const squareColor = ref<string>("blue");
 const toneOne = ref<string>("#ff0000");
 const toneTwo = ref<string>("#0000ff");
 
-const GreyScaleFilter = () => {
+//const changeColor = () => {
+//  squareColor.value = squareColor.value === "blue" ? "red" : "blue"; // Toggle color
+//};
+//
+async function greyScaleFilter() {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     if (promise.pixelGrid.encodedGrid) {
       if (greyscale.value == false) {
-        squareColor.value = FilterGreyScale(promise.pixelGrid.encodedGrid);
+        squareColor.value = filterGreyScale(promise.pixelGrid.encodedGrid);
         greyscale.value = true;
         filtered.value = true;
         return;
@@ -294,9 +298,9 @@ const GreyScaleFilter = () => {
       }
     }
   });
-};
+}
 
-function HEXtoRGB(hex: string): number[] {
+function hexToRGB(hex: string): number[] {
   let rgb: number[] = [];
   let r = parseInt(hex.slice(0, 2), 16),
     g = parseInt(hex.slice(2, 4), 16),
@@ -308,13 +312,14 @@ function HEXtoRGB(hex: string): number[] {
 
   return rgb;
 }
-const rgbToHex = (r: number, g: number, b: number) =>
-  [Math.round(r), Math.round(g), Math.round(b)]
+function rgbToHex(r: number, g: number, b: number) {
+  return [Math.round(r), Math.round(g), Math.round(b)]
     .map((x) => {
       const hex = x.toString(16);
       return hex.length === 1 ? "0" + hex : hex;
     })
     .join("");
+}
 function rgbToGrayscale(red: number, green: number, blue: number) {
   let r = red * 0.3; // ------> Red is low
   let g = green * 0.59; // ---> Green is high
@@ -328,14 +333,14 @@ function rgbToGrayscale(red: number, green: number, blue: number) {
   return [gray, gray, gray];
 }
 
-function FilterGreyScale(currentGrid: string): string {
+function filterGreyScale(currentGrid: string): string {
   let newGrid: string = "";
   let currentcolorrgb: number[] = [];
   let newrgb: number[] = [];
   let newhexcolor: string = "";
   for (var i = 0; i <= currentGrid.length - 6; i += 6) {
     var currentcolor = currentGrid.substring(i, i + 6);
-    currentcolorrgb = HEXtoRGB(currentcolor);
+    currentcolorrgb = hexToRGB(currentcolor);
     newrgb = rgbToGrayscale(
       currentcolorrgb[0],
       currentcolorrgb[1],
@@ -346,9 +351,9 @@ function FilterGreyScale(currentGrid: string): string {
   }
   return newGrid;
 }
-function GenerateGradient(toneOne: string, toneTwo: string): number[] {
-  let rgb1: number[] = HEXtoRGB(toneOne.substring(1, 7));
-  let rgb2: number[] = HEXtoRGB(toneTwo.substring(1, 7));
+function generateGradient(toneOne: string, toneTwo: string): number[] {
+  let rgb1: number[] = hexToRGB(toneOne.substring(1, 7));
+  let rgb2: number[] = hexToRGB(toneTwo.substring(1, 7));
   let gradient: number[] = [];
   for (var i = 0; i < 256 * 3; i += 3) {
     gradient[i] = Math.round(
@@ -363,18 +368,18 @@ function GenerateGradient(toneOne: string, toneTwo: string): number[] {
   }
   return gradient;
 }
-function DuoTone(
+function duoTone(
   currentGrid: string,
   toneOne: string,
   toneTwo: string
 ): string {
   let j = 0;
   let newGrid: string = "";
-  let gradient: number[] = GenerateGradient(toneOne, toneTwo);
+  let gradient: number[] = generateGradient(toneOne, toneTwo);
   let gradientGrid: number[][] = [];
-  currentGrid = FilterGreyScale(currentGrid);
+  currentGrid = filterGreyScale(currentGrid);
   for (let i = 0; i <= currentGrid.length - 6; i += 6) {
-    gradientGrid[j] = HEXtoRGB(currentGrid.substring(i, i + 6));
+    gradientGrid[j] = hexToRGB(currentGrid.substring(i, i + 6));
     j++;
   }
   for (var k = 0; k < gradientGrid.length; k++) {
@@ -393,11 +398,11 @@ function DuoTone(
   }
   return newGrid;
 }
-const DuoToneFilter = (toneOne: string, toneTwo: string) => {
+async function duoToneFilter(toneOne: string, toneTwo: string) {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     if (promise.pixelGrid.encodedGrid) {
       if (duotone.value == false) {
-        squareColor.value = DuoTone(
+        squareColor.value = duoTone(
           promise.pixelGrid.encodedGrid,
           toneOne,
           toneTwo
@@ -413,13 +418,13 @@ const DuoToneFilter = (toneOne: string, toneTwo: string) => {
       }
     }
   });
-};
-function ResetFilters() {
+}
+async function resetFilters() {
   filtered.value = false;
   greyscale.value = false;
   duotone.value = false;
   prota.value = false;
-  Deu.value = false;
+  deu.value = false;
   sepia.value = false;
   ArtAccessService.getArtById(id).then((promise: Art) => {
     if (promise.isGif) {
@@ -438,7 +443,7 @@ function ResetFilters() {
       squareColor.value = promise.pixelGrid.encodedGrid;
   });
 }
-function SepiaTone(R: number, G: number, B: number): number[] {
+function sepiaTone(R: number, G: number, B: number): number[] {
   let newColors: number[] = [];
   let newRed = Math.round(0.393 * R + 0.769 * G + 0.189 * B);
   if (newRed > 255) newRed = 255;
@@ -452,30 +457,30 @@ function SepiaTone(R: number, G: number, B: number): number[] {
 
   return newColors;
 }
-function FilterSepia(currentGrid: string): string {
+function filterSepia(currentGrid: string): string {
   let newGrid: string = "";
   let currentcolorrgb: number[] = [];
   let newrgb: number[] = [];
   let newhexcolor: string = "";
   for (var i = 0; i <= currentGrid.length - 6; i += 6) {
     var currentcolor = currentGrid.substring(i, i + 6);
-    currentcolorrgb = HEXtoRGB(currentcolor);
+    currentcolorrgb = hexToRGB(currentcolor);
     newrgb = rgbToGrayscale(
       currentcolorrgb[0],
       currentcolorrgb[1],
       currentcolorrgb[2]
     );
-    newrgb = SepiaTone(newrgb[0], newrgb[1], newrgb[2]);
+    newrgb = sepiaTone(newrgb[0], newrgb[1], newrgb[2]);
     newhexcolor = rgbToHex(newrgb[0], newrgb[1], newrgb[2]);
     newGrid += newhexcolor;
   }
   return newGrid;
 }
-const SepiaFilter = () => {
+async function sepiaFilter() {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     if (promise.pixelGrid.encodedGrid) {
       if (sepia.value == false) {
-        squareColor.value = FilterSepia(promise.pixelGrid.encodedGrid);
+        squareColor.value = filterSepia(promise.pixelGrid.encodedGrid);
         sepia.value = true;
         filtered.value = true;
         return;
@@ -487,13 +492,12 @@ const SepiaFilter = () => {
       }
     }
   });
-};
-function GammaCorrection(OldColor: number): number {
+}
+function gammaCorrection(OldColor: number): number {
   let NewColor = (OldColor / 255) ** 2.2;
   return NewColor;
 }
-function InverseGammaCorrection(OldColor: number): number {
-  // console.log(OldColor);
+function inverseGammaCorrection(OldColor: number): number {
   if (OldColor < 0) {
     Math.abs(OldColor);
   }
@@ -505,7 +509,7 @@ function InverseGammaCorrection(OldColor: number): number {
   }
   return NewColor;
 }
-function RGBtoLMS(rgbcolors: number[]): number[][] {
+function rgbToLMS(rgbcolors: number[]): number[][] {
   let newrgbcolors: number[][] = [[], [], []];
   newrgbcolors[0][0] = rgbcolors[0];
   newrgbcolors[1][0] = rgbcolors[1];
@@ -532,7 +536,7 @@ function RGBtoLMS(rgbcolors: number[]): number[][] {
   }
   return LMSColors;
 }
-function LMStoProtanopes(LMScolors: number[][]): number[][] {
+function lmsToProtanopes(LMScolors: number[][]): number[][] {
   let ProtanopeColors: number[][] = [];
   const ProtanopeCalc: number[][] = [
     [0, 2.02344, -2.52581],
@@ -555,7 +559,7 @@ function LMStoProtanopes(LMScolors: number[][]): number[][] {
 
   return ProtanopeColors;
 }
-function LMStoDeuteranopes(LMScolors: number[][]): number[][] {
+function lmsToDeuteranopes(LMScolors: number[][]): number[][] {
   let DeuteranopesColors: number[][] = [];
   const DeuteranopesCalc: number[][] = [
     [1, 0, 0],
@@ -573,13 +577,12 @@ function LMStoDeuteranopes(LMScolors: number[][]): number[][] {
         sum += DeuteranopesCalc[i][k] * LMScolors[k][j];
       }
       DeuteranopesColors[i][j] = sum;
-      //console.log(i, j, sum);
     }
   }
 
   return DeuteranopesColors;
 }
-function LMStoRGB(LMScolors: number[][]): number[] {
+function lmsToRGB(LMScolors: number[][]): number[] {
   let RGBcolors: number[][] = [];
   let reformatedcolors: number[] = [];
   const RGBCal: number[][] = [
@@ -618,7 +621,7 @@ Francoise Vie�not,Hans Brettel,John D. Mollon
 https://vision.psychol.cam.ac.uk/jdmollon/papers/colourmaps.pdf
 */
 
-function FilterProtanope(currentGrid: string): string {
+function filterProtanope(currentGrid: string): string {
   let newGrid: string = "";
   let currentcolorrgb: number[] = [];
   let currentcolorlms: number[][] = [];
@@ -627,11 +630,11 @@ function FilterProtanope(currentGrid: string): string {
   let newhexcolor: string = "";
   for (var i = 0; i <= currentGrid.length - 6; i += 6) {
     var currentcolor = currentGrid.substring(i, i + 6);
-    currentcolorrgb = HEXtoRGB(currentcolor);
+    currentcolorrgb = hexToRGB(currentcolor);
     currentcolorrgb = [
-      GammaCorrection(currentcolorrgb[0]),
-      GammaCorrection(currentcolorrgb[1]),
-      GammaCorrection(currentcolorrgb[2])
+      gammaCorrection(currentcolorrgb[0]),
+      gammaCorrection(currentcolorrgb[1]),
+      gammaCorrection(currentcolorrgb[2])
     ];
 
     //after gamma adjustment
@@ -639,24 +642,24 @@ function FilterProtanope(currentGrid: string): string {
     currentcolorrgb[1] = 0.992052 * currentcolorrgb[1] + 0.003974;
     currentcolorrgb[2] = 0.992052 * currentcolorrgb[2] + 0.003974;
 
-    currentcolorlms = RGBtoLMS(currentcolorrgb);
-    newcolorlms = LMStoProtanopes(currentcolorlms);
-    newrgb = LMStoRGB(newcolorlms);
+    currentcolorlms = rgbToLMS(currentcolorrgb);
+    newcolorlms = lmsToProtanopes(currentcolorlms);
+    newrgb = lmsToRGB(newcolorlms);
     newrgb = [
-      InverseGammaCorrection(newrgb[0]),
-      InverseGammaCorrection(newrgb[1]),
-      InverseGammaCorrection(newrgb[2])
+      inverseGammaCorrection(newrgb[0]),
+      inverseGammaCorrection(newrgb[1]),
+      inverseGammaCorrection(newrgb[2])
     ];
     newhexcolor = rgbToHex(newrgb[0], newrgb[1], newrgb[2]);
     newGrid += newhexcolor;
   }
   return newGrid;
 }
-const ProtanopeFilter = () => {
+async function protanopeFilter() {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     if (promise.pixelGrid.encodedGrid) {
       if (prota.value == false) {
-        squareColor.value = FilterProtanope(promise.pixelGrid.encodedGrid);
+        squareColor.value = filterProtanope(promise.pixelGrid.encodedGrid);
         prota.value = true;
         filtered.value = true;
         return;
@@ -668,8 +671,8 @@ const ProtanopeFilter = () => {
       }
     }
   });
-};
-function FilterDeu(currentGrid: string): string {
+}
+function filterDeu(currentGrid: string): string {
   let newGrid: string = "";
   let currentcolorrgb: number[] = [];
   let currentcolorlms: number[][] = [];
@@ -678,24 +681,24 @@ function FilterDeu(currentGrid: string): string {
   let newhexcolor: string = "";
   for (var i = 0; i <= currentGrid.length - 6; i += 6) {
     var currentcolor = currentGrid.substring(i, i + 6);
-    currentcolorrgb = HEXtoRGB(currentcolor);
+    currentcolorrgb = hexToRGB(currentcolor);
     currentcolorrgb = [
-      GammaCorrection(currentcolorrgb[0]),
-      GammaCorrection(currentcolorrgb[1]),
-      GammaCorrection(currentcolorrgb[2])
+      gammaCorrection(currentcolorrgb[0]),
+      gammaCorrection(currentcolorrgb[1]),
+      gammaCorrection(currentcolorrgb[2])
     ];
     //after gamma adjustment Deu
     currentcolorrgb[0] = 0.957237 * currentcolorrgb[0] + 0.0213814;
     currentcolorrgb[1] = 0.957237 * currentcolorrgb[1] + 0.0213814;
     currentcolorrgb[2] = 0.957237 * currentcolorrgb[2] + 0.0213814;
 
-    currentcolorlms = RGBtoLMS(currentcolorrgb);
-    newcolorlms = LMStoDeuteranopes(currentcolorlms);
-    newrgb = LMStoRGB(newcolorlms);
+    currentcolorlms = rgbToLMS(currentcolorrgb);
+    newcolorlms = lmsToDeuteranopes(currentcolorlms);
+    newrgb = lmsToRGB(newcolorlms);
     newrgb = [
-      InverseGammaCorrection(newrgb[0]),
-      InverseGammaCorrection(newrgb[1]),
-      InverseGammaCorrection(newrgb[2])
+      inverseGammaCorrection(newrgb[0]),
+      inverseGammaCorrection(newrgb[1]),
+      inverseGammaCorrection(newrgb[2])
     ];
     newhexcolor = rgbToHex(newrgb[0], newrgb[1], newrgb[2]);
     if (newhexcolor.length != 6) {
@@ -705,20 +708,20 @@ function FilterDeu(currentGrid: string): string {
   }
   return newGrid;
 }
-async function DeuFilter() {
+async function deuFilter() {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     if (promise.pixelGrid.encodedGrid) {
-      if (Deu.value == false) {
-        squareColor.value = FilterDeu(promise.pixelGrid.encodedGrid);
-        Deu.value = true;
+      if (deu.value == false) {
+        squareColor.value = filterDeu(promise.pixelGrid.encodedGrid);
+        deu.value = true;
         filtered.value = true;
         return;
       }
     }
     if (promise.pixelGrid.encodedGrid)
-      if (Deu.value == true) {
+      if (deu.value == true) {
         squareColor.value = promise.pixelGrid.encodedGrid;
-        Deu.value = false;
+        deu.value = false;
         filtered.value = false;
         return;
       }
@@ -786,7 +789,7 @@ function ArtToGif(Paintings: Art[]): string[] {
   return url;
 }
 
-const GifDisplay = () => {
+async function GifDisplay() {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     ArtAccessService.GetGif(promise.gifID).then((promiseGif: Art[]) => {
       urls.value = ArtToGif(promiseGif);
@@ -797,5 +800,5 @@ const GifDisplay = () => {
       );
     });
   });
-};
+}
 </script>

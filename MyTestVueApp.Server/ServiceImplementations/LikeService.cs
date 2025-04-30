@@ -10,14 +10,19 @@ namespace MyTestVueApp.Server.ServiceImplementations
 {
     public class LikeService : ILikeService
     {
-        private IOptions<ApplicationConfiguration> AppConfig { get; }
-        private ILogger<LikeService> Logger { get; }
+        private readonly IOptions<ApplicationConfiguration> AppConfig;
+        private readonly ILogger<LikeService> Logger;
         public LikeService(IOptions<ApplicationConfiguration> appConfig, ILogger<LikeService> logger)
         {
             AppConfig = appConfig;
             Logger = logger;
         }
-
+        /// <summary>
+        /// Insert's into the database what artwork an artist has liked
+        /// </summary>
+        /// <param name="artId">Id being lliked</param>
+        /// <param name="artist">Id of the artist who liked the artwork</param>
+        /// <returns>0 if invalid input, -1 if the input failed, and 1+ if it succeeded</returns>
         public async Task<int> InsertLike(int artId, Artist artist)
         {
             var connectionString = AppConfig.Value.ConnectionString;
@@ -29,7 +34,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var checkDupQuery = "SELECT Count(*) FROM Likes WHERE ArtistID = @ArtistId AND ArtID = @ArtId";
                 using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
                 {
-                    checkDupCommand.Parameters.AddWithValue("@ArtistId", artist.id);
+                    checkDupCommand.Parameters.AddWithValue("@ArtistId", artist.Id);
                     checkDupCommand.Parameters.AddWithValue("@ArtId", artId);
 
                     int count = (int) await checkDupCommand.ExecuteScalarAsync();
@@ -43,10 +48,10 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var query = "INSERT INTO Likes (ArtistID, ArtID, Viewed) VALUES (@ArtistId, @ArtId, 0)";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@ArtistId", artist.id);
+                    command.Parameters.AddWithValue("@ArtistId", artist.Id);
                     command.Parameters.AddWithValue("@ArtId", artId);
 
-                    int rowsChanged = command.ExecuteNonQuery();
+                    int rowsChanged = await command.ExecuteNonQueryAsync();
                     if (rowsChanged > 0)
                     {
                         Console.WriteLine("Like was inserted sucessfully!");
@@ -58,7 +63,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-        
+        /// <summary>
+        /// Removes the like relation from the database
+        /// </summary>
+        /// <param name="artId">Artwork being unliked</param>
+        /// <param name="artist">Artist who is unliking the artwork</param>
+        /// <returns>0 if bad input, -1 if it fails, 1+ if it succeeds</returns>
         public async Task<int> RemoveLike(int artId, Artist artist)
         {
             var connectionString = AppConfig.Value.ConnectionString;
@@ -70,7 +80,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var checkDupQuery = "SELECT Count(*) FROM Likes WHERE ArtistID = @ArtistId AND ArtID = @ArtId";
                 using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
                 {
-                    checkDupCommand.Parameters.AddWithValue("@ArtistId", artist.id);
+                    checkDupCommand.Parameters.AddWithValue("@ArtistId", artist.Id);
                     checkDupCommand.Parameters.AddWithValue("@ArtId", artId);
 
                     int count = (int) await checkDupCommand.ExecuteScalarAsync();
@@ -84,10 +94,10 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 var query = "DELETE FROM Likes WHERE ArtistID = @ArtistId AND ArtID = @ArtId";
                 using (SqlCommand command = new SqlCommand(query, connection)) 
                 {
-                    command.Parameters.AddWithValue("@ArtistId", artist.id);
+                    command.Parameters.AddWithValue("@ArtistId", artist.Id);
                     command.Parameters.AddWithValue("@ArtId", artId);
 
-                    int rowsChanged = command.ExecuteNonQuery();
+                    int rowsChanged = await command.ExecuteNonQueryAsync();
                     if (rowsChanged > 0)
                     {
                         Console.WriteLine("Like was removed sucessfully!");
@@ -99,7 +109,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-
+        /// <summary>
+        /// Checks to see if an artwork is liked by the user
+        /// </summary>
+        /// <param name="artId">Id of the artwork being checked</param>
+        /// <param name="artist">Id of the user who would've liked the post</param>
+        /// <returns>Returns true if it is liked by the given artist, false otherwise</returns>
         public async Task<bool> IsLiked(int artId, Artist artist) {
             var connectionString = AppConfig.Value.ConnectionString;
             using (SqlConnection connection = new SqlConnection(connectionString)) 
@@ -109,7 +124,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 string likedQuery = "SELECT Count(*) FROM Likes WHERE ArtistId = @ArtistId AND ArtID = @ArtID";
                 using (SqlCommand command = new SqlCommand(likedQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@ArtistId", artist.id);
+                    command.Parameters.AddWithValue("@ArtistId", artist.Id);
                     command.Parameters.AddWithValue("@ArtID", artId);
 
                     int count = (int) await command.ExecuteScalarAsync();
@@ -122,7 +137,12 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 }
             }
         }
-        public IEnumerable<Like> GetLikesByArtwork(int artworkId)
+        /// <summary>
+        /// Gets all likes an artwork has
+        /// </summary>
+        /// <param name="artworkId">Id of the artwork being referenced</param>
+        /// <returns>A list of Like objects</returns>
+        public async Task<IEnumerable<Like>> GetLikesByArtwork(int artworkId)
         {
             var likes = new List<Like>();
             var connectionString = AppConfig.Value.ConnectionString;
@@ -141,7 +161,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 using (SqlCommand command = new SqlCommand(likedQuery, connection))
                 {
                     command.Parameters.AddWithValue("@artworkId", artworkId);
-                    using (var reader = command.ExecuteReader())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
                         while (reader.Read())
                         {
@@ -157,11 +177,16 @@ namespace MyTestVueApp.Server.ServiceImplementations
                             likes.Add(like);
                         }
                     }
-
                 }
             }
             return likes;
         }
+        /// <summary>
+        /// Gets the Like object that belong to the artist and artwork referenced
+        /// </summary>
+        /// <param name="artId">Id of the art being checked</param>
+        /// <param name="artistId">Id of the artist who would've made the like</param>
+        /// <returns>A Like object if found, null otherwise</returns>
         public async Task<Like> GetLikeByIds(int artId, int artistId)
         {
             var connectionString = AppConfig.Value.ConnectionString;

@@ -1,4 +1,4 @@
-import codec from "@/utils/codec";
+import Codec from "@/utils/Codec"
 
 export class PixelGrid {
   width: number;
@@ -23,7 +23,7 @@ export class PixelGrid {
 
     if (encodedGrid) {
       this.encodedGrid = encodedGrid;
-      this.grid = codec.Decode(
+      this.grid = Codec.Decode(
         encodedGrid,
         height,
         width,
@@ -49,7 +49,7 @@ export class PixelGrid {
   } 
 
   //Update the grid with another grid
-  DeepCopy(decodedGrid: PixelGrid): void {
+  deepCopy(decodedGrid: PixelGrid): void {
     this.width = decodedGrid.width;
     this.height = decodedGrid.height;
     this.backgroundColor = decodedGrid.backgroundColor;
@@ -60,10 +60,10 @@ export class PixelGrid {
         this.grid[i][j] = decodedGrid.grid[i][j];
       }
     }
-    this.encodedGrid = codec.Encode(this);
+    this.encodedGrid = Codec.Encode(this);
   }
 
   public getEncodedGrid(): string {
-    return codec.Encode(this);
+    return Codec.Encode(this);
   }
 }

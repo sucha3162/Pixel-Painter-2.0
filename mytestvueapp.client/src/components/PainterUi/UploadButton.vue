@@ -2,7 +2,7 @@
   <Button
     :label="isEditing ? 'Save Changes' : 'Upload'"
     :icon="isEditing ? 'pi pi-save' : 'pi pi-upload'"
-    @click="ToggleModal()"
+    @click="toggleModal()"
   ></Button>
 
   <Dialog v-model:visible="visible" modal :style="{ width: '26rem' }">
@@ -45,7 +45,7 @@
       <Button
         :label="isEditing ? 'Save' : 'Upload'"
         severity="secondary"
-        @click="Upload()"
+        @click="upload()"
         autofocus
       />
     </template>
@@ -67,11 +67,11 @@ import { useArtistStore } from "@/store/ArtistStore";
 const layerStore = useLayerStore();
 const artistStore = useArtistStore();
 const toast = useToast();
-const visible = ref(false);
-const loading = ref(false);
+const visible = ref<boolean>(false);
+const loading = ref<boolean>(false);
 
-const newName = ref("");
-const newPrivacy = ref(false);
+const newName = ref<string>("");
+const newPrivacy = ref<boolean>(false);
 
 const props = defineProps<{
   art: Art;
@@ -88,7 +88,7 @@ watch(visible, () => {
   emit("openModal", visible.value);
 });
 
-function ToggleModal() {
+function toggleModal() {
   visible.value = !visible.value;
   newName.value = props.art.title;
   if (newName.value == "") {
@@ -133,20 +133,19 @@ function FlattenFrameEncode(index: number): string {
   }
   return arr.flat().join("");
 }
-function Upload() {
+function upload() {
   emit("disconnect");
   loading.value = true;
 
   if (props.art.isGif) {
-    //console.log(layerStore.grids);
-    const paintings = ref<Art[]>([]);
     LoginService.isLoggedIn().then((isLoggedIn) => {
       if (isLoggedIn) {
+        let paintings: Art[] = [];
         for (let i = 0; i < layerStore.grids.length; i++) {
           let newArt = new Art();
           newArt.title = newName.value;
           newArt.isPublic = newPrivacy.value;
-          newArt.pixelGrid.DeepCopy(layerStore.grids[i]);
+          newArt.pixelGrid.deepCopy(layerStore.grids[i]);
           newArt.id = props.art.id;
           newArt.gifFrameNum = i + 1;
           newArt.isGif = true;
@@ -209,13 +208,13 @@ function Upload() {
         let newArt = new Art();
         newArt.title = newName.value;
         newArt.isPublic = newPrivacy.value;
-        newArt.pixelGrid.DeepCopy(layerStore.grids[0]);
+        newArt.pixelGrid.deepCopy(layerStore.grids[0]);
         newArt.id = props.art.id;
         newArt.pixelGrid.encodedGrid = flattenArtEncode();
         newArt.artistId = props.art.artistId;
         newArt.artistName = props.art.artistName;
 
-        ArtAccessService.SaveArt(newArt)
+        ArtAccessService.saveArt(newArt)
           .then((data: Art) => {
             if (data.id != undefined) {
               toast.add({

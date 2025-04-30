@@ -68,8 +68,8 @@ import { useLayerStore } from "@/store/LayerStore";
 const layerStore = useLayerStore();
 
 const resolution = ref<number>(32);
-const backgroundColor = ref<string>("FFFFFF");
-const isImage = ref(true);
+const backgroundColor = ref<string>("ffffff");
+const isImage = ref<boolean>(true);
 
 function updateLocalStorage() {
   layerStore.empty(); //just in case
