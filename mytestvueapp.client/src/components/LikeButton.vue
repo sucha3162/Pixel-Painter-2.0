@@ -27,13 +27,14 @@ const loggedIn = ref(false);
 const toast = useToast();
 
 onMounted(async () => {
-  LoginService.isLoggedIn().then((value) => (loggedIn.value = value));
+  await LoginService.isLoggedIn().then((value) => (loggedIn.value = value));
   isLiked();
   localLike.value = 0;
 });
 
 async function isLiked() {
-  LikeService.isLiked(props.artId).then((value) => (liked.value = value));
+  if (loggedIn.value)
+    LikeService.isLiked(props.artId).then((value) => (liked.value = value));
 }
 
 watch(

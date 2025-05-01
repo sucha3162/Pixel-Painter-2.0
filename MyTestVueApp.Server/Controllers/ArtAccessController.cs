@@ -187,6 +187,7 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
+
         /// <summary>
         /// Gets a gif from the database
         /// </summary>
@@ -206,6 +207,56 @@ namespace MyTestVueApp.Server.Controllers
                 return NotFound(ex.Message);
             } 
             catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Add a Gif to the database
+        /// </summary>
+        /// <param name="art">The Gif being uploaded</param>
+        /// <param name="fps">The frames per second of the Gif</param>
+        [HttpPut]
+        [Route("SaveGif")]
+        public async Task<IActionResult> SaveGif([FromBody] Art[] art, int fps)
+        {
+            try
+            {
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userSubId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userSubId);
+
+                    if (artist == null)
+                    {
+                        return BadRequest("User not logged in");
+                    }
+
+                    if (art[0].Id == 0) //New Gif
+                    {
+                        var result = await ArtAccessService.SaveGif(artist, art);
+                        return Ok(result);
+                    }
+                    else //Update Gif
+                    {
+                        var result = await ArtAccessService.UpdateGif(art, fps);
+                        if (result == null)
+                        {
+                            return BadRequest("Could not update this gif"); //need to update fps as well
+                        }
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return BadRequest("User not logged in");
+                }
+            }
+            catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(ex.Message);
             }
@@ -273,6 +324,7 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
+
         /// <summary>
         /// Removes an artwork from the database
         /// </summary>

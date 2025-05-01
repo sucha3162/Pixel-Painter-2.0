@@ -431,6 +431,7 @@ onUnmounted(() => {
 
 function handleBeforeUnload(event: BeforeUnloadEvent) {
   layerStore.save();
+  artistStore.save();
 }
 
 function toggleKeybinds(disable: boolean) {
@@ -1125,10 +1126,6 @@ function handleKeyDown(event: KeyboardEvent) {
       cursor.value.color = currentPallet.value[11];
     }
   }
-}
-function LocalSave() {
-  layerStore.save();
-  artistStore.save();
 }
 </script>
 <style scoped>

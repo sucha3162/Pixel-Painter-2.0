@@ -154,7 +154,7 @@ export default class ArtAccessService {
     }
     public static async GetGif(GifId: number): Promise<Art[]> {
         try {
-            const response = await fetch(`/artaccess/GetGif?id=${GifId}`);
+            const response = await fetch(`/artaccess/GetGifById?id=${GifId}`);
 
             if (!response.ok) {
                 throw new Error("Error: Bad response");
