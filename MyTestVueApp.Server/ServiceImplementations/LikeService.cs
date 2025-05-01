@@ -54,10 +54,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     int rowsChanged = await command.ExecuteNonQueryAsync();
                     if (rowsChanged > 0)
                     {
-                        Console.WriteLine("Like was inserted sucessfully!");
                         return rowsChanged;
                     } else {
-                        Console.WriteLine("Failed to insert Like!");
                         return -1;
                     }
                 }
@@ -100,10 +98,8 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     int rowsChanged = await command.ExecuteNonQueryAsync();
                     if (rowsChanged > 0)
                     {
-                        Console.WriteLine("Like was removed sucessfully!");
                         return rowsChanged;
                     } else {
-                        Console.WriteLine("Failed to remove Like!");
                         return -1;
                     }
                 }
