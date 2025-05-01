@@ -28,7 +28,7 @@
                             <Column field="memberCount" header="Count" class="w-2 p-1 h-1"></Column>
                             <column class="w-1 p-1 h-1">
                                 <template #body="{data}">
-                                    <Button label="Join" class="p-1 m-0" @click="groupname = data.groupName; connect(false)"></Button>
+                                    <Button label="Join" class="p-1 m-0" @click="groupname = data.groupName; connect(false)"/>
                                 </template>
                             </column>
                         </DataTable>
