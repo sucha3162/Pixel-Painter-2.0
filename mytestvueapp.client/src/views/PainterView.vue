@@ -498,10 +498,12 @@ watch(selectedFrame, () => {
 //functions
 watch(
   () => layerStore.layer,
-  (next, prev) => {
+  (next) => {
     layerStore.layer = Math.max(next, 0);
-    tempGrid = JSON.parse(JSON.stringify(layerStore.grids[layerStore.layer].grid));
-    canvas.value?.drawLayers(layerStore.layer);
+    if (layerStore.grids.length > 0) {
+      tempGrid = JSON.parse(JSON.stringify(layerStore.grids[layerStore.layer].grid));
+      canvas.value?.drawLayers(layerStore.layer);
+    }
   }
 );
 
