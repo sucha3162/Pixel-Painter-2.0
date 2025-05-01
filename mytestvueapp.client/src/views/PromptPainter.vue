@@ -76,7 +76,7 @@ function updateLocalStorage() {
   let pixelGrid = new PixelGrid(
     resolution.value,
     resolution.value,
-    backgroundColor.value,
+    backgroundColor.value.toUpperCase(),
     !isImage.value // Constructor wants isGif so pass in !isImage
   );
 

@@ -25,7 +25,7 @@ function flattenArt(): string[][] {
   let width = layerStore.grids[0].width;
   let height = layerStore.grids[0].height;
   let arr: string[][] = Array.from({ length: height }, () =>
-    Array(width).fill(layerStore.grids[0].backgroundColor)
+    Array(width).fill(layerStore.grids[0].backgroundColor.toLowerCase())
   );
 
   for (let length = 0; length < layerStore.grids.length; length++) {
