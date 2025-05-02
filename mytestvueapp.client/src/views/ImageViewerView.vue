@@ -66,7 +66,10 @@
               severity="secondary"
               @click="editArt()"
             ></Button>
-            <DeleteArtButton v-if="art.currentUserIsOwner || user" :art="art">
+            <DeleteArtButton
+              v-if="art.currentUserIsOwner || isAdmin"
+              :art="art"
+            >
             </DeleteArtButton>
           </div>
           <div v-if="showFilters == true" class="">
@@ -196,7 +199,7 @@ const allComments = ref<Comment[]>([]);
 const totalNumComments = ref<number>(0);
 const id = Number(route.params.id);
 const uploadDate = ref<Date>(new Date());
-const user = ref<boolean>(false);
+const isAdmin = ref<boolean>(false);
 const showFilters = ref(false);
 const showTones = ref(false);
 const names = ref<String[]>([]);
@@ -243,7 +246,7 @@ async function updateComments() {
 
 async function getIsAdmin() {
   LoginService.getIsAdmin().then((promise: boolean) => {
-    user.value = promise;
+    isAdmin.value = promise;
   });
 }
 
