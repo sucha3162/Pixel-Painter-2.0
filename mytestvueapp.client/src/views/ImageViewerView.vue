@@ -202,13 +202,15 @@ const showTones = ref(false);
 const names = ref<String[]>([]);
 const GifURL = ref<string>("");
 const urls = ref<string[]>([]);
-
+const copyArt = ref<string[]>([]);
 onMounted(async () => {
   ArtAccessService.getArtById(id)
     .then((promise: Art) => {
       art.value = promise;
       uploadDate.value = new Date(promise.creationDate);
       names.value = art.value.artistName;
+      if (promise.pixelGrid.encodedGrid)
+        copyArt.value.push(promise.pixelGrid.encodedGrid);
       if (promise.isGif) {
         GifDisplay();
       }
@@ -925,6 +927,12 @@ async function GifDisplay() {
   ArtAccessService.getArtById(id).then((promise: Art) => {
     ArtAccessService.GetGif(promise.gifID).then((promiseGif: Art[]) => {
       urls.value = ArtToGif(promiseGif);
+      var index = 0;
+      promiseGif.forEach((element) => {
+        if (element.pixelGrid.encodedGrid)
+          copyArt.value[index] = element.pixelGrid.encodedGrid;
+        index++;
+      });
       fps.value = promiseGif[0].gifFps;
       GIFCreationService.createGIFcode(urls.value, promiseGif[0].gifFps).then(
         (Blob) => {

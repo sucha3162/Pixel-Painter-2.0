@@ -49,7 +49,7 @@ function flattenArt(): string[][] {
   return arr;
 }
 
-function saveToFile() {
+async function saveToFile() {
   let grid: string[][];
   if (layerStore.grids.length > 1) {
     grid = flattenArt();
@@ -102,7 +102,7 @@ function saveToFile() {
   link.click();
 }
 
-function saveGIFFromPainter() {
+async function saveGIFFromPainter() {
   let urls: string[] = [];
   let grids = layerStore.grids;
   for (let i = 0; i < grids.length; i++) {
@@ -155,7 +155,7 @@ function saveGIFFromPainter() {
   }
   GIFCreationService.createGIF(urls, props.fps);
 }
-function saveGifFromImage() {
+async function saveGifFromImage() {
   GIFCreationService.createGIF(props.gifFromViewer, props.fps);
 }
 function saveFilteredImage() {
