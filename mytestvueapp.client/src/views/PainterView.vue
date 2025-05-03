@@ -25,7 +25,10 @@
           icon="pi pi-ban"
           label="Quit"
           severity="secondary"
-          @click="resetArt(); disconnect()"
+          @click="
+            resetArt();
+            disconnect();
+          "
         >
         </Button>
         <UploadButton
@@ -138,7 +141,6 @@ import LoginService from "@/services/LoginService";
 //vue
 import { ref, watch, computed, onMounted, onUnmounted } from "vue";
 import router from "@/router";
-import { onBeforeRouteLeave } from "vue-router";
 import { useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
 
@@ -168,7 +170,7 @@ const loggedIn = ref<boolean>(false);
 
 // Connection Information
 const connected = ref<boolean>(false);
-const groupName = ref("");
+const groupName = ref<string>("");
 let connection = new SignalR.HubConnectionBuilder()
   .withUrl("https://localhost:7154/signalhub", {
     skipNegotiation: true,
@@ -247,46 +249,46 @@ connection.on("BackgroundColor", (backgroundColor: string) => {
 
 const createGroup = (groupName: string) => {
   let grids = layerStore.getGridArray();
-  connection.invoke(
-            "CreateGroup",
-            groupName,
-            artist.value,
-            artistStore.artists,
-            grids,
-            layerStore.grids[0].width,
-            layerStore.grids[0].backgroundColor
-          ).then(() => {
-            connected.value = !connected.value;
-          }
-        )
-          .catch((err) => {toast.add({
-            severity: "error",
-            summary: "Error",
-            detail: err.toString().slice(err.toString().indexOf("HubException:")),
-            life: 4000
-            })
-            connection.stop();
-          });
-
-}
+  connection
+    .invoke(
+      "CreateGroup",
+      groupName,
+      artist.value,
+      artistStore.artists,
+      grids,
+      layerStore.grids[0].width,
+      layerStore.grids[0].backgroundColor
+    )
+    .then(() => {
+      connected.value = !connected.value;
+    })
+    .catch((err) => {
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: err.toString().slice(err.toString().indexOf("HubException:")),
+        life: 4000
+      });
+      connection.stop();
+    });
+};
 
 const joinGroup = (groupName: string) => {
-  connection.invoke(
-            "JoinGroup",
-            groupName,
-            artist.value
-          ).then(() => {
-            connected.value = !connected.value
-          })
-          .catch((err) => {toast.add({
-            severity: "error",
-            summary: "Error",
-            detail: err.toString().slice(err.toString().indexOf("HubException:")),
-            life: 4000 
-            });
-            connection.stop();
-          });
-}
+  connection
+    .invoke("JoinGroup", groupName, artist.value)
+    .then(() => {
+      connected.value = !connected.value;
+    })
+    .catch((err) => {
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: err.toString().slice(err.toString().indexOf("HubException:")),
+        life: 4000
+      });
+      connection.stop();
+    });
+};
 
 const connect = (groupname: string, newGroup: boolean) => {
   if (!loggedIn.value) {
@@ -306,7 +308,8 @@ const connect = (groupname: string, newGroup: boolean) => {
     artistStore.addArtist(artist.value);
   }
 
-  connection.start()
+  connection
+    .start()
     .then(() => {
       if (newGroup) {
         createGroup(groupname);
@@ -315,20 +318,21 @@ const connect = (groupname: string, newGroup: boolean) => {
       }
     })
     .catch((err) => console.error("Error connecting to Hub:", err));
-} 
+};
 
 const disconnect = () => {
   if (connected.value) {
-  connection.invoke("LeaveGroup", groupName.value, artist.value)
-    .then(() => {
-      connection
-        .stop()
-        .then(() => {
-          connected.value = !connected.value;
-        })
-        .catch((err) => console.error("Error Disconnecting:", err));
-    })
-    .catch((err) => console.error("Error Leaving Group:", err));
+    connection
+      .invoke("LeaveGroup", groupName.value, artist.value)
+      .then(() => {
+        connection
+          .stop()
+          .then(() => {
+            connected.value = !connected.value;
+          })
+          .catch((err) => console.error("Error Disconnecting:", err));
+      })
+      .catch((err) => console.error("Error Leaving Group:", err));
   }
 };
 
@@ -373,18 +377,20 @@ onMounted(async () => {
   document.addEventListener("keydown", handleKeyDown);
   window.addEventListener("beforeunload", handleBeforeUnload);
 
-    //Get the current user
-    LoginService.isLoggedIn().then((isLoggedIn:boolean) => {
+  //Get the current user
+  LoginService.isLoggedIn()
+    .then((isLoggedIn: boolean) => {
       loggedIn.value = isLoggedIn;
-      if(isLoggedIn) {
+      if (isLoggedIn) {
         LoginService.getCurrentUser().then((user: Artist) => {
-        artist.value = user;
+          artist.value = user;
         });
       } else {
         artist.value.id = 0;
         artist.value.name = "Guest";
       }
-    }).catch((err) => console.log(err));
+    })
+    .catch((err) => console.log(err));
 
   if (route.params.id) {
     const id: number = parseInt(route.params.id as string);
@@ -418,15 +424,14 @@ onMounted(async () => {
     art.value.pixelGrid.width = layerStore.grids[0].width;
     art.value.pixelGrid.height = layerStore.grids[0].height;
     tempGrid = JSON.parse(JSON.stringify(layerStore.grids[0].grid));
-    art.value.artistId = artistStore.artists.map(artist => artist.id);
-    art.value.artistName = artistStore.artists.map(artist => artist.name);
+    art.value.artistId = artistStore.artists.map((artist) => artist.id);
+    art.value.artistName = artistStore.artists.map((artist) => artist.name);
   }
 });
 
-onUnmounted(() => {  
+onUnmounted(() => {
   document.removeEventListener("keydown", handleKeyDown);
   window.removeEventListener("beforeunload", handleBeforeUnload);
-
 });
 
 function handleBeforeUnload(event: BeforeUnloadEvent) {
@@ -501,7 +506,9 @@ watch(
   (next) => {
     layerStore.layer = Math.max(next, 0);
     if (layerStore.grids.length > 0) {
-      tempGrid = JSON.parse(JSON.stringify(layerStore.grids[layerStore.layer].grid));
+      tempGrid = JSON.parse(
+        JSON.stringify(layerStore.grids[layerStore.layer].grid)
+      );
       canvas.value?.drawLayers(layerStore.layer);
     }
   }
