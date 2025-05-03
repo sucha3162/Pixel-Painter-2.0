@@ -77,7 +77,6 @@
             <div>
               <Button
                 @click="greyScaleFilter"
-                :disabled="filtered && greyscale == false"
                 :severity="greyscale ? 'primary' : 'secondary'"
                 >GreyScale</Button
               >
@@ -88,19 +87,16 @@
               >
               <Button
                 @click="sepiaFilter"
-                :disabled="filtered && sepia == false"
                 :severity="sepia ? 'primary' : 'secondary'"
                 >Sepia</Button
               >
               <Button
                 @click="protanopeFilter"
-                :disabled="filtered && prota == false"
                 :severity="prota ? 'primary' : 'secondary'"
                 >Protonope</Button
               >
               <Button
                 @click="deuFilter"
-                :disabled="filtered && deu == false"
                 :severity="deu ? 'primary' : 'secondary'"
                 >Deuteranope</Button
               >
@@ -123,7 +119,6 @@
                 class="flex gap-2 w-auto h-2rem"
               />
               <Button
-                :disabled="filtered && duotone == false"
                 :severity="duotone ? 'primary' : 'secondary'"
                 @click="duoToneFilter(toneOne, toneTwo)"
                 >Generate</Button
@@ -194,6 +189,7 @@ const deu = ref<boolean>(false);
 const route = useRoute();
 const toast = useToast();
 const art = ref<Art>(new Art());
+const gif = ref<Art[]>([]);
 const fps = ref<number>(0);
 const allComments = ref<Comment[]>([]);
 const totalNumComments = ref<number>(0);
@@ -212,10 +208,19 @@ onMounted(async () => {
       art.value = promise;
       uploadDate.value = new Date(promise.creationDate);
       names.value = art.value.artistName;
-      if (promise.pixelGrid.encodedGrid)
-        copyArt.value.push(promise.pixelGrid.encodedGrid);
       if (promise.isGif) {
-        GifDisplay();
+        ArtAccessService.GetGif(promise.gifID).then((promiseGif: Art[]) => {
+          art.value.gifFps = promiseGif[0].gifFps;
+          promiseGif.forEach((element) => {
+            gif.value.push(element);
+            if (element.pixelGrid.encodedGrid)
+              copyArt.value.push(element.pixelGrid.encodedGrid);
+          });
+          GifDisplay();
+        });
+      } else {
+        if (promise.pixelGrid.encodedGrid)
+          copyArt.value.push(promise.pixelGrid.encodedGrid);
       }
     })
     .catch(() => {
@@ -292,48 +297,31 @@ const toneTwo = ref<string>("#0000ff");
 //
 
 async function greyScaleFilter() {
-  ArtAccessService.getArtById(id).then((promise: Art) => {
-    if (promise.isGif) {
-      ArtAccessService.GetGif(promise.gifID).then((promiseGif: Art[]) => {
-        if (greyscale.value == false) {
-          promiseGif.forEach((element) => {
-            if (element.pixelGrid.encodedGrid) {
-              element.pixelGrid.encodedGrid = filterGreyScale(
-                element.pixelGrid.encodedGrid
-              );
-            }
-          });
-          filtered.value = true;
-          greyscale.value = true;
-        } else {
-          GifDisplay();
-          greyscale.value = false;
-          filtered.value = false;
-          return;
-        }
-        urls.value = ArtToGif(promiseGif);
-        GIFCreationService.createGIFcode(urls.value, promiseGif[0].gifFps).then(
-          (Blob) => {
-            GifURL.value = Blob;
-          }
-        );
-      });
+  if (art.value.isGif) {
+    if (filtered.value && greyscale.value) {
+      resetFilters();
+      GifDisplay();
     } else {
-      if (promise.pixelGrid.encodedGrid) {
-        if (greyscale.value == false) {
-          squareColor.value = filterGreyScale(promise.pixelGrid.encodedGrid);
-          greyscale.value = true;
-          filtered.value = true;
-          return;
-        } else {
-          squareColor.value = promise.pixelGrid.encodedGrid;
-          greyscale.value = false;
-          filtered.value = false;
-          return;
-        }
-      }
+      resetFilters();
+      gif.value.forEach((element) => {
+        element.pixelGrid.encodedGrid = filterGreyScale(
+          element.pixelGrid.encodedGrid!
+        );
+        GifDisplay();
+        filtered.value = true;
+        greyscale.value = true;
+      });
     }
-  });
+  } else {
+    if (filtered.value && greyscale.value) {
+      resetFilters();
+    } else {
+      resetFilters();
+      squareColor.value = filterGreyScale(art.value.pixelGrid.encodedGrid!);
+      filtered.value = true;
+      greyscale.value = true;
+    }
+  }
 }
 
 function hexToRGB(hex: string): number[] {
@@ -435,54 +423,37 @@ function duoTone(
   return newGrid;
 }
 async function duoToneFilter(toneOne: string, toneTwo: string) {
-  ArtAccessService.getArtById(id).then((promise: Art) => {
-    if (promise.isGif) {
-      ArtAccessService.GetGif(promise.gifID).then((promiseGif: Art[]) => {
-        if (duotone.value == false) {
-          promiseGif.forEach((element) => {
-            if (element.pixelGrid.encodedGrid) {
-              element.pixelGrid.encodedGrid = duoTone(
-                element.pixelGrid.encodedGrid,
-                toneOne,
-                toneTwo
-              );
-            }
-          });
-          filtered.value = true;
-          duotone.value = true;
-        } else {
-          GifDisplay();
-          duotone.value = false;
-          filtered.value = false;
-          return;
-        }
-        urls.value = ArtToGif(promiseGif);
-        GIFCreationService.createGIFcode(urls.value, promiseGif[0].gifFps).then(
-          (Blob) => {
-            GifURL.value = Blob;
-          }
-        );
-      });
+  if (art.value.isGif) {
+    if (filtered.value && duotone.value) {
+      resetFilters();
+      GifDisplay();
     } else {
-      if (promise.pixelGrid.encodedGrid) {
-        if (duotone.value == false) {
-          squareColor.value = duoTone(
-            promise.pixelGrid.encodedGrid,
-            toneOne,
-            toneTwo
-          );
-          duotone.value = true;
-          filtered.value = true;
-          return;
-        } else {
-          squareColor.value = promise.pixelGrid.encodedGrid;
-          duotone.value = false;
-          filtered.value = false;
-          return;
-        }
-      }
+      resetFilters();
+      gif.value.forEach((element) => {
+        element.pixelGrid.encodedGrid = duoTone(
+          element.pixelGrid.encodedGrid!,
+          toneOne,
+          toneTwo
+        );
+        GifDisplay();
+        filtered.value = true;
+        duotone.value = true;
+      });
     }
-  });
+  } else {
+    if (filtered.value && duotone.value) {
+      resetFilters();
+    } else {
+      resetFilters();
+      squareColor.value = duoTone(
+        art.value.pixelGrid.encodedGrid!,
+        toneOne,
+        toneTwo
+      );
+      filtered.value = true;
+      duotone.value = true;
+    }
+  }
 }
 async function resetFilters() {
   filtered.value = false;
@@ -491,14 +462,18 @@ async function resetFilters() {
   prota.value = false;
   deu.value = false;
   sepia.value = false;
-  ArtAccessService.getArtById(id).then((promise: Art) => {
-    if (promise.isGif) {
-      GifDisplay();
-    } else {
-      if (promise.pixelGrid.encodedGrid)
-        squareColor.value = promise.pixelGrid.encodedGrid;
+  if (art.value.isGif) {
+    let index = 0;
+    gif.value.forEach((element) => {
+      element.pixelGrid.encodedGrid = copyArt.value[index];
+      index++;
+    });
+  } else {
+    if (art.value.pixelGrid.encodedGrid) {
+      art.value.pixelGrid.encodedGrid = copyArt.value[0];
+      squareColor.value = art.value.pixelGrid.encodedGrid;
     }
-  });
+  }
 }
 function sepiaTone(R: number, G: number, B: number): number[] {
   let newColors: number[] = [];
@@ -534,48 +509,31 @@ function filterSepia(currentGrid: string): string {
   return newGrid;
 }
 async function sepiaFilter() {
-  ArtAccessService.getArtById(id).then((promise: Art) => {
-    if (promise.isGif) {
-      ArtAccessService.GetGif(promise.gifID).then((promiseGif: Art[]) => {
-        if (sepia.value == false) {
-          promiseGif.forEach((element) => {
-            if (element.pixelGrid.encodedGrid) {
-              element.pixelGrid.encodedGrid = filterSepia(
-                element.pixelGrid.encodedGrid
-              );
-            }
-          });
-          filtered.value = true;
-          sepia.value = true;
-        } else {
-          GifDisplay();
-          sepia.value = false;
-          filtered.value = false;
-          return;
-        }
-        urls.value = ArtToGif(promiseGif);
-        GIFCreationService.createGIFcode(urls.value, promiseGif[0].gifFps).then(
-          (Blob) => {
-            GifURL.value = Blob;
-          }
-        );
-      });
+  if (art.value.isGif) {
+    if (filtered.value && sepia.value) {
+      resetFilters();
+      GifDisplay();
     } else {
-      if (promise.pixelGrid.encodedGrid) {
-        if (sepia.value == false) {
-          squareColor.value = filterSepia(promise.pixelGrid.encodedGrid);
-          sepia.value = true;
-          filtered.value = true;
-          return;
-        } else {
-          squareColor.value = promise.pixelGrid.encodedGrid;
-          sepia.value = false;
-          filtered.value = false;
-          return;
-        }
-      }
+      resetFilters();
+      gif.value.forEach((element) => {
+        element.pixelGrid.encodedGrid = filterSepia(
+          element.pixelGrid.encodedGrid!
+        );
+        GifDisplay();
+        filtered.value = true;
+        sepia.value = true;
+      });
     }
-  });
+  } else {
+    if (filtered.value && sepia.value) {
+      resetFilters();
+    } else {
+      resetFilters();
+      squareColor.value = filterSepia(art.value.pixelGrid.encodedGrid!);
+      filtered.value = true;
+      sepia.value = true;
+    }
+  }
 }
 function gammaCorrection(OldColor: number): number {
   let NewColor = (OldColor / 255) ** 2.2;
@@ -740,48 +698,31 @@ function filterProtanope(currentGrid: string): string {
   return newGrid;
 }
 async function protanopeFilter() {
-  ArtAccessService.getArtById(id).then((promise: Art) => {
-    if (promise.isGif) {
-      ArtAccessService.GetGif(promise.gifID).then((promiseGif: Art[]) => {
-        if (prota.value == false) {
-          promiseGif.forEach((element) => {
-            if (element.pixelGrid.encodedGrid) {
-              element.pixelGrid.encodedGrid = filterProtanope(
-                element.pixelGrid.encodedGrid
-              );
-            }
-          });
-          filtered.value = true;
-          prota.value = true;
-        } else {
-          GifDisplay();
-          prota.value = false;
-          filtered.value = false;
-          return;
-        }
-        urls.value = ArtToGif(promiseGif);
-        GIFCreationService.createGIFcode(urls.value, promiseGif[0].gifFps).then(
-          (Blob) => {
-            GifURL.value = Blob;
-          }
-        );
-      });
+  if (art.value.isGif) {
+    if (filtered.value && prota.value) {
+      resetFilters();
+      GifDisplay();
     } else {
-      if (promise.pixelGrid.encodedGrid) {
-        if (prota.value == false) {
-          squareColor.value = filterProtanope(promise.pixelGrid.encodedGrid);
-          prota.value = true;
-          filtered.value = true;
-          return;
-        } else {
-          squareColor.value = promise.pixelGrid.encodedGrid;
-          prota.value = false;
-          filtered.value = false;
-          return;
-        }
-      }
+      resetFilters();
+      gif.value.forEach((element) => {
+        element.pixelGrid.encodedGrid = filterProtanope(
+          element.pixelGrid.encodedGrid!
+        );
+        GifDisplay();
+        filtered.value = true;
+        prota.value = true;
+      });
     }
-  });
+  } else {
+    if (filtered.value && prota.value) {
+      resetFilters();
+    } else {
+      resetFilters();
+      squareColor.value = filterProtanope(art.value.pixelGrid.encodedGrid!);
+      filtered.value = true;
+      prota.value = true;
+    }
+  }
 }
 function filterDeu(currentGrid: string): string {
   let newGrid: string = "";
@@ -820,50 +761,31 @@ function filterDeu(currentGrid: string): string {
   return newGrid;
 }
 async function deuFilter() {
-  ArtAccessService.getArtById(id).then((promise: Art) => {
-    if (promise.isGif) {
-      ArtAccessService.GetGif(promise.gifID).then((promiseGif: Art[]) => {
-        if (deu.value == false) {
-          promiseGif.forEach((element) => {
-            if (element.pixelGrid.encodedGrid) {
-              element.pixelGrid.encodedGrid = filterDeu(
-                element.pixelGrid.encodedGrid
-              );
-            }
-          });
-          filtered.value = true;
-          deu.value = true;
-        } else {
-          GifDisplay();
-          deu.value = false;
-          filtered.value = false;
-          return;
-        }
-        urls.value = ArtToGif(promiseGif);
-        GIFCreationService.createGIFcode(urls.value, promiseGif[0].gifFps).then(
-          (Blob) => {
-            GifURL.value = Blob;
-          }
-        );
-      });
+  if (art.value.isGif) {
+    if (filtered.value && deu.value) {
+      resetFilters();
+      GifDisplay();
     } else {
-      if (promise.pixelGrid.encodedGrid) {
-        if (deu.value == false) {
-          squareColor.value = filterDeu(promise.pixelGrid.encodedGrid);
-          deu.value = true;
-          filtered.value = true;
-          return;
-        }
-      }
-      if (promise.pixelGrid.encodedGrid)
-        if (deu.value == true) {
-          squareColor.value = promise.pixelGrid.encodedGrid;
-          deu.value = false;
-          filtered.value = false;
-          return;
-        }
+      resetFilters();
+      gif.value.forEach((element) => {
+        element.pixelGrid.encodedGrid = filterDeu(
+          element.pixelGrid.encodedGrid!
+        );
+        GifDisplay();
+        filtered.value = true;
+        deu.value = true;
+      });
     }
-  });
+  } else {
+    if (filtered.value && deu.value) {
+      resetFilters();
+    } else {
+      resetFilters();
+      squareColor.value = filterDeu(art.value.pixelGrid.encodedGrid!);
+      filtered.value = true;
+      deu.value = true;
+    }
+  }
 }
 function ArtToGif(Paintings: Art[]): string[] {
   let url: string[] = [];
@@ -927,22 +849,11 @@ function ArtToGif(Paintings: Art[]): string[] {
   return url;
 }
 async function GifDisplay() {
-  ArtAccessService.getArtById(id).then((promise: Art) => {
-    ArtAccessService.GetGif(promise.gifID).then((promiseGif: Art[]) => {
-      urls.value = ArtToGif(promiseGif);
-      var index = 0;
-      promiseGif.forEach((element) => {
-        if (element.pixelGrid.encodedGrid)
-          copyArt.value[index] = element.pixelGrid.encodedGrid;
-        index++;
-      });
-      fps.value = promiseGif[0].gifFps;
-      GIFCreationService.createGIFcode(urls.value, promiseGif[0].gifFps).then(
-        (Blob) => {
-          GifURL.value = Blob;
-        }
-      );
-    });
-  });
+  urls.value = ArtToGif(gif.value);
+  GIFCreationService.createGIFcode(urls.value, art.value.gifFps).then(
+    (Blob) => {
+      GifURL.value = Blob;
+    }
+  );
 }
 </script>
