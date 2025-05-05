@@ -16,7 +16,7 @@ BEGIN
     CREATE TABLE Artist (
         Id INT IDENTITY(1,1) NOT NULL,
         SubId VARCHAR(21) NOT NULL,
-        [Name] NVARCHAR(20) NOT NULL,
+        [Name] VARCHAR(20) NOT NULL,
         Email NVARCHAR(40),
         IsAdmin BIT DEFAULT 0, -- this is a bool, 0 = 0 1 = 1
         CreationDate DATETIME DEFAULT GETDATE(),
