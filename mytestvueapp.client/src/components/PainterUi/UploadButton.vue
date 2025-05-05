@@ -133,133 +133,90 @@ function FlattenFrameEncode(index: number): string {
   }
   return arr.flat().join("");
 }
+function handleNotLoggedIn() {
+  toast.add({
+    severity: "error",
+    summary: "Error",
+    detail: "You must be logged in to upload art",
+    life: 3000
+  });
+  loading.value = false;
+  visible.value = false;
+}
+
+function finalizeUpload(success: boolean, artId?: number) {
+  loading.value = false;
+  visible.value = false;
+
+  if (success && artId) {
+    toast.add({
+      severity: "success",
+      summary: "Success",
+      detail: "Art uploaded successfully",
+      life: 3000
+    });
+    layerStore.empty();
+    artistStore.empty();
+    localStorage.clear();
+    router.push("/art/" + artId);
+  } else if (!success) {
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: "Failed to upload art",
+      life: 3000
+    });
+  }
+}
 function upload() {
   emit("disconnect");
   loading.value = true;
 
-  if (props.art.isGif) {
-    LoginService.isLoggedIn().then((isLoggedIn) => {
-      if (isLoggedIn) {
-        let paintings: Art[] = [];
-        for (let i = 0; i < layerStore.grids.length; i++) {
-          let newArt = new Art();
-          newArt.title = newName.value;
-          newArt.isPublic = newPrivacy.value;
-          newArt.pixelGrid.deepCopy(layerStore.grids[i]);
-          newArt.id = props.art.id;
-          newArt.gifFrameNum = i + 1;
-          newArt.isGif = true;
-          newArt.pixelGrid.encodedGrid = FlattenFrameEncode(i);
-          newArt.artistId = props.art.artistId;
-          newArt.artistName = props.art.artistName;
-          newArt.gifFps = props.fps;
-          paintings.push(newArt);
-        }
-        if (paintings)
-          ArtAccessService.SaveGif(paintings)
-            .then((data: Art) => {
-              if (data.id != undefined) {
-                toast.add({
-                  severity: "success",
-                  summary: "Success",
-                  detail: "Art uploaded successfully",
-                  life: 3000
-                });
-                layerStore.empty();
-                artistStore.empty();
-                localStorage.clear();
-                router.push("/art/" + data.id); //may need fix
-              } else {
-                toast.add({
-                  severity: "error",
-                  summary: "Error",
-                  detail: "Failed to upload art",
-                  life: 3000
-                });
-              }
-            })
-            .catch((error) => {
-              console.error(error);
-              toast.add({
-                severity: "error",
-                summary: "Error",
-                detail: "Failed to upload art",
-                life: 3000
-              });
-            })
-            .finally(() => {
-              loading.value = false;
-              visible.value = false;
-            });
-      } else {
-        toast.add({
-          severity: "error",
-          summary: "Error",
-          detail: "You must be logged in to upload art"
-        });
-        loading.value = false;
-        visible.value = false;
-        return;
-      }
-    });
-  } else {
-    LoginService.isLoggedIn().then((isLoggedIn) => {
-      if (isLoggedIn) {
-        let newArt = new Art();
+  LoginService.isLoggedIn().then((isLoggedIn) => {
+    if (!isLoggedIn) {
+      handleNotLoggedIn();
+      return;
+    }
+
+    if (props.art.isGif) {
+      const paintings: Art[] = layerStore.grids.map((grid, i) => {
+        const newArt = new Art();
         newArt.title = newName.value;
         newArt.isPublic = newPrivacy.value;
-        newArt.pixelGrid.deepCopy(layerStore.grids[0]);
+        newArt.pixelGrid.deepCopy(grid);
         newArt.id = props.art.id;
-        newArt.pixelGrid.encodedGrid = flattenArtEncode();
+        newArt.gifFrameNum = i + 1;
+        newArt.isGif = true;
+        newArt.pixelGrid.encodedGrid = FlattenFrameEncode(i);
         newArt.artistId = props.art.artistId;
         newArt.artistName = props.art.artistName;
+        newArt.gifFps = props.fps;
+        return newArt;
+      });
 
-        ArtAccessService.saveArt(newArt)
-          .then((data: Art) => {
-            if (data.id != undefined) {
-              toast.add({
-                severity: "success",
-                summary: "Success",
-                detail: "Art uploaded successfully",
-                life: 3000
-              });
-              layerStore.empty();
-              artistStore.empty();
-              localStorage.clear();
-              router.push("/art/" + data.id);
-            } else {
-              toast.add({
-                severity: "error",
-                summary: "Error",
-                detail: "Failed to upload art",
-                life: 3000
-              });
-            }
-          })
-          .catch((error) => {
-            console.error(error);
-            toast.add({
-              severity: "error",
-              summary: "Error",
-              detail: "Failed to upload art",
-              life: 3000
-            });
-          })
-          .finally(() => {
-            loading.value = false;
-            visible.value = false;
-          });
-      } else {
-        toast.add({
-          severity: "error",
-          summary: "Error",
-          detail: "You must be logged in to upload art"
+      ArtAccessService.SaveGif(paintings)
+        .then((data: Art) => finalizeUpload(!!data.id, data.id))
+        .catch((error) => {
+          console.error(error);
+          finalizeUpload(false);
         });
-        loading.value = false;
-        visible.value = false;
-        return;
-      }
-    });
-  }
+    } else {
+      const newArt = new Art();
+      newArt.title = newName.value;
+      newArt.isPublic = newPrivacy.value;
+      newArt.pixelGrid.deepCopy(layerStore.grids[0]);
+      newArt.id = props.art.id;
+      newArt.pixelGrid.encodedGrid = flattenArtEncode();
+      newArt.artistId = props.art.artistId;
+      newArt.artistName = props.art.artistName;
+
+      ArtAccessService.saveArt(newArt)
+        .then((data: Art) => finalizeUpload(!!data.id, data.id))
+        .catch((error) => {
+          console.error(error);
+          finalizeUpload(false);
+        });
+    }
+  });
 }
 </script>

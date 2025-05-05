@@ -11,11 +11,18 @@ const layerStore = useLayerStore();
 const props = defineProps<{
   art: Art;
   fps: number;
+  gifFromViewer?: string[];
+  filtered?: boolean;
+  filteredArt?: string;
 }>();
 
 function handleClick() {
-  if (props.art.pixelGrid.isGif) {
-    saveGIF();
+  if (props.art.isGif) {
+    saveGifFromImage();
+  } else if (props.filtered) {
+    saveFilteredImage();
+  } else if (props.art.pixelGrid.isGif) {
+    saveGIFFromPainter();
   } else {
     saveToFile();
   }
@@ -42,7 +49,7 @@ function flattenArt(): string[][] {
   return arr;
 }
 
-function saveToFile() {
+async function saveToFile() {
   let grid: string[][];
   if (layerStore.grids.length > 1) {
     grid = flattenArt();
@@ -95,10 +102,9 @@ function saveToFile() {
   link.click();
 }
 
-function saveGIF() {
+async function saveGIFFromPainter() {
   let urls: string[] = [];
   let grids = layerStore.grids;
-
   for (let i = 0; i < grids.length; i++) {
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
@@ -148,5 +154,61 @@ function saveGIF() {
     urls.push(strings[1]);
   }
   GIFCreationService.createGIF(urls, props.fps);
+}
+async function saveGifFromImage() {
+  GIFCreationService.createGIF(props.gifFromViewer!, props.fps);
+}
+function saveFilteredImage() {
+  const canvas = document.createElement("canvas");
+  canvas.width = props.art.pixelGrid.width;
+  canvas.height = props.art.pixelGrid.width;
+  createContextFilter(canvas);
+  const upsizedCanvas = document.createElement("canvas");
+  upsizedCanvas.width = 1080;
+  upsizedCanvas.height = 1080;
+  const upsizedContext = upsizedCanvas.getContext("2d");
+  if (upsizedContext) upsizedContext.imageSmoothingEnabled = false;
+  upsizedContext?.translate(upsizedCanvas.width, 0); //its rotated for some reason
+  upsizedContext?.rotate(Math.PI / 2);
+  upsizedContext?.drawImage(
+    canvas,
+    0,
+    0,
+    upsizedCanvas.width,
+    upsizedCanvas.height
+  );
+  const link = document.createElement("a");
+  link.download = "image.png";
+  link.href = upsizedCanvas.toDataURL("image/png");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function createContextFilter(canvas: HTMLCanvasElement) {
+  const ctx = canvas.getContext("2d")!;
+  const imageData = ctx.createImageData(
+    props.art.pixelGrid.width,
+    props.art.pixelGrid.width
+  );
+  const numPixels = props.art.pixelGrid.width * props.art.pixelGrid.width;
+  const expectedLength = numPixels * 6;
+  if (props.filteredArt?.length !== expectedLength) {
+    throw new Error(
+      `Expected hex string length ${expectedLength}, but got ${props.filteredArt!.length}`
+    );
+  }
+  for (let i = 0; i < numPixels; i++) {
+    const hex = props.filteredArt.slice(i * 6, i * 6 + 6);
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    const index = i * 4;
+    imageData.data[index] = r;
+    imageData.data[index + 1] = g;
+    imageData.data[index + 2] = b;
+    imageData.data[index + 3] = 255; // alpha
+  }
+  ctx.putImageData(imageData, 0, 0);
 }
 </script>

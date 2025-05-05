@@ -116,9 +116,7 @@ export default class ArtAccessService {
         body: JSON.stringify(art),
         headers: { "Content-Type": "application/json" }
       });
-      console.log(response);
       const json = await response.json();
-      console.log(json);
       const artpiece = json as Art;
 
       return artpiece;
