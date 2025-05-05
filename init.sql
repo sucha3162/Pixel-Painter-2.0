@@ -17,7 +17,7 @@ BEGIN
         Id INT IDENTITY(1,1) NOT NULL,
         SubId VARCHAR(21) NOT NULL,
         [Name] VARCHAR(20) NOT NULL,
-        Email VARCHAR(40),
+        Email NVARCHAR(40),
         IsAdmin BIT DEFAULT 0, -- this is a bool, 0 = 0 1 = 1
         CreationDate DATETIME DEFAULT GETDATE(),
         PrivateProfile BIT DEFAULT 0,
@@ -29,7 +29,7 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Art')
 BEGIN
     CREATE TABLE Art (
         Id INT IDENTITY(1,1) NOT NULL,
-        Title VARCHAR(255),
+        Title NVARCHAR(255),
         IsPublic BIT DEFAULT 0,
         CreationDate DATETIME DEFAULT GETDATE(),
         IsGIF BIT DEFAULT 0,
@@ -71,7 +71,7 @@ BEGIN
         ArtistId INT,
         ArtId INT,
         ReplyId INT,
-        [Message] VARCHAR(2222),
+        [Message] NVARCHAR(2222),
         CreationDate DATETIME DEFAULT GETDATE(),
         Viewed INT DEFAULT 0,
         PRIMARY KEY (Id),

@@ -7,6 +7,7 @@
           <div class="text-3xl p-font-bold">{{ curArtist.name }}</div>
           <div class="flex mt-4 p-2 gap-2 flex-column">
             <Button
+              :disabled="!canEdit"
               label="Account Settings"
               :severity="route.hash == '#settings' ? 'primary' : 'secondary'"
               @click="changeHash('#settings')"
@@ -41,7 +42,9 @@
                   />
                 </div>
                 <Button
-                  v-if="!isEditing && (user || curArtist?.name == artist.name)"
+                  v-if="
+                    !isEditing && (isAdmin || curArtist?.name == curUser.name)
+                  "
                   severity="secondary"
                   rounded
                   icon="pi pi-pencil"
@@ -90,6 +93,15 @@
             </div>
           </template>
         </Card>
+        <div class="flex flex-column gap-2">
+          <h2>Current Page Status: {{ pageStatus }}</h2>
+          <Button
+            class="block m-2"
+            label="Click to change page status"
+            icon="pi pi-eye"
+            @click="privateSwitchChange()"
+          />
+        </div>
       </div>
       <div v-if="route.hash == '#created_art'">
         <h2>My Art</h2>
@@ -133,7 +145,6 @@ import Message from "primevue/message";
 import { useRoute } from "vue-router";
 import type Art from "@/entities/Art";
 import ArtCard from "@/components/Gallery/ArtCard.vue";
-
 const toast = useToast();
 const route = useRoute();
 
@@ -141,16 +152,20 @@ const name = String(route.params.artist);
 const artist = ref<Artist>(new Artist());
 const isEditing = ref<boolean>(false);
 const newUsername = ref<string>("");
-const user = ref<boolean>();
-const curArtist = ref<Artist>(new Artist()); // Selected Artist page to view
+const isAdmin = ref<boolean>(false);
+const curArtist = ref<Artist>(new Artist());
+const curUser = ref<Artist>(new Artist());
+const pageStatus = ref<string>("");
+const canEdit = ref<boolean>(false);
 
 var myArt = ref<Art[]>([]);
 var likedArt = ref<Art[]>([]);
 
 onMounted(async () => {
-  LoginService.getCurrentUser().then((user: Artist) => {
+  await LoginService.getCurrentUser().then((user: Artist) => {
+    curUser.value = user;
     if (user.id == 0) {
-      router.push("/");
+      router.go(-1);
       toast.add({
         severity: "error",
         summary: "Warning",
@@ -158,11 +173,27 @@ onMounted(async () => {
         life: 3000
       });
     }
+
     newUsername.value = user.name;
-    artist.value = user;
+    isAdmin.value = user.isAdmin;
   });
-  LoginService.GetArtistByName(name).then((promise: Artist) => {
+  //
+  await LoginService.GetArtistByName(name).then((promise: Artist) => {
     curArtist.value = promise;
+    if (curArtist.value.privateProfile) {
+      if (curUser.value.id != curArtist.value.id && !isAdmin.value) {
+        router.go(-1);
+        toast.add({
+          severity: "error",
+          summary: "Access Denied",
+          detail: "Account page is declared as private",
+          life: 3000
+        });
+      }
+      pageStatus.value = "Private";
+    } else {
+      pageStatus.value = "Public";
+    }
     ArtAccessService.getAllArtByUserID(curArtist.value.id).then((art) => {
       myArt.value = art;
     });
@@ -170,6 +201,7 @@ onMounted(async () => {
       likedArt.value = art;
     });
   });
+  canEdit.value = curUser.value.id == curArtist.value.id || isAdmin.value;
 });
 
 async function logout() {
@@ -186,7 +218,7 @@ async function logout() {
 
 function cancelEdit() {
   isEditing.value = false;
-  newUsername.value = artist.value.name;
+  newUsername.value = curUser.value.name;
 }
 
 const errorMessage = computed<string>(() => {
@@ -256,5 +288,15 @@ async function confirmDelete() {
 
 function changeHash(hash: string) {
   window.location.hash = hash;
+}
+async function privateSwitchChange() {
+  await LoginService.privateSwitchChange(curArtist.value.id).then((promise) => {
+    if (pageStatus.value === "Private") {
+      pageStatus.value = "Public";
+    } else {
+      pageStatus.value = "Private";
+    }
+    curArtist.value.privateProfile = !curArtist.value.privateProfile;
+  });
 }
 </script>

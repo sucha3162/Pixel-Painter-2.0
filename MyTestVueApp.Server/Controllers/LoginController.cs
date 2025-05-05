@@ -124,6 +124,9 @@ namespace MyTestVueApp.Server.Controllers
                 if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
                 {
                     var artist = await LoginService.GetUserBySubId(userId);
+                    if (artist == null) {
+                        throw new InvalidDataException("Artist is null.");
+                    }
                     return Ok(artist);
                 }
                 throw new AuthenticationException("User is not logged in.");
@@ -132,16 +135,57 @@ namespace MyTestVueApp.Server.Controllers
             {
                 return Unauthorized(ex.Message);
             }
+            catch (InvalidDataException ex)
+            {
+                return Forbid(ex.Message);
+            }
             catch (Exception ex)
             {
                 return Problem(ex.Message);
             }
         }
         /// <summary>
-        /// Get an artist by their name
+        /// This Function changes the PrivateProfile value, making it the inverse of the initial value
+        /// </summary>
+        /// <param name="artistId"> ID of the artist</param>
+        /// <returns>A true when changing from public to private or false when changing from private to public</returns>
+        [HttpPut]
+        [Route("privateSwitchChange")]
+        [ProducesResponseType(typeof(bool), 200)]
+        public async Task<IActionResult> PrivateSwitchChange([FromBody, BindRequired]int artistId)
+        {
+
+            try
+            {
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userId);
+                    if (artist.IsAdmin || artist.Id == artistId)
+                    {
+                        var status = await LoginService.PrivateSwitchChange(artistId);
+                        return Ok(status);
+                    }
+                    throw new InvalidDataException("User is not an admin or the orignal artist.");
+                }
+                throw new AuthenticationException("User is not logged in.");
+            }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (InvalidDataException ex) { 
+                return Forbid(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+        /// <summary>
+        /// This function grabs the artist by intaking a name to see if they are there
         /// </summary>
         /// <param name="name">Name of the artist</param>
-        /// <returns>An artist object</returns>
+        /// <returns>An artist</returns>
         [HttpGet]
         [Route("GetArtistByName")]
         [ProducesResponseType(typeof(Artist), 200)]
@@ -157,6 +201,7 @@ namespace MyTestVueApp.Server.Controllers
                 return Problem(ex.Message);
             }
         }
+
         /// <summary>
         /// Check to see if a user is an admin
         /// </summary>

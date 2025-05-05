@@ -604,6 +604,7 @@ function drawPixels(layer: number, color: string, coords: Vector2[]) {
   for (const coord of coords) {
     layerStore.grids[layer].grid[coord.x][coord.y] = color;
     canvas.value?.updateCell(layer, coord.x, coord.y, color);
+    tempGrid[coord.x][coord.y] = color;
   }
 }
 
