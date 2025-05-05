@@ -247,7 +247,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     var checkDupQuery = "SELECT COUNT(*) FROM Artist WHERE Name = @Name";
                     using (SqlCommand checkDupCommand = new SqlCommand(checkDupQuery, connection))
                     {
-                        checkDupCommand.Parameters.AddWithValue("@Name", newUsername);
+                        checkDupCommand.Parameters.Add("@Name", SqlDbType.NVarChar, 20).Value = newUsername;
 
                         int count = (int) await checkDupCommand.ExecuteScalarAsync();
                         if (count > 0)
@@ -261,7 +261,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@SubId", subId);
-                        command.Parameters.AddWithValue("@Name", newUsername);
+                        command.Parameters.Add("@Name", SqlDbType.NVarChar, 20).Value = newUsername;
 
                         int rowsChanged = await command.ExecuteNonQueryAsync();
                         if (rowsChanged > 0)
