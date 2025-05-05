@@ -180,7 +180,7 @@ export default class ArtAccessService {
   public static async deleteArt(ArtId: number): Promise<void> {
     try {
       const response = await fetch(`/artaccess/DeleteArt?ArtId=${ArtId}`, {
-        method: "DELTETE",
+        method: "DELETE",
         headers: { "Content-Type": "application/json" }
       });
 
