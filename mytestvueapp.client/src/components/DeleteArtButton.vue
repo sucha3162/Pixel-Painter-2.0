@@ -47,13 +47,12 @@ import ArtAccessService from "@/services/ArtAccessService";
 import { useToast } from "primevue/usetoast";
 import router from "@/router";
 import type Art from "@/entities/Art";
-import type Artist from "@/entities/Artist";
 import Message from "primevue/message";
 
 const toast = useToast();
 const props = defineProps<{
   art: Art;
-  artist?: Artist;
+  isAdmin: boolean;
 }>();
 const visible = ref<boolean>(false);
 const confirmText = ref<string>("");
@@ -65,27 +64,8 @@ watch(visible, (newVal) => {
 });
 
 async function confirmDelete() {
-  console.log(props.artist?.isAdmin);
-  if (!props.artist?.isAdmin) {
-    ArtAccessService.deleteContributingArtist(props.art.id)
-      .then(() => {
-        router.push("/account#art");
-        toast.add({
-          severity: "success",
-          summary: "Art Deleted",
-          detail: "The art has been deleted successfully",
-          life: 3000
-        });
-      })
-      .catch(() => {
-        toast.add({
-          severity: "error",
-          summary: "Error",
-          detail: "An error occurred while deleting the art",
-          life: 3000
-        });
-      });
-  } else {
+  console.log(props.isAdmin);
+  if (props.isAdmin) {
     ArtAccessService.deleteArt(props.art.id)
     .then(() => {
       router.push("/account#art");
@@ -104,6 +84,25 @@ async function confirmDelete() {
         life: 3000
       });
     });
+  } else {
+    ArtAccessService.deleteContributingArtist(props.art.id)
+      .then(() => {
+        router.push("/account#art");
+        toast.add({
+          severity: "success",
+          summary: "Art Deleted",
+          detail: "The art has been deleted successfully",
+          life: 3000
+        });
+      })
+      .catch(() => {
+        toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: "An error occurred while deleting the art",
+          life: 3000
+        });
+      });
   }
 }
 </script>
