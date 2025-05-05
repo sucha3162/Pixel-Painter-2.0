@@ -11,9 +11,9 @@ const layerStore = useLayerStore();
 const props = defineProps<{
   art: Art;
   fps: number;
-  gifFromViewer: string[];
-  filtered: boolean;
-  filteredArt: string;
+  gifFromViewer?: string[];
+  filtered?: boolean;
+  filteredArt?: string;
 }>();
 
 function handleClick() {
@@ -156,7 +156,7 @@ async function saveGIFFromPainter() {
   GIFCreationService.createGIF(urls, props.fps);
 }
 async function saveGifFromImage() {
-  GIFCreationService.createGIF(props.gifFromViewer, props.fps);
+  GIFCreationService.createGIF(props.gifFromViewer!, props.fps);
 }
 function saveFilteredImage() {
   const canvas = document.createElement("canvas");
@@ -169,9 +169,9 @@ function saveFilteredImage() {
   );
   const numPixels = props.art.pixelGrid.width * props.art.pixelGrid.width;
   const expectedLength = numPixels * 6;
-  if (props.filteredArt.length !== expectedLength) {
+  if (props.filteredArt?.length !== expectedLength) {
     throw new Error(
-      `Expected hex string length ${expectedLength}, but got ${props.filteredArt.length}`
+      `Expected hex string length ${expectedLength}, but got ${props.filteredArt!.length}`
     );
   }
   for (let i = 0; i < numPixels; i++) {
