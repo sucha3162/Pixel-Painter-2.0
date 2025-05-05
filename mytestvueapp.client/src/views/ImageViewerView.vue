@@ -64,8 +64,7 @@
               severity="secondary"
               @click="editArt()"
             ></Button>
-            <DeleteArtButton v-if="art.currentUserIsOwner || user" :art="art">
-            </DeleteArtButton>
+            <DeleteArtButton v-if="art.currentUserIsOwner || user" :art="art" :isAdmin="user"/>
           </div>
           <div v-if="showFilters == true" class="">
             <h3>Filters</h3>
