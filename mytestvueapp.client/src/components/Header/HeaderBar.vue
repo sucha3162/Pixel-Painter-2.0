@@ -39,8 +39,8 @@ import GoogleLogin from "../GoogleLogin.vue";
 import Toolbar from "primevue/toolbar";
 import Notification from "./NotificationRedirect.vue";
 import LoginService from "@/services/LoginService";
-import { useLayerStore } from "@/store/LayerStore"
-import { useArtistStore } from "@/store/ArtistStore"
+import { useLayerStore } from "@/store/LayerStore";
+import { useArtistStore } from "@/store/ArtistStore";
 
 const layerStore = useLayerStore();
 const artistStore = useArtistStore();
@@ -55,14 +55,11 @@ onMounted(async () => {
     isLoggedIn.value = result;
   });
 });
-//Will want to start calculating
 </script>
 
 <style scoped>
 /* Prevents the UI from getting crushed. */
-
 .custom-background {
   background-color: transparent;
 }
 </style>
-

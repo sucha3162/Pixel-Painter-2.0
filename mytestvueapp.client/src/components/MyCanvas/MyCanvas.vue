@@ -43,7 +43,7 @@ watch(localGrid, () => {
   drawSquare();
 });
 
-function drawSquare() {
+function drawSquare(): void {
   if (!ctx.value || !canvas.value) return;
   ctx.value.clearRect(0, 0, canvas.value.width, canvas.value.height); // Clear
   renderfilter();
@@ -116,4 +116,3 @@ function renderfilter() {
   }
 }
 </script>
-

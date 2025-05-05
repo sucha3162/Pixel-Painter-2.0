@@ -7,7 +7,8 @@
       id="notificationButton"
       rounded
       @click="buttonClick()"
-      icon="pi pi-bell"></Button>
+      icon="pi pi-bell"
+    ></Button>
   </div>
 </template>
 
@@ -39,7 +40,7 @@ onMounted(async () => {
   }
 });
 
-function buttonClick() {
+function buttonClick(): void {
   router.push("/notification");
 }
 </script>
@@ -65,4 +66,3 @@ function buttonClick() {
   position: relative;
 }
 </style>
-

@@ -98,7 +98,7 @@ const menu = ref<any>();
 const user = ref<boolean>(false);
 const dateFormatted = ref<string>("");
 
-function openMenu() {
+function openMenu(): void {
   menu.value.toggle(event);
 }
 interface icons {
@@ -144,13 +144,13 @@ const props = defineProps<{
   comment: Comment;
 }>();
 
-async function getIsAdmin() {
+async function getIsAdmin(): Promise<void> {
   LoginService.getIsAdmin().then((promise: boolean) => {
     user.value = promise;
   });
 }
 
-async function submitEdit() {
+async function submitEdit(): Promise<void> {
   if (props.comment.id != null) {
     CommentAccessService.editComment(props.comment, newMessage.value)
       .then(() => {
@@ -168,7 +168,7 @@ async function submitEdit() {
   }
 }
 
-async function deleteComment() {
+async function deleteComment(): Promise<void> {
   if (props.comment.id != null) {
     CommentAccessService.deleteComment(props.comment.id).then(() => {
       emit("deleteComment");
