@@ -32,7 +32,7 @@ onMounted(async () => {
   localLike.value = 0;
 });
 
-async function isLiked() {
+async function isLiked(): Promise<void> {
   if (loggedIn.value)
     LikeService.isLiked(props.artId).then((value) => (liked.value = value));
 }
@@ -44,7 +44,7 @@ watch(
   }
 );
 
-async function likedClicked() {
+async function likedClicked(): Promise<void> {
   if (!loggedIn.value) {
     // Route to login page
     toast.add({

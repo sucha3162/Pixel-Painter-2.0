@@ -85,7 +85,7 @@ onBeforeMount(() => {
   frames.value[0].severity = "primary";
 });
 
-function changeSeverity() {
+function changeSeverity(): void {
   if (showPrevFrame.value) {
     buttonSeverity = "primary";
   } else {
@@ -93,7 +93,7 @@ function changeSeverity() {
   }
 }
 
-function addFrame() {
+function addFrame(): void {
   frames.value.push({
     id: frameStore.grids.length,
     icon: "pi pi-image",
@@ -111,7 +111,7 @@ function addFrame() {
   switchFrame(frames.value.length - 1);
 }
 
-function removeFrame() {
+function removeFrame(): void {
   if (frames.value.length > 1) {
     frames.value.pop();
     frameStore.popGrid();
@@ -122,7 +122,7 @@ function removeFrame() {
   }
 }
 
-function switchFrame(frameID: number) {
+function switchFrame(frameID: number): void {
   frames.value.forEach((nFrame) => {
     nFrame.severity = "secondary";
   });
@@ -139,7 +139,7 @@ function switchFrame(frameID: number) {
   selectedFrame.value = frameID;
 }
 
-function deleteFrame(frameID: number) {
+function deleteFrame(frameID: number): void {
   if (frames.value.length > 1) {
     if (
       confirm("Are you sure you want to delete frame " + (frameID + 1) + "?")
@@ -160,7 +160,6 @@ function deleteFrame(frameID: number) {
   }
 }
 </script>
-
 <style>
 .p-dialog.p-component {
   margin-bottom: 75px !important;

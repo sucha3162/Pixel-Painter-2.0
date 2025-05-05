@@ -3,7 +3,8 @@
     :label="isLoggedIn ? 'Account' : 'Login'"
     rounded
     @click="buttonClick()"
-    icon="pi pi-google" />
+    icon="pi pi-google"
+  />
 </template>
 <script setup lang="ts">
 import Button from "primevue/button";
@@ -19,7 +20,7 @@ onMounted(async () => {
   });
 });
 
-function buttonClick() {
+function buttonClick(): void {
   if (isLoggedIn.value) {
     router.push("/account#settings");
   } else {
@@ -27,8 +28,7 @@ function buttonClick() {
   }
 }
 
-function login() {
+function login(): void {
   window.location.replace("/login/Login");
 }
 </script>
-

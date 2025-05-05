@@ -18,7 +18,7 @@ export default class Cursor {
     this.size = size;
     this.color = color;
   }
-  updateCursor(size: number){
+  updateCursor(size: number): void {
     this.size=size;
   }
 }

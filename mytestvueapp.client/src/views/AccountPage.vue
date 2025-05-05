@@ -172,7 +172,7 @@ onMounted(async () => {
   });
 });
 
-async function logout() {
+async function logout(): Promise<void> {
   LoginService.logout().then(() => {
     window.location.replace(`/`);
     toast.add({
@@ -184,7 +184,7 @@ async function logout() {
   });
 }
 
-function cancelEdit() {
+function cancelEdit(): void {
   isEditing.value = false;
   newUsername.value = artist.value.name;
 }
@@ -201,7 +201,7 @@ const errorMessage = computed<string>(() => {
   return "";
 });
 
-async function updateUsername() {
+async function updateUsername(): Promise<void> {
   LoginService.updateUsername(newUsername.value)
     .then((success) => {
       if (success) {
@@ -232,7 +232,7 @@ async function updateUsername() {
     });
 }
 
-async function confirmDelete() {
+async function confirmDelete(): Promise<void> {
   LoginService.deleteArtist(curArtist.value.id)
     .then(() => {
       window.location.href = "/";
@@ -254,7 +254,7 @@ async function confirmDelete() {
     });
 }
 
-function changeHash(hash: string) {
+function changeHash(hash: string): void {
   window.location.hash = hash;
 }
 </script>

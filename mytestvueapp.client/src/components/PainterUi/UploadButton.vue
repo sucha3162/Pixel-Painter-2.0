@@ -88,7 +88,7 @@ watch(visible, () => {
   emit("openModal", visible.value);
 });
 
-function toggleModal() {
+function toggleModal(): void {
   visible.value = !visible.value;
   newName.value = props.art.title;
   if (newName.value == "") {
@@ -133,7 +133,7 @@ function FlattenFrameEncode(index: number): string {
   }
   return arr.flat().join("");
 }
-function upload() {
+async function upload(): Promise<void> {
   emit("disconnect");
   loading.value = true;
 

@@ -4,14 +4,16 @@
     icon=""
     @click="visible = !visible"
     severity="danger"
-    class="block" />
+    class="block"
+  />
 
   <Dialog
     v-model:visible="visible"
     modal
     :closable="false"
     :style="{ width: '25rem' }"
-    :header="'Delete ' + art.title + '?'">
+    :header="'Delete ' + art.title + '?'"
+  >
     <Message icon="pi pi-times-circle" severity="error">
       This action cannot be undone.
     </Message>
@@ -21,19 +23,22 @@
       placeholder="Title"
       class="w-full"
       v-model="confirmText"
-      autofocus />
+      autofocus
+    />
 
     <template #footer>
       <Button
         label="Cancel"
         text
         severity="secondary"
-        @click="visible = false" />
+        @click="visible = false"
+      />
       <Button
         label="Confirm"
         severity="danger"
         @click="confirmDelete()"
-        :disabled="confirmText != art.title" />
+        :disabled="confirmText != art.title"
+      />
     </template>
   </Dialog>
 </template>
@@ -62,7 +67,7 @@ watch(visible, (newVal) => {
   }
 });
 
-async function confirmDelete() {
+async function confirmDelete(): Promise<void> {
   ArtAccessService.deleteContributingArtist(props.art.id)
     .then(() => {
       router.push("/account#art");
@@ -83,4 +88,3 @@ async function confirmDelete() {
     });
 }
 </script>
-

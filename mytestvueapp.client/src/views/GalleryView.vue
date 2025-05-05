@@ -32,7 +32,7 @@
           onIcon="pi pi-arrow-up"
           offLabel="Newest First"
           offIcon="pi pi-arrow-down"
-          @click="handleCheckBox()"
+          @click="sortGallery()"
         />
         <ToggleButton
           v-else
@@ -43,7 +43,7 @@
           onIcon="pi pi-arrow-up"
           offLabel="Descending"
           offIcon="pi pi-arrow-down"
-          @click="handleCheckBox()"
+          @click="sortGallery()"
         />
       </h1>
       <div style="display: inline-flex">
@@ -166,16 +166,11 @@ watch(filter, () => {
   }
 });
 
-function changePage(page: number) {
+function changePage(page: number): void {
   currentPage.value = page;
 }
 
-function handleCheckBox() {
-  // Gets called when the ascending checkbox is clicked
-  sortGallery();
-}
-
-function sortGallery() {
+function sortGallery(): void {
   var sortCode = sortType.value;
   isModified.value = true;
 

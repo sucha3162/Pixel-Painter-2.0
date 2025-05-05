@@ -13,7 +13,7 @@ const props = defineProps<{
   fps: number;
 }>();
 
-function handleClick() {
+function handleClick(): void {
   if (props.art.pixelGrid.isGif) {
     saveGIF();
   } else {
@@ -42,7 +42,7 @@ function flattenArt(): string[][] {
   return arr;
 }
 
-function saveToFile() {
+function saveToFile(): void {
   let grid: string[][];
   if (layerStore.grids.length > 1) {
     grid = flattenArt();
@@ -95,7 +95,7 @@ function saveToFile() {
   link.click();
 }
 
-function saveGIF() {
+async function saveGIF(): Promise<void> {
   let urls: string[] = [];
   let grids = layerStore.grids;
 
