@@ -229,11 +229,55 @@ namespace MyTestVueApp.Server.ServiceImplementations
             }
         }
         /// <summary>
-        /// Updates the artist's username in the database
+        /// This Function changes the PrivateProfile value, making it the inverse of the initial value
         /// </summary>
-        /// <param name="newUsername">Username string to change the artist's name to</param>
-        /// <param name="subId">Id of the artistto update the name of</param>
-        /// <returns>Returns true if it scueeds, false otherwise</returns>
+        /// <param name="artistId"> ID of the artist</param>
+        /// <returns>A true when changing from public to private or false when changing from private to public</returns>
+        public async Task<bool> PrivateSwitchChange(int artistId)
+        {
+            var artist = await GetArtistById(artistId);
+            var connectionString = AppConfig.Value.ConnectionString;
+            await using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                if (artist.PrivateProfile)
+                {
+                    var query =
+                        @"update Artist
+                          set PrivateProfile = 0
+                          where Id = @Id";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@Id", artist.Id);
+                        command.Parameters.AddWithValue("@PrivateProfile", artist.PrivateProfile);
+                        await command.ExecuteNonQueryAsync();
+                        return true;
+                    }
+                }
+                else
+                {
+                    var query =
+                        @"update Artist
+                          set PrivateProfile = 1
+                          where Id = @Id";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@Id", artist.Id);
+                        command.Parameters.AddWithValue("@PrivateProfile", artist.PrivateProfile);
+                        await command.ExecuteNonQueryAsync();
+                        return false;
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// This function intakes a new username and SubID to identify user 
+        /// and changes their name on the backend in the database
+        /// </summary>
+        /// <param name="newUsername">New username being passed in</param>
+        /// <param name="subId"> SubID of user </param>
+        /// <returns>Returns true if the name is changed and false if the name is not changed</returns>
         public async Task<bool> UpdateUsername(string newUsername, string subId)
         {
             try
