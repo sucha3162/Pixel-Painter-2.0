@@ -162,6 +162,30 @@ function saveFilteredImage() {
   const canvas = document.createElement("canvas");
   canvas.width = props.art.pixelGrid.width;
   canvas.height = props.art.pixelGrid.width;
+  createContextFilter(canvas);
+  const upsizedCanvas = document.createElement("canvas");
+  upsizedCanvas.width = 1080;
+  upsizedCanvas.height = 1080;
+  const upsizedContext = upsizedCanvas.getContext("2d");
+  if (upsizedContext) upsizedContext.imageSmoothingEnabled = false;
+  upsizedContext?.translate(upsizedCanvas.width, 0); //its rotated for some reason
+  upsizedContext?.rotate(Math.PI / 2);
+  upsizedContext?.drawImage(
+    canvas,
+    0,
+    0,
+    upsizedCanvas.width,
+    upsizedCanvas.height
+  );
+  const link = document.createElement("a");
+  link.download = "image.png";
+  link.href = upsizedCanvas.toDataURL("image/png");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function createContextFilter(canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext("2d")!;
   const imageData = ctx.createImageData(
     props.art.pixelGrid.width,
@@ -186,25 +210,5 @@ function saveFilteredImage() {
     imageData.data[index + 3] = 255; // alpha
   }
   ctx.putImageData(imageData, 0, 0);
-  const upsizedCanvas = document.createElement("canvas");
-  upsizedCanvas.width = 1080;
-  upsizedCanvas.height = 1080;
-  const upsizedContext = upsizedCanvas.getContext("2d");
-  if (upsizedContext) upsizedContext.imageSmoothingEnabled = false;
-  upsizedContext?.translate(upsizedCanvas.width, 0); //its rotated for some reason
-  upsizedContext?.rotate(Math.PI / 2);
-  upsizedContext?.drawImage(
-    canvas,
-    0,
-    0,
-    upsizedCanvas.width,
-    upsizedCanvas.height
-  );
-  const link = document.createElement("a");
-  link.download = "image.png";
-  link.href = upsizedCanvas.toDataURL("image/png");
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
 }
 </script>
