@@ -45,7 +45,7 @@ import { useArtistStore } from "@/store/ArtistStore"
 const layerStore = useLayerStore();
 const artistStore = useArtistStore();
 
-const isLoggedIn = ref(false);
+const isLoggedIn = ref<boolean>(false);
 
 onMounted(async () => {
   layerStore.init();

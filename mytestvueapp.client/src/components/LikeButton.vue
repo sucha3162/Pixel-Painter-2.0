@@ -20,9 +20,9 @@ const props = defineProps<{
   artId: number;
 }>();
 
-const localLike = ref(0);
-const liked = ref(false);
-const loggedIn = ref(false);
+const localLike = ref<number>(0);
+const liked = ref<boolean>(false);
+const loggedIn = ref<boolean>(false);
 
 const toast = useToast();
 
@@ -76,6 +76,5 @@ async function likedClicked() {
       }
     });
   }
-  // Calculate new number of likes
 }
 </script>
