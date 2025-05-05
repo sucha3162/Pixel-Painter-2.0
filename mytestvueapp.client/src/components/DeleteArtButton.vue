@@ -64,7 +64,6 @@ watch(visible, (newVal) => {
 });
 
 async function confirmDelete() {
-  console.log(props.isAdmin);
   if (props.isAdmin) {
     ArtAccessService.deleteArt(props.art.id)
     .then(() => {
