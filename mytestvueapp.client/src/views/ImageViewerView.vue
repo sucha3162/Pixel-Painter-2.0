@@ -49,7 +49,7 @@
               :gifFromViewer="urls"
               :filtered="filtered"
               :filteredArt="squareColor"
-            ></SaveImageToFile>
+            />
             <Button
               icon="pi pi-ellipsis-h"
               rounded
@@ -215,7 +215,7 @@ onMounted(async () => {
             if (element.pixelGrid.encodedGrid)
               copyArt.value.push(element.pixelGrid.encodedGrid);
           });
-          GifDisplay();
+          gifDisplay();
         });
       } else {
         if (promise.pixelGrid.encodedGrid)
@@ -299,14 +299,14 @@ async function greyScaleFilter() {
   if (art.value.isGif) {
     if (filtered.value && greyscale.value) {
       resetFilters();
-      GifDisplay();
+      gifDisplay();
     } else {
       resetFilters();
       gif.value.forEach((element) => {
         element.pixelGrid.encodedGrid = filterGreyScale(
           element.pixelGrid.encodedGrid!
         );
-        GifDisplay();
+        gifDisplay();
         filtered.value = true;
         greyscale.value = true;
       });
@@ -425,7 +425,7 @@ async function duoToneFilter(toneOne: string, toneTwo: string) {
   if (art.value.isGif) {
     if (filtered.value && duotone.value) {
       resetFilters();
-      GifDisplay();
+      gifDisplay();
     } else {
       resetFilters();
       gif.value.forEach((element) => {
@@ -434,7 +434,7 @@ async function duoToneFilter(toneOne: string, toneTwo: string) {
           toneOne,
           toneTwo
         );
-        GifDisplay();
+        gifDisplay();
         filtered.value = true;
         duotone.value = true;
       });
@@ -511,14 +511,14 @@ async function sepiaFilter() {
   if (art.value.isGif) {
     if (filtered.value && sepia.value) {
       resetFilters();
-      GifDisplay();
+      gifDisplay();
     } else {
       resetFilters();
       gif.value.forEach((element) => {
         element.pixelGrid.encodedGrid = filterSepia(
           element.pixelGrid.encodedGrid!
         );
-        GifDisplay();
+        gifDisplay();
         filtered.value = true;
         sepia.value = true;
       });
@@ -700,14 +700,14 @@ async function protanopeFilter() {
   if (art.value.isGif) {
     if (filtered.value && prota.value) {
       resetFilters();
-      GifDisplay();
+      gifDisplay();
     } else {
       resetFilters();
       gif.value.forEach((element) => {
         element.pixelGrid.encodedGrid = filterProtanope(
           element.pixelGrid.encodedGrid!
         );
-        GifDisplay();
+        gifDisplay();
         filtered.value = true;
         prota.value = true;
       });
@@ -763,14 +763,14 @@ async function deuFilter() {
   if (art.value.isGif) {
     if (filtered.value && deu.value) {
       resetFilters();
-      GifDisplay();
+      gifDisplay();
     } else {
       resetFilters();
       gif.value.forEach((element) => {
         element.pixelGrid.encodedGrid = filterDeu(
           element.pixelGrid.encodedGrid!
         );
-        GifDisplay();
+        gifDisplay();
         filtered.value = true;
         deu.value = true;
       });
@@ -847,7 +847,7 @@ function ArtToGif(Paintings: Art[]): string[] {
   });
   return url;
 }
-async function GifDisplay() {
+async function gifDisplay() {
   urls.value = ArtToGif(gif.value);
   GIFCreationService.createGIFcode(urls.value, art.value.gifFps).then(
     (Blob) => {
