@@ -5,7 +5,19 @@
         <span v-if="comment.currentUserIsOwner">
           <i class="pi pi-star-fill" style="color: yellow"></i>
         </span>
-        <span style="font-weight: bold">{{ comment.commenterName }}</span>
+
+        <span
+          style="font-weight: bold"
+          :style="{
+            textDecoration: hover ? 'underline' : 'none',
+            cursor: hover ? 'pointer' : 'none'
+          }"
+          class="py-1 font-semibold"
+          @click="router.push(`/accountpage/${comment.commenterName}`)"
+          v-on:mouseover="hover = true"
+          v-on:mouseleave="hover = false"
+          >{{ comment.commenterName }}</span
+        >
         <span style="font-style: italic; color: gray">{{ dateFormatted }}</span>
       </div>
       <div class="ml-2">
@@ -87,6 +99,7 @@ import Menu from "primevue/menu";
 import { useToast } from "primevue/usetoast";
 import NewComment from "./NewComment.vue";
 import LoginService from "../../services/LoginService";
+import router from "@/router";
 
 const emit = defineEmits(["deleteComment", "updateComments"]);
 
@@ -97,6 +110,7 @@ const showReply = ref<boolean>(false);
 const menu = ref<any>();
 const user = ref<boolean>(false);
 const dateFormatted = ref<string>("");
+const hover = ref<boolean>(false);
 
 function openMenu(): void {
   menu.value.toggle(event);

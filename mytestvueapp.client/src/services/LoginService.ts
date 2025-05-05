@@ -79,8 +79,7 @@ export default class LoginService {
       const response = await fetch("/login/GetIsAdmin");
 
       if (!response.ok) {
-        console.log("Response was not ok");
-        //throw new Error("Error: Bad response");
+        throw new Error("Error: Bad response");
       }
 
       const data = await response.json();
@@ -112,19 +111,32 @@ export default class LoginService {
 
       return success;
     } catch (error) {
-      console.error(error);
+      console.error;
       return false;
     }
   }
+  public static async privateSwitchChange(artistId: Number): Promise<void> {
+    try {
+      const response = await fetch(`/login/privateSwitchChange`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(artistId)
+      });
 
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} - ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error;
+      throw error;
+    }
+  }
   public static async deleteArtist(id: number): Promise<void> {
     try {
-      const response = await fetch(
-        `/login/DeleteArtist?id=${id}`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" }
-        }
-      );
+      const response = await fetch(`/login/DeleteArtist?id=${id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" }
+      });
 
       if (!response.ok) {
         throw new Error("Error: Bad response");

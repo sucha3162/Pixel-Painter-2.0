@@ -428,7 +428,7 @@ async function resetFilters() {
   sepia.value = false;
   ArtAccessService.getArtById(id).then((promise: Art) => {
     if (promise.isGif) {
-      ArtAccessService.GetGif(promise.id).then((promiseGif: Art[]) => {
+      ArtAccessService.getGif(promise.id).then((promiseGif: Art[]) => {
         urls.value = ArtToGif(promiseGif);
         GIFCreationService.createGIFcode(urls.value, promiseGif[0].gifFps).then(
           (Blob) => {
@@ -791,7 +791,7 @@ function ArtToGif(Paintings: Art[]): string[] {
 
 async function GifDisplay() {
   ArtAccessService.getArtById(id).then((promise: Art) => {
-    ArtAccessService.GetGif(promise.gifID).then((promiseGif: Art[]) => {
+    ArtAccessService.getGif(promise.gifID).then((promiseGif: Art[]) => {
       urls.value = ArtToGif(promiseGif);
       GIFCreationService.createGIFcode(urls.value, promiseGif[0].gifFps).then(
         (Blob) => {
