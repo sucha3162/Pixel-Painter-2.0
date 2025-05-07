@@ -16,7 +16,7 @@ const props = defineProps<{
   filteredArt?: string;
 }>();
 
-function handleClick() {
+function handleClick(): void {
   if (props.art.isGif) {
     saveGifFromImage();
   } else if (props.filtered) {
@@ -49,7 +49,7 @@ function flattenArt(): string[][] {
   return arr;
 }
 
-async function saveToFile() {
+async function saveToFile(): Promise<void> {
   let grid: string[][];
   if (layerStore.grids.length > 1) {
     grid = flattenArt();
@@ -102,7 +102,7 @@ async function saveToFile() {
   link.click();
 }
 
-async function saveGIFFromPainter() {
+async function saveGIFFromPainter(): Promise<void> {
   let urls: string[] = [];
   let grids = layerStore.grids;
   for (let i = 0; i < grids.length; i++) {

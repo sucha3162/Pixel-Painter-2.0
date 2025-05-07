@@ -88,7 +88,7 @@ watch(visible, () => {
   emit("openModal", visible.value);
 });
 
-function toggleModal() {
+function toggleModal(): void {
   visible.value = !visible.value;
   newName.value = props.art.title;
   if (newName.value == "") {
@@ -133,7 +133,7 @@ function FlattenFrameEncode(index: number): string {
   }
   return arr.flat().join("");
 }
-function handleNotLoggedIn() {
+function handleNotLoggedIn(): void {
   toast.add({
     severity: "error",
     summary: "Error",
@@ -144,7 +144,7 @@ function handleNotLoggedIn() {
   visible.value = false;
 }
 
-function finalizeUpload(success: boolean, artId?: number) {
+function finalizeUpload(success: boolean, artId?: number): void {
   loading.value = false;
   visible.value = false;
 
@@ -168,7 +168,7 @@ function finalizeUpload(success: boolean, artId?: number) {
     });
   }
 }
-function upload() {
+function upload(): Promise<void> {
   emit("disconnect");
   loading.value = true;
 

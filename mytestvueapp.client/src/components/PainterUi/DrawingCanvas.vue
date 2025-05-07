@@ -61,6 +61,8 @@ const app = new Application({
   backgroundAlpha: 0
 });
 
+const pos = ref<any>();
+
 // creates the viewport
 const viewport = new Viewport({
   screenWidth: window.innerWidth,
@@ -76,7 +78,7 @@ app.stage.addChild(viewport);
 viewport.drag().pinch().wheel().decelerate({ friction: 0.7 });
 
 //Creates dropshadow and background layer
-function init() {
+function init(): void {
   viewport.removeChildren();
 
   var dropShadowFilter = new DropShadowFilter();
@@ -97,7 +99,7 @@ function init() {
   viewport.addChild(background);
 }
 
-function drawLayers(layer: number) {
+function drawLayers(layer: number): void {
   let index = 0;
   if (!props.showLayers) {
     index = layer; //for showing only the selected layer
@@ -150,7 +152,7 @@ function drawLayers(layer: number) {
   }
 }
 
-function updateCell(layer: number, x: number, y: number, color: string) {
+function updateCell(layer: number, x: number, y: number, color: string): void {
   if (layer <= layerStore.layer) {
     let idx = 2;
 
@@ -197,8 +199,6 @@ function filterGreyScale(hex: string): string {
   return val;
 }
 
-const pos = ref<any>();
-
 viewport.on("pointermove", (e) => {
   pos.value = viewport.toWorld(e.globalX, e.globalY);
 
@@ -206,7 +206,7 @@ viewport.on("pointermove", (e) => {
 });
 
 //update cursor, not full canvas
-function updateCursor() {
+function updateCursor(): void {
   if (
     cursor.value.selectedTool.label == "Brush" ||
     cursor.value.selectedTool.label == "Eraser"
@@ -259,7 +259,7 @@ function updateCursor() {
 }
 
 //centers the canvas
-function recenter() {
+function recenter(): void {
   viewport.fit();
   viewport.setZoom(40 / layerStore.grids[0].width);
   viewport.moveCenter(
@@ -293,7 +293,7 @@ watch(
   }
 );
 
-function checkIfPan() {
+function checkIfPan(): void {
   if (cursor.value.selectedTool.label != "Pan") {
     viewport.threshold = 10000000;
   } else {

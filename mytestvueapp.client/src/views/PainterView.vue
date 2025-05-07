@@ -176,7 +176,7 @@ const loggedIn = ref<boolean>(false);
 
 // Connection Information
 const connected = ref<boolean>(false);
-const groupName = ref("");
+const groupName = ref<string>("");
 let connection = new SignalR.HubConnectionBuilder()
   .withUrl("https://localhost:7154/signalhub", {
     skipNegotiation: true,

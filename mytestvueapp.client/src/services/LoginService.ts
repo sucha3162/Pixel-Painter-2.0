@@ -26,7 +26,7 @@ export default class LoginService {
     }
   }
 
-  public static async GetArtistByName(name: string) {
+  public static async GetArtistByName(name: string): Promise<Artist> {
     try {
       const response = await fetch(`/login/GetArtistByName?name=${name}`);
       const json = await response.json();

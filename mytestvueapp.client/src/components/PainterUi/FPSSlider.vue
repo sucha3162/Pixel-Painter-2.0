@@ -5,14 +5,16 @@
     button-icon="pi pi-forward"
     button-label=""
     width=""
-    :default-open="false">
+    :default-open="false"
+  >
     <div>
       <Button
         class="align-items-center justify-content-center mr-2"
         icon="pi pi-minus"
         size="small"
         rounded
-        @click="decreaseFPS()" />
+        @click="decreaseFPS()"
+      />
       <label
         class="align-items-center justify-content-center bg-primary text-lg"
         >{{ fps }} FPS</label
@@ -22,7 +24,8 @@
         icon="pi pi-plus"
         size="small"
         rounded
-        @click="increaseFPS()" />
+        @click="increaseFPS()"
+      />
     </div>
 
     <div class="w-56">
@@ -39,12 +42,12 @@ import Slider from "primevue/slider";
 
 const fps = defineModel<number>("fps", { default: 4 });
 
-function increaseFPS() {
+function increaseFPS(): void {
   if (fps.value < 10) {
     fps.value++;
   }
 }
-function decreaseFPS() {
+function decreaseFPS(): void {
   if (fps.value > 1) {
     fps.value--;
   }

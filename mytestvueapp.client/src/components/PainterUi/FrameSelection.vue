@@ -1,40 +1,52 @@
 <template>
-  <FloatingCard position="bottom"
-                header="Frames"
-                button-icon="pi pi-images"
-                button-label=""
-                width=""
-                :default-open="true">
-
+  <FloatingCard
+    position="bottom"
+    header="Frames"
+    button-icon="pi pi-images"
+    button-label=""
+    width=""
+    :default-open="true"
+  >
     <div>
-      <Button class="mr-1"
-              icon="pi pi-minus"
-              size="small"
-              rounded
-              @click="removeFrame()" />
+      <Button
+        class="mr-1"
+        icon="pi pi-minus"
+        size="small"
+        rounded
+        @click="removeFrame()"
+      />
 
       <template v-for="frame in frames" :key="frame.id">
-        <Button :icon="frame.icon"
-                :class="frame.class"
-                :severity="frame.severity"
-                @click="switchFrame(frame.id)" 
-                @contextmenu.prevent="deleteFrame(frame.id)"/>
+        <Button
+          :icon="frame.icon"
+          :class="frame.class"
+          :severity="frame.severity"
+          @click="switchFrame(frame.id)"
+          @contextmenu.prevent="deleteFrame(frame.id)"
+        />
       </template>
 
-      <Button class="ml-1"
-              icon="pi pi-plus"
-              size="small"
-              rounded
-              @click="addFrame()" />
+      <Button
+        class="ml-1"
+        icon="pi pi-plus"
+        size="small"
+        rounded
+        @click="addFrame()"
+      />
     </div>
     <div class="flex justify-center w-full">
-      <Button class="w-full"
-              :label="showPrevFrame ? 'Hide Previous Frame' : 'Show Previous Frame'"
-              :severity="buttonSeverity"
-              icon=""
-              size="small"
-              rounded
-              @click="showPrevFrame = !showPrevFrame; changeSeverity()" />
+      <Button
+        class="w-full"
+        :label="showPrevFrame ? 'Hide Previous Frame' : 'Show Previous Frame'"
+        :severity="buttonSeverity"
+        icon=""
+        size="small"
+        rounded
+        @click="
+          showPrevFrame = !showPrevFrame;
+          changeSeverity();
+        "
+      />
     </div>
   </FloatingCard>
 </template>
@@ -48,7 +60,13 @@ import { PixelGrid } from "@/entities/PixelGrid";
 
 const selectedFrame = defineModel<number>("selFrame", { default: 0 });
 const frameStore = useLayerStore();
-const frames = ref([
+interface frame {
+  id: number;
+  icon: string;
+  class: string;
+  severity: string;
+}
+const frames = ref<frame[]>([
   { id: 0, icon: "pi pi-image", class: "m-1", severity: "secondary" }
 ]);
 const showPrevFrame = defineModel<boolean>("showLayers", { default: true });
@@ -67,15 +85,15 @@ onBeforeMount(() => {
   frames.value[0].severity = "primary";
 });
 
-  function changeSeverity() {
-    if (showPrevFrame.value) {
-      buttonSeverity = "primary";
-    } else {
-      buttonSeverity = "secondary";
-    }
+function changeSeverity(): void {
+  if (showPrevFrame.value) {
+    buttonSeverity = "primary";
+  } else {
+    buttonSeverity = "secondary";
   }
+}
 
-function addFrame() {
+function addFrame(): void {
   frames.value.push({
     id: frameStore.grids.length,
     icon: "pi pi-image",
@@ -93,7 +111,7 @@ function addFrame() {
   switchFrame(frames.value.length - 1);
 }
 
-function removeFrame() {
+function removeFrame(): void {
   if (frames.value.length > 1) {
     frames.value.pop();
     frameStore.popGrid();
@@ -104,44 +122,44 @@ function removeFrame() {
   }
 }
 
-function switchFrame(frameID: number) {
+function switchFrame(frameID: number): void {
   frames.value.forEach((nFrame) => {
     nFrame.severity = "secondary";
   });
   frames.value[frameID].severity = "primary";
 
   if (frameID == selectedFrame.value && selectedFrame.value === 0) {
-		frameStore.layer = -1;
+    frameStore.layer = -1;
     nextTick(() => {
       frameStore.layer = 0;
     });
   } else {
-		frameStore.layer = frameID;
+    frameStore.layer = frameID;
   }
-	selectedFrame.value = frameID;
+  selectedFrame.value = frameID;
 }
 
-  function deleteFrame(frameID: number) {
-    if (frames.value.length > 1) {
-      if (confirm("Are you sure you want to delete frame " + (frameID + 1) + "?")) {
-        frames.value.splice(frameID, 1);
-				frameStore.removeGrid(frameID);
+function deleteFrame(frameID: number): void {
+  if (frames.value.length > 1) {
+    if (
+      confirm("Are you sure you want to delete frame " + (frameID + 1) + "?")
+    ) {
+      frames.value.splice(frameID, 1);
+      frameStore.removeGrid(frameID);
 
-        for (var i = 0; i < frames.value.length; i++) {
-					frames.value[i].id = i;
-        }
+      for (var i = 0; i < frames.value.length; i++) {
+        frames.value[i].id = i;
+      }
 
-        if (selectedFrame.value == 0) {
-					switchFrame(selectedFrame.value);
-				} else if (selectedFrame.value >= frameID) {
-          switchFrame(selectedFrame.value - 1);
-        }
+      if (selectedFrame.value == 0) {
+        switchFrame(selectedFrame.value);
+      } else if (selectedFrame.value >= frameID) {
+        switchFrame(selectedFrame.value - 1);
       }
     }
   }
-
+}
 </script>
-
 <style>
 .p-dialog.p-component {
   margin-bottom: 75px !important;
