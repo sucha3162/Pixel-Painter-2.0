@@ -45,7 +45,7 @@
             ></LikeButton>
             <SaveImageToFile
               :art="art"
-              :fps="fps"
+              :fps="art.gifFps"
               :gifFromViewer="urls"
               :filtered="filtered"
               :filteredArt="squareColor"
