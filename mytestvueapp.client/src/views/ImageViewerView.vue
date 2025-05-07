@@ -45,7 +45,7 @@
             ></LikeButton>
             <SaveImageToFile
               :art="art"
-              :fps="fps"
+              :fps="art.gifFps"
               :gifFromViewer="urls"
               :filtered="filtered"
               :filteredArt="squareColor"
@@ -174,8 +174,7 @@ import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
 import GIFCreationService from "@/services/GIFCreationService";
 import { useLayerStore } from "@/store/LayerStore";
-import { PixelGrid } from "@/entities/PixelGrid"
-
+import { PixelGrid } from "@/entities/PixelGrid";
 
 const layerStore = useLayerStore();
 
@@ -213,6 +212,7 @@ onMounted(async () => {
       if (promise.isGif) {
         ArtAccessService.getGif(promise.gifID).then((promiseGif: Art[]) => {
           art.value.gifFps = promiseGif[0].gifFps;
+          fps.value = promiseGif[0].gifFps;
           promiseGif.forEach((element) => {
             gif.value.push(element);
             if (element.pixelGrid.encodedGrid)
@@ -240,7 +240,7 @@ onMounted(async () => {
 
 async function editArt(): Promise<void> {
   layerStore.empty();
-	layerStore.clearStorage();
+  layerStore.clearStorage();
   if (art.value.isGif) {
     const art = await ArtAccessService.getArtById(id);
     const frames = await ArtAccessService.getGif(art.gifID);
@@ -249,14 +249,14 @@ async function editArt(): Promise<void> {
       const grid = new PixelGrid(
         frame.pixelGrid.width,
         frame.pixelGrid.height,
-				art.pixelGrid.backgroundColor,
+        art.pixelGrid.backgroundColor,
         true,
-				frame.pixelGrid.encodedGrid
-      )
+        frame.pixelGrid.encodedGrid
+      );
       layerStore.pushGrid(grid);
     }
   } else {
-		layerStore.pushGrid(art.value.pixelGrid);
+    layerStore.pushGrid(art.value.pixelGrid);
   }
   router.push(`/paint/${id}`);
 }
