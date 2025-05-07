@@ -71,7 +71,7 @@ const resolution = ref<number>(32);
 const backgroundColor = ref<string>("ffffff");
 const isImage = ref<boolean>(true);
 
-function updateLocalStorage() {
+function updateLocalStorage(): void {
   layerStore.empty(); //just in case
   let pixelGrid = new PixelGrid(
     resolution.value,

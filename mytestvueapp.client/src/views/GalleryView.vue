@@ -7,19 +7,22 @@
           class="mt-2"
           v-model.trim="search"
           type="text"
-          placeholder="Search title..." />
+          placeholder="Search title..."
+        />
         <InputText
           class="mt-2 w-2"
           v-model.trim="filter"
           type="text"
-          placeholder="Search artists..." />
+          placeholder="Search artists..."
+        />
         <Dropdown
           class="pl mt-2 text-base w-1.5 font-normal"
           v-model="sortType"
           :options="sortBy"
           optionLabel="sort"
           optionValue="code"
-          placeholder="Sort by" />
+          placeholder="Sort by"
+        />
         <ToggleButton
           v-if="isSortedByDate"
           id="toggle"
@@ -29,7 +32,8 @@
           onIcon="pi pi-arrow-up"
           offLabel="Newest First"
           offIcon="pi pi-arrow-down"
-          @click="handleCheckBox()" />
+          @click="sortGallery()"
+        />
         <ToggleButton
           v-else
           id="toggle"
@@ -39,14 +43,16 @@
           onIcon="pi pi-arrow-up"
           offLabel="Descending"
           offIcon="pi pi-arrow-down"
-          @click="handleCheckBox()" />
+          @click="sortGallery()"
+        />
       </h1>
       <div style="display: inline-flex">
         <p>Art per page: &nbsp;</p>
         <Dropdown
           class="pl my-2 text-base w-1.5 font-normal"
           v-model="perPage"
-          :options="paginationOptions" />
+          :options="paginationOptions"
+        />
       </div>
     </header>
     <div class="shrink-limit flex flex-wrap" v-if="!loading">
@@ -55,7 +61,8 @@
         :key="index"
         :art="displayArt[index + offset]"
         :size="6"
-        :position="index" />
+        :position="index"
+      />
     </div>
     <ArtPaginator :pages="pages" @page-change="changePage" />
   </div>
@@ -76,7 +83,11 @@ const displayArt = ref<Art[]>([]);
 const search = ref<string>("");
 const filter = ref<string>("");
 const loading = ref<boolean>(true);
-const sortBy = ref([
+interface sortFilter {
+  sort: string;
+  code: string;
+}
+const sortBy = ref<sortFilter[]>([
   { sort: "Likes", code: "L" },
   { sort: "Comments", code: "C" },
   { sort: "Date", code: "D" }
@@ -155,16 +166,11 @@ watch(filter, () => {
   }
 });
 
-function changePage(page: number) {
+function changePage(page: number): void {
   currentPage.value = page;
 }
 
-function handleCheckBox() {
-  // Gets called when the ascending checkbox is clicked
-  sortGallery();
-}
-
-function sortGallery() {
+function sortGallery(): void {
   var sortCode = sortType.value;
   isModified.value = true;
 
@@ -200,4 +206,3 @@ function sortGallery() {
   }
 }
 </script>
-

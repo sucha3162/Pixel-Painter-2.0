@@ -112,11 +112,16 @@ const user = ref<boolean>(false);
 const dateFormatted = ref<string>("");
 const hover = ref<boolean>(false);
 
-function openMenu() {
+function openMenu(): void {
   menu.value.toggle(event);
 }
+interface icons {
+  label: string;
+  icon: string;
+  command: () => void;
+}
 
-const items = ref([
+const items = ref<icons[]>([
   {
     label: "Delete",
     icon: "pi pi-trash",
@@ -153,13 +158,13 @@ const props = defineProps<{
   comment: Comment;
 }>();
 
-async function getIsAdmin() {
+async function getIsAdmin(): Promise<void> {
   LoginService.getIsAdmin().then((promise: boolean) => {
     user.value = promise;
   });
 }
 
-async function submitEdit() {
+async function submitEdit(): Promise<void> {
   if (props.comment.id != null) {
     CommentAccessService.editComment(props.comment, newMessage.value)
       .then(() => {
@@ -177,7 +182,7 @@ async function submitEdit() {
   }
 }
 
-async function deleteComment() {
+async function deleteComment(): Promise<void> {
   if (props.comment.id != null) {
     CommentAccessService.deleteComment(props.comment.id).then(() => {
       emit("deleteComment");

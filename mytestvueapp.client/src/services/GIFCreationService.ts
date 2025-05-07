@@ -1,5 +1,5 @@
 export default class GIFCreationService {
-  public static async createGIF(frames: string[], fps: number) {
+  public static async createGIF(frames: string[], fps: number): Promise<void> {
     try {
       const response = await fetch("/GIFCreation/CreateGif", {
         method: "POST",
@@ -24,7 +24,10 @@ export default class GIFCreationService {
     }
   }
 
-  public static async createGIFcode(frames: string[],fps: number) {
+  public static async createGIFcode(
+    frames: string[],
+    fps: number
+  ): Promise<string> {
     try {
       const response = await fetch("/GIFCreation/CreateGifCode", {
         method: "POST",

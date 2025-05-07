@@ -33,28 +33,32 @@
                     :disabled="!isEditing"
                     class="mr-1"
                     v-model="newUsername"
-                    variant="filled" />
+                    variant="filled"
+                  />
                 </div>
                 <Button
                   v-if="!isEditing"
                   severity="secondary"
                   rounded
                   icon="pi pi-pencil"
-                  @click="isEditing = true" />
+                  @click="isEditing = true"
+                />
                 <span v-else class="">
                   <Button
                     severity="danger"
                     text
                     rounded
                     icon="pi pi-times"
-                    @click="cancelEdit()" />
+                    @click="cancelEdit()"
+                  />
                   <Button
                     severity="success"
                     text
                     rounded
                     icon="pi pi-check"
                     @click="updateUsername()"
-                    :disabled="errorMessage != ''" />
+                    :disabled="errorMessage != ''"
+                  />
                 </span>
               </div>
               <Message
@@ -71,7 +75,8 @@
                 class="block m-2"
                 label="logout"
                 icon="pi pi-sign-out"
-                @click="logout()" />
+                @click="logout()"
+              />
               <DeleteArtistButton :artist="artist" />
             </div>
           </template>
@@ -144,7 +149,7 @@ onMounted(async () => {
   }
 });
 
-async function logout() {
+async function logout(): Promise<void> {
   LoginService.logout().then(() => {
     window.location.replace(`/`);
     toast.add({
@@ -156,7 +161,7 @@ async function logout() {
   });
 }
 
-function cancelEdit() {
+function cancelEdit(): void {
   isEditing.value = false;
   newUsername.value = artist.value.name;
 }
@@ -173,7 +178,7 @@ const errorMessage = computed<string>(() => {
   return "";
 });
 
-async function updateUsername() {
+async function updateUsername(): Promise<void> {
   LoginService.updateUsername(newUsername.value)
     .then((success) => {
       if (success) {
@@ -204,8 +209,7 @@ async function updateUsername() {
     });
 }
 
-function changeHash(hash: string) {
+function changeHash(hash: string): void {
   window.location.hash = hash;
 }
 </script>
-

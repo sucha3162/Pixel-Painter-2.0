@@ -102,7 +102,7 @@ onBeforeMount(() => {
   for (let i = 1; i < layerStore.grids.length; i++) layers.value.push(i);
 });
 
-function pushLayer() {
+function pushLayer(): void {
   if (layers.value.length < 8) {
     layers.value.push(layers.value.length);
     layerStore.pushGrid(
@@ -116,7 +116,7 @@ function pushLayer() {
   }
 }
 
-function deleteLayer(idx: number) {
+function deleteLayer(idx: number): void {
   if (layers.value.length > 1 && !props.connected) {
     const isConfirmed = confirm(
       "This will delete layer " +
@@ -133,20 +133,19 @@ function deleteLayer(idx: number) {
     layers.value.splice(idx, 1);
     layerStore.removeGrid(idx);
 
-
     layers.value = layers.value.map((_, index) => index);
 
     if (!layers.value.some((layer) => layer === selectedLayer.value)) {
       selectedLayer.value = layers.value[layers.value.length - 1] ?? 1;
       layerStore.layer = selectedLayer.value;
     } else if (idx <= selectedLayer.value) {
-      selectedLayer.value = Math.max(selectedLayer.value-1, 0)
+      selectedLayer.value = Math.max(selectedLayer.value - 1, 0);
       layerStore.layer--;
     }
   }
 }
 
-function popLayer() {
+function popLayer(): void {
   if (layers.value.length > 1) {
     layers.value.pop();
     layerStore.popGrid();
@@ -157,12 +156,12 @@ function popLayer() {
   }
 }
 
-function switchLayer(layer: number) {
+function switchLayer(layer: number): void {
   selectedLayer.value = layer;
   layerStore.layer = layer;
 }
 
-function changeGreyscale() {
+function changeGreyscale(): void {
   if (!showLayers.value) {
     greyscale.value = false;
   }

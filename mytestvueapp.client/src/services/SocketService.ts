@@ -1,6 +1,6 @@
 import GroupAdvert from "@/entities/GroupAdvert";
 export default class SocketService {
-  public static async getAllGroups() {
+  public static async getAllGroups(): Promise<GroupAdvert[]> {
     try {
       const response = await fetch("/socket/GetGroups");
       const json = await response.json();

@@ -45,7 +45,7 @@
             ></LikeButton>
             <SaveImageToFile
               :art="art"
-              :fps="fps"
+              :fps="art.gifFps"
               :gifFromViewer="urls"
               :filtered="filtered"
               :filteredArt="squareColor"
@@ -174,8 +174,7 @@ import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
 import GIFCreationService from "@/services/GIFCreationService";
 import { useLayerStore } from "@/store/LayerStore";
-import { PixelGrid } from "@/entities/PixelGrid"
-
+import { PixelGrid } from "@/entities/PixelGrid";
 
 const layerStore = useLayerStore();
 
@@ -185,7 +184,7 @@ const filtered = ref<boolean>(false);
 const duotone = ref<boolean>(false);
 const sepia = ref<boolean>(false);
 const prota = ref<boolean>(false);
-const hover = ref(false);
+const hover = ref<boolean>(false);
 const deu = ref<boolean>(false);
 
 const route = useRoute();
@@ -198,8 +197,8 @@ const totalNumComments = ref<number>(0);
 const id = Number(route.params.id);
 const uploadDate = ref<Date>(new Date());
 const isAdmin = ref<boolean>(false);
-const showFilters = ref(false);
-const showTones = ref(false);
+const showFilters = ref<boolean>(false);
+const showTones = ref<boolean>(false);
 const names = ref<String[]>([]);
 const GifURL = ref<string>("");
 const urls = ref<string[]>([]);
@@ -213,6 +212,7 @@ onMounted(async () => {
       if (promise.isGif) {
         ArtAccessService.getGif(promise.gifID).then((promiseGif: Art[]) => {
           art.value.gifFps = promiseGif[0].gifFps;
+          fps.value = promiseGif[0].gifFps;
           promiseGif.forEach((element) => {
             gif.value.push(element);
             if (element.pixelGrid.encodedGrid)
@@ -238,9 +238,9 @@ onMounted(async () => {
   getIsAdmin();
 });
 
-async function editArt() {
+async function editArt(): Promise<void> {
   layerStore.empty();
-	layerStore.clearStorage();
+  layerStore.clearStorage();
   if (art.value.isGif) {
     const art = await ArtAccessService.getArtById(id);
     const frames = await ArtAccessService.getGif(art.gifID);
@@ -249,25 +249,25 @@ async function editArt() {
       const grid = new PixelGrid(
         frame.pixelGrid.width,
         frame.pixelGrid.height,
-				art.pixelGrid.backgroundColor,
+        art.pixelGrid.backgroundColor,
         true,
-				frame.pixelGrid.encodedGrid
-      )
+        frame.pixelGrid.encodedGrid
+      );
       layerStore.pushGrid(grid);
     }
   } else {
-		layerStore.pushGrid(art.value.pixelGrid);
+    layerStore.pushGrid(art.value.pixelGrid);
   }
   router.push(`/paint/${id}`);
 }
 
-async function updateComments() {
+async function updateComments(): Promise<void> {
   CommentAccessService.getCommentsByArtId(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });
 }
 
-async function getIsAdmin() {
+async function getIsAdmin(): Promise<void> {
   LoginService.getIsAdmin().then((promise: boolean) => {
     isAdmin.value = promise;
   });
@@ -309,12 +309,7 @@ const squareColor = ref<string>("blue");
 const toneOne = ref<string>("#ff0000");
 const toneTwo = ref<string>("#0000ff");
 
-//const changeColor = () => {
-//  squareColor.value = squareColor.value === "blue" ? "red" : "blue"; // Toggle color
-//};
-//
-
-async function greyScaleFilter() {
+function greyScaleFilter(): void {
   if (art.value.isGif) {
     if (filtered.value && greyscale.value) {
       resetFilters();
@@ -440,7 +435,7 @@ function duoTone(
   }
   return newGrid;
 }
-async function duoToneFilter(toneOne: string, toneTwo: string) {
+function duoToneFilter(toneOne: string, toneTwo: string): void {
   if (art.value.isGif) {
     if (filtered.value && duotone.value) {
       resetFilters();
@@ -473,7 +468,7 @@ async function duoToneFilter(toneOne: string, toneTwo: string) {
     }
   }
 }
-async function resetFilters() {
+function resetFilters(): void {
   filtered.value = false;
   greyscale.value = false;
   duotone.value = false;
@@ -526,7 +521,7 @@ function filterSepia(currentGrid: string): string {
   }
   return newGrid;
 }
-async function sepiaFilter() {
+function sepiaFilter(): void {
   if (art.value.isGif) {
     if (filtered.value && sepia.value) {
       resetFilters();
@@ -715,7 +710,7 @@ function filterProtanope(currentGrid: string): string {
   }
   return newGrid;
 }
-async function protanopeFilter() {
+function protanopeFilter(): void {
   if (art.value.isGif) {
     if (filtered.value && prota.value) {
       resetFilters();
@@ -778,7 +773,7 @@ function filterDeu(currentGrid: string): string {
   }
   return newGrid;
 }
-async function deuFilter() {
+function deuFilter(): void {
   if (art.value.isGif) {
     if (filtered.value && deu.value) {
       resetFilters();
@@ -866,7 +861,7 @@ function ArtToGif(Paintings: Art[]): string[] {
   });
   return url;
 }
-async function gifDisplay() {
+async function gifDisplay(): Promise<void> {
   urls.value = ArtToGif(gif.value);
   GIFCreationService.createGIFcode(urls.value, art.value.gifFps).then(
     (Blob) => {

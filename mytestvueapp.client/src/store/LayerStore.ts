@@ -7,33 +7,33 @@ export const useLayerStore = defineStore('layers', {
     layer: 0
   }),
   actions: {
-    init() {
+    init(): void {
       const store = localStorage.getItem('grids') as string;
       if (store) {
         const parsedGrids = JSON.parse(store);
         this.grids = parsedGrids.map((grid: any) => Object.assign(new PixelGrid(1, 1, "FF0000", false), grid));
       }
     },
-    popGrid() {
+    popGrid(): void {
       this.grids.pop();
     },
-    save() {
+    save(): void {
       localStorage.setItem('grids', JSON.stringify(this.grids));
     },
-    pushGrid(grid: PixelGrid) {
+    pushGrid(grid: PixelGrid): void {
       this.grids.push(grid);
     },
-    removeGrid(idx: number) {
+    removeGrid(idx: number): void {
       this.grids.splice(idx, 1);
     },
-    empty() {
+    empty(): void {
       this.grids.splice(0, this.grids.length);
       this.layer = 0;
     },
-    clearStorage() {
+    clearStorage(): void {
       localStorage.removeItem('grids');
     },
-    getGridArray() {
+    getGridArray(): string[][][] {
       const arr: string[][][] = [];
       for (let i = 0; i < this.grids.length; i++)
         arr.push(this.grids[i].grid);

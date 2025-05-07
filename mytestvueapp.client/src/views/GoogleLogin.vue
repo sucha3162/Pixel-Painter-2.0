@@ -2,7 +2,8 @@
   <Button
     :label="isLoggedIn ? 'Account' : 'Login'"
     @click="buttonClick()"
-    icon="pi pi-google"></Button>
+    icon="pi pi-google"
+  ></Button>
 </template>
 <script setup lang="ts">
 import Button from "primevue/button";
@@ -18,7 +19,7 @@ onMounted(async () => {
   });
 });
 
-function buttonClick() {
+function buttonClick(): void {
   if (isLoggedIn.value) {
     router.push("/account");
   } else {
@@ -26,9 +27,8 @@ function buttonClick() {
   }
 }
 
-function login() {
+function login(): void {
   var url = new URL(window.location.href);
   window.location.href = `login/Login?returnUrl=${url.origin}/LoginRedirect`;
 }
 </script>
-

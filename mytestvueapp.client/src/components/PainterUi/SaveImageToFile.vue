@@ -16,13 +16,13 @@ const props = defineProps<{
   filteredArt?: string;
 }>();
 
-function handleClick() {
-  if (props.art.isGif) {
-    saveGifFromImage();
+function handleClick(): void {
+	if (props.art.pixelGrid.isGif) {
+		saveGIFFromPainter();
   } else if (props.filtered) {
     saveFilteredImage();
-  } else if (props.art.pixelGrid.isGif) {
-    saveGIFFromPainter();
+  } else if (props.art.isGif) {
+		saveGifFromImage();
   } else {
     saveToFile();
   }
@@ -49,13 +49,8 @@ function flattenArt(): string[][] {
   return arr;
 }
 
-async function saveToFile() {
-  let grid: string[][];
-  if (layerStore.grids.length > 1) {
-    grid = flattenArt();
-  } else {
-    grid = props.art.pixelGrid.grid;
-  }
+async function saveToFile(): Promise<void> {
+  const grid: string[][] = flattenArt();
 
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
@@ -102,7 +97,7 @@ async function saveToFile() {
   link.click();
 }
 
-async function saveGIFFromPainter() {
+async function saveGIFFromPainter(): Promise<void> {
   let urls: string[] = [];
   let grids = layerStore.grids;
   for (let i = 0; i < grids.length; i++) {
@@ -170,6 +165,8 @@ function saveFilteredImage() {
   if (upsizedContext) upsizedContext.imageSmoothingEnabled = false;
   upsizedContext?.translate(upsizedCanvas.width, 0); //its rotated for some reason
   upsizedContext?.rotate(Math.PI / 2);
+  upsizedContext?.translate(0, upsizedCanvas.height);
+  upsizedContext?.scale(1, -1);
   upsizedContext?.drawImage(
     canvas,
     0,

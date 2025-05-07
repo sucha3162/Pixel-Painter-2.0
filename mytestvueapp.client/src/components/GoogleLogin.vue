@@ -21,7 +21,7 @@ onMounted(async () => {
   });
 });
 
-function buttonClick() {
+function buttonClick(): void {
   if (isLoggedIn.value) {
     LoginService.getCurrentUser().then((user: Artist) => {
       router.push(`/accountpage/${user.name}`);
@@ -31,7 +31,7 @@ function buttonClick() {
   }
 }
 
-function login() {
+function login(): void {
   window.location.replace("/login/Login");
 }
 </script>
