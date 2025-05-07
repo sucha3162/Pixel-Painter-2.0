@@ -72,7 +72,7 @@ async function confirmDelete(): Promise<void> {
   if (props.isAdmin) {
     ArtAccessService.deleteArt(props.art.id)
     .then(() => {
-      router.push("/account#art");
+      router.go(-1);
       toast.add({
         severity: "success",
         summary: "Art Deleted",
@@ -91,7 +91,7 @@ async function confirmDelete(): Promise<void> {
   } else {
     ArtAccessService.deleteContributingArtist(props.art.id)
       .then(() => {
-        router.push("/account#art");
+        router.go(-1);
         toast.add({
           severity: "success",
           summary: "Art Deleted",
