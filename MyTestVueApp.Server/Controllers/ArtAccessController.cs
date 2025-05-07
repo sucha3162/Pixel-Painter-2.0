@@ -83,15 +83,11 @@ namespace MyTestVueApp.Server.Controllers
                     var artist = await LoginService.GetUserBySubId(userSubId);
                     var artistArt = await ArtAccessService.GetArtByArtist(id);
 
-                    if (artist.Id != id)
+                    if (artist.Id != id && !artist.IsAdmin)
                     {
                         var artistArtList = artistArt.Where(art => art.IsPublic).OrderByDescending(art => art.CreationDate);
                         return Ok(artistArtList);
-                    }
-                    else if(artist.IsAdmin){
-                        var artistArtList = artistArt.OrderByDescending(art => art.CreationDate);
-                        return Ok(artistArtList);
-                    }
+                    } else
                     {
                         var artistArtList = artistArt.OrderByDescending(art => art.CreationDate);
                         return Ok(artistArtList);
