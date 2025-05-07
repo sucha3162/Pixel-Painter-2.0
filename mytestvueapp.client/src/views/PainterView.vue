@@ -888,31 +888,40 @@ function getRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
 }
 
 function calculateRectangle(start: Vector2, end: Vector2): Vector2[] {
-  let coords: Vector2[] = [];
+  const coords: Vector2[] = [];
 
-  // generate x coordinates
+  let boundary = art.value.pixelGrid.height;
+
   let stepX = start.x;
   while (stepX != end.x) {
-    coords.push(new Vector2(stepX, start.y));
-    coords.push(new Vector2(stepX, end.y));
+    if (stepX >= 0 && stepX < boundary) {
+      if (start.y >= 0 && start.y < boundary) coords.push(new Vector2(stepX, start.y));
+      if (end.y >= 0 && end.y < boundary) coords.push(new Vector2(stepX, end.y));
+    }
 
     if (stepX < end.x) stepX++;
-    if (stepX > end.x) stepX--;
+    else if (stepX > end.x) stepX--;
   }
 
-  // generate y coordinates
   let stepY = start.y;
   while (stepY != end.y) {
-    coords.push(new Vector2(start.x, stepY));
-    coords.push(new Vector2(end.x, stepY));
+    if (stepY >= 0 && stepY < boundary) {
+      if (start.x >= 0 && start.x < boundary) coords.push(new Vector2(start.x, stepY));
+      if (end.x >= 0 && end.x < boundary) coords.push(new Vector2(end.x, stepY));
+    }
 
     if (stepY < end.y) stepY++;
-    if (stepY > end.y) stepY--;
+    else if (stepY > end.y) stepY--;
   }
 
-  coords.push(end);
+  if (end.x >= 0 && end.x < boundary &&
+    end.y >= 0 && end.y < boundary) {
+    coords.push(end);
+  }
+
   return coords;
 }
+
 function getEllipsePixels(start: Vector2, end: Vector2): Vector2[] {
   let coords: Vector2[] = [];
 
@@ -941,8 +950,14 @@ function getEllipsePixels(start: Vector2, end: Vector2): Vector2[] {
 }
 
 function calculateEllipse(start: Vector2, end: Vector2): Vector2[] {
-  let coords: Vector2[] = [];
-  if (start.x == end.x && start.y == end.y) {
+  const coords: Vector2[] = [];
+  const boundary = art.value.pixelGrid.height;
+
+  function inBounds(x: number, y: number): boolean {
+    return x >= 0 && x < boundary && y >= 0 && y < boundary;
+  }
+
+  if (start.x == end.x && start.y == end.y && inBounds(start.x, start.y)) {
     coords.push(start);
     return coords;
   }
@@ -957,35 +972,35 @@ function calculateEllipse(start: Vector2, end: Vector2): Vector2[] {
   let center = new Vector2(leftBound + xOffset / 2, lowerBound + yOffset / 2);
 
   let a = Math.max(xOffset, yOffset) / 2; //Major Axis length
-  let b = Math.min(xOffset, yOffset) / 2; //Minor Axis length
+  let b = Math.min(xOffset, yOffset) / 2; //Minor Axis length    
 
   if (xOffset > yOffset) {
     // Major Axis is Horrizontal
     for (let i = leftBound; i <= rightBound; i++) {
       let yP = Math.round(ellipseXtoY(center, a, b, i));
       let yN = center.y - (yP - center.y);
-      coords.push(new Vector2(i, yP));
-      coords.push(new Vector2(i, yN));
+      if (inBounds(i, yP)) coords.push(new Vector2(i, yP));
+      if (inBounds(i, yN)) coords.push(new Vector2(i, yN));
     }
     for (let i = lowerBound; i < upperBound; i++) {
       let xP = Math.round(ellipseYtoX(center, b, a, i));
       let xN = center.x - (xP - center.x);
-      coords.push(new Vector2(xP, i));
-      coords.push(new Vector2(xN, i));
+      if (inBounds(xP, i)) coords.push(new Vector2(xP, i));
+      if (inBounds(xN, i)) coords.push(new Vector2(xN, i));
     }
   } else {
     // Major Axis is vertical
     for (let i = lowerBound; i <= upperBound; i++) {
       let xP = Math.round(ellipseYtoX(center, a, b, i));
       let xN = center.x - (xP - center.x);
-      coords.push(new Vector2(xP, i));
-      coords.push(new Vector2(xN, i));
+      if (inBounds(xP, i)) coords.push(new Vector2(xP, i));
+      if (inBounds(xN, i)) coords.push(new Vector2(xN, i));
     }
     for (let i = leftBound; i < rightBound; i++) {
       let yP = Math.round(ellipseXtoY(center, b, a, i));
       let yN = center.y - (yP - center.y);
-      coords.push(new Vector2(i, yP));
-      coords.push(new Vector2(i, yN));
+      if (inBounds(i, yP)) coords.push(new Vector2(i, yP));
+      if (inBounds(i, yN)) coords.push(new Vector2(i, yN));
     }
   }
   return coords;
