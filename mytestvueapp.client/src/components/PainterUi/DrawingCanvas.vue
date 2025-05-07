@@ -127,7 +127,8 @@ function drawLayers(layer: number) {
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
         const sprite = viewport.addChild(new Sprite(Texture.WHITE));
-        if (layerStore.grids[index].grid[i][j] === "empty") {
+        if (layerStore.grids[index].grid[i][j] === "empty" ||
+					(layerStore.grids[0].isGif && layerStore.grids[index].grid[i][j] === props.grid.backgroundColor)) {
           sprite.tint = layerStore.grids[index].backgroundColor;
           sprite.alpha = 0;
         } else {
