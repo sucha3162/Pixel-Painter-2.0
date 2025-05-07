@@ -50,12 +50,7 @@ function flattenArt(): string[][] {
 }
 
 async function saveToFile(): Promise<void> {
-  let grid: string[][];
-  if (layerStore.grids.length > 1) {
-    grid = flattenArt();
-  } else {
-    grid = props.art.pixelGrid.grid;
-  }
+  const grid: string[][] = flattenArt();
 
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
