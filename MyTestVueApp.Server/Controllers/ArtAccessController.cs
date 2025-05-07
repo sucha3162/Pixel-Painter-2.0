@@ -163,7 +163,7 @@ namespace MyTestVueApp.Server.Controllers
                     {
                         var artist = await LoginService.GetUserBySubId(userId);
                         art.CurrentUserIsOwner = art.ArtistId.Contains(artist.Id);
-                        if (art.CurrentUserIsOwner)
+                        if (art.CurrentUserIsOwner || artist.IsAdmin)
                         {
                             return Ok(art);
                         }
