@@ -235,13 +235,16 @@ namespace MyTestVueApp.Server.ServiceImplementations
         /// <returns>A true when changing from public to private or false when changing from private to public</returns>
         public async Task<bool> PrivateSwitchChange(int artistId)
         {
-            var artist = await GetArtistById(artistId);
+            var artist = new Artist();
+            artist =  await GetArtistById(artistId);
+            Console.WriteLine(artist.Name);
+
             var connectionString = AppConfig.Value.ConnectionString;
             await using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
 
-                if (artist.PrivateProfile)
+                if (artist.PrivateProfile == true)
                 {
                     var query =
                         @"update Artist
@@ -516,6 +519,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                           ,[IsAdmin]
                           ,[CreationDate]
                           ,[Email]
+                          ,[PrivateProfile] 
                       FROM [PixelPainter].[dbo].[Artist]
                       WHERE Id = @Id
                     ";
@@ -534,6 +538,7 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 IsAdmin = reader.GetBoolean(3),
                                 CreationDate = reader.GetDateTime(4),
                                 Email = reader.GetString(5),
+                                PrivateProfile = reader.GetBoolean(6)
                             };
                             return artist;
                         }

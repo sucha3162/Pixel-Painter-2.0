@@ -40,7 +40,13 @@
           @disconnect="disconnect"
           @OpenModal="toggleKeybinds"
         />
-        <SaveImageToFile :art="art" :fps="fps"></SaveImageToFile>
+        <SaveImageToFile
+          :art="art"
+          :fps="fps"
+          :filtered="false"
+          :filtered-art="''"
+          :gif-from-viewer="['']"
+        ></SaveImageToFile>
         <ConnectButton
           @openModal="toggleKeybinds"
           @connect="connect"
@@ -389,44 +395,55 @@ onMounted(async () => {
         artist.value.id = 0;
         artist.value.name = "Guest";
       }
-    })
-    .catch((err) => console.log(err));
 
-  if (route.params.id) {
-    const id: number = parseInt(route.params.id as string);
-    ArtAccessService.getArtById(id)
-      .then((data) => {
-        art.value.id = data.id;
-        art.value.title = data.title;
-        art.value.isPublic = data.isPublic;
-        art.value.isGif = layerStore.grids[0].isGif;
+      if (route.params.id) {
+        const id: number = parseInt(route.params.id as string);
+        ArtAccessService.getArtById(id)
+          .then((data) => {
+            if (!data.artistId.includes(artist.value.id)) {
+              console.log(artist.value);
+              router.go(-1);
+              toast.add({
+                severity: "error",
+                summary: "Forbid",
+                detail: "Don't do that.",
+                life: 3000
+              });
+            }
+            art.value.id = data.id;
+            art.value.title = data.title;
+            art.value.isPublic = data.isPublic;
+            art.value.isGif = layerStore.grids[0].isGif;
 
+            canvas.value?.recenter();
+            art.value.pixelGrid.backgroundColor =
+              layerStore.grids[0].backgroundColor;
+          })
+          .catch(() => {
+            toast.add({
+              severity: "error",
+              summary: "Error",
+              detail: "You cannot edit this art",
+              life: 3000
+            });
+            router.push("/new");
+          });
+      } else if (layerStore.grids.length === 0) {
+        router.push("/new");
+      } else {
         canvas.value?.recenter();
+        art.value.isGif = layerStore.grids[0].isGif;
+        art.value.pixelGrid.isGif = layerStore.grids[0].isGif;
         art.value.pixelGrid.backgroundColor =
           layerStore.grids[0].backgroundColor;
-      })
-      .catch(() => {
-        toast.add({
-          severity: "error",
-          summary: "Error",
-          detail: "You cannot edit this art",
-          life: 3000
-        });
-        router.push("/new");
-      });
-  } else if (layerStore.grids.length === 0) {
-    router.push("/new");
-  } else {
-    canvas.value?.recenter();
-    art.value.isGif = layerStore.grids[0].isGif;
-    art.value.pixelGrid.isGif = layerStore.grids[0].isGif;
-    art.value.pixelGrid.backgroundColor = layerStore.grids[0].backgroundColor;
-    art.value.pixelGrid.width = layerStore.grids[0].width;
-    art.value.pixelGrid.height = layerStore.grids[0].height;
-    tempGrid = JSON.parse(JSON.stringify(layerStore.grids[0].grid));
-    art.value.artistId = artistStore.artists.map((artist) => artist.id);
-    art.value.artistName = artistStore.artists.map((artist) => artist.name);
-  }
+        art.value.pixelGrid.width = layerStore.grids[0].width;
+        art.value.pixelGrid.height = layerStore.grids[0].height;
+        tempGrid = JSON.parse(JSON.stringify(layerStore.grids[0].grid));
+        art.value.artistId = artistStore.artists.map((artist) => artist.id);
+        art.value.artistName = artistStore.artists.map((artist) => artist.name);
+      }
+    })
+    .catch((err) => console.log(err));
 });
 
 onUnmounted(() => {

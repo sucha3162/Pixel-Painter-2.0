@@ -116,9 +116,7 @@ export default class ArtAccessService {
         body: JSON.stringify(art),
         headers: { "Content-Type": "application/json" }
       });
-      console.log(response);
       const json = await response.json();
-      console.log(json);
       const artpiece = json as Art;
 
       return artpiece;
@@ -128,7 +126,7 @@ export default class ArtAccessService {
     }
   }
 
-  public static async SaveGif(art: Art[]): Promise<Art> {
+  public static async saveGif(art: Art[]): Promise<Art> {
     try {
       for (let i = 0; i < art.length; i++) {
         art[i].creationDate = new Date().toISOString();
@@ -179,7 +177,7 @@ export default class ArtAccessService {
   public static async deleteArt(ArtId: number): Promise<void> {
     try {
       const response = await fetch(`/artaccess/DeleteArt?ArtId=${ArtId}`, {
-        method: "DELTETE",
+        method: "DELETE",
         headers: { "Content-Type": "application/json" }
       });
 

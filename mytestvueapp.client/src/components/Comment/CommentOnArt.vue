@@ -101,7 +101,7 @@ import NewComment from "./NewComment.vue";
 import LoginService from "../../services/LoginService";
 import router from "@/router";
 
-const emit = defineEmits(["deleteComment", "updateComments"]);
+const emit = defineEmits(["deleteComment"]);
 
 const editing = ref<boolean>(false);
 const newMessage = ref<string>("");
