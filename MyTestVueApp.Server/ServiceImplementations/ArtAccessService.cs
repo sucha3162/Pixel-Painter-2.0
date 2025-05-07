@@ -171,18 +171,26 @@ namespace MyTestVueApp.Server.ServiceImplementations
                 connection.Open();
                 //var query = "SELECT Date, TemperatureC, Summary FROM WeatherForecasts";
                 var query =
-                    $@"
-                      Select	
-                        Art.ID,
-                        Art.Title,
-                        Art.Width, 
+                    @"
+                    Select 
+	                    Art.Id, 
+	                    Art.Title,   
+	                    Art.Width, 
 	                    Art.Height, 
 	                    Art.Encode, 
-	                    Art.CreationDate,
-	                    Art.isPublic
-                      FROM ART
-                      left join  ContributingArtists as CA on CA.ArtId = Art.Id
-                      WHERE CA.ArtistId = @ArtistID
+	                    Art.CreationDate, 
+	                    Art.isPublic, 
+						Art.IsGIF,
+	                    COUNT(distinct Likes.ArtistId) as Likes, 
+	                    Count(distinct Comment.Id) as Comments,
+                        Art.gifId,
+                        Art.gifFrameNum
+                    FROM ART  
+	                    LEFT JOIN Likes ON Art.ID = Likes.ArtID  
+	                    LEFT JOIN Comment ON Art.ID = Comment.ArtID
+                        left join  ContributingArtists as CA on CA.ArtId = Art.Id
+                    WHERE CA.ArtistId = @ArtistID
+                    GROUP BY Art.ID, Art.Title, Art.Width, Art.Height, Art.Encode, Art.CreationDate, Art.isPublic, Art.IsGIF, Art.GifId, Art.gifFrameNum
                     ";
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -198,13 +206,20 @@ namespace MyTestVueApp.Server.ServiceImplementations
                                 EncodedGrid = reader.GetString(4)
                             };
                             var painting = new Art
-                            {   //ArtId, ArtName
+                            { //Art Table + NumLikes and NumComments
                                 Id = reader.GetInt32(0),
                                 Title = reader.GetString(1),
-                                PixelGrid = pixelGrid,
                                 CreationDate = reader.GetDateTime(5),
-                                IsPublic = reader.GetBoolean(6)
+                                IsPublic = reader.GetBoolean(6),
+                                IsGif = reader.GetBoolean(7),
+                                NumLikes = reader.GetInt32(8),
+                                NumComments = reader.GetInt32(9),
+                                GifID = reader.GetInt32(10),
+                                GifFrameNum = reader.GetInt32(11),
+                                PixelGrid = pixelGrid,
                             };
+
+                            painting.SetArtists((await GetArtistsByArtId(painting.Id)).ToList());
                             paintings.Add(painting);
                         }
                     }
