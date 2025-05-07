@@ -11,6 +11,7 @@ import Button from "primevue/button";
 import { onMounted, ref } from "vue";
 import router from "@/router";
 import LoginService from "@/services/LoginService";
+import Artist from "@/entities/Artist";
 
 const isLoggedIn = ref<boolean>(false);
 
@@ -22,7 +23,9 @@ onMounted(async () => {
 
 function buttonClick(): void {
   if (isLoggedIn.value) {
-    router.push("/account#settings");
+    LoginService.getCurrentUser().then((user: Artist) => {
+      router.push(`/accountpage/${user.name}`);
+    });
   } else {
     login();
   }

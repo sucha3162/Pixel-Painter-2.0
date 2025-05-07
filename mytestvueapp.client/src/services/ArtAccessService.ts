@@ -131,7 +131,6 @@ export default class ArtAccessService {
       for (let i = 0; i < art.length; i++) {
         art[i].creationDate = new Date().toISOString();
       }
-
       const request = "/artaccess/SaveGif";
 
       const response = await fetch(request, {
@@ -141,9 +140,15 @@ export default class ArtAccessService {
       });
       const json = await response.json();
 
-      const artpiece = json as Art[];
+      if (Array.isArray(json)) {
+        if (json.length === 0) {
+          throw new Error("SaveGif returned an empty array");
+        }
+        return json[0] as Art;
+      }
 
-      return artpiece[0];
+
+      return json;
     } catch (error) {
       console.error(error);
       throw error;

@@ -615,55 +615,10 @@ namespace MyTestVueApp.Server.ServiceImplementations
                     return null;
                 }
 
-                else
-                {
-                    foreach (var item in art)
-                    {
-                        using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
-                        {
-                            connection.Open();
-
-                            var query = @"
-                            UPDATE Art SET
-	                            Title = @Title,
-	                            IsPublic = @IsPublic,
-	                            Width = @Width,
-	                            Height = @Height,
-	                            Encode = @Encode
-                            WHERE GifId = @Id;
-                        ";
-                            using (var command = new SqlCommand(query, connection))
-                            {
-                                command.Parameters.AddWithValue("@Title", item.Title);
-                                command.Parameters.AddWithValue("@IsPublic", item.IsPublic);
-                                command.Parameters.AddWithValue("@Width", item.PixelGrid.Width);
-                                command.Parameters.AddWithValue("@Height", item.PixelGrid.Height);
-                                command.Parameters.AddWithValue("@Encode", item.PixelGrid.EncodedGrid);
-                                command.Parameters.AddWithValue("@Id",gifNum);
-
-                                await command.ExecuteScalarAsync();
-
-                            }
-                        }
-                    }
-                    using (var connection = new SqlConnection(AppConfig.Value.ConnectionString))
-                    {
-                        connection.Open();
-
-                        var query = @"
-                           Update GIF Set
-                           FPS = @Fps
-                           where Id = @GifID
-                        ";
-                        using (var command = new SqlCommand(query, connection))
-                        {
-                            command.Parameters.AddWithValue("@Fps", Fps);
-                            command.Parameters.AddWithValue("@GifID", gifNum);
-
-                            await command.ExecuteScalarAsync();
-
-                        }
-                    }
+                else {
+                    Artist[] artists = await GetArtistsByArtId(art[0].Id) as Artist[];
+					          DeleteContributingArtist(art[0].Id, artists[0].Id);
+                    await SaveGif(artists[0], art);
                     return await GetArtById(Convert.ToInt32(art[0].Id));
                 }
             }

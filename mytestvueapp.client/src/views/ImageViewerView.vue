@@ -174,6 +174,8 @@ import { useToast } from "primevue/usetoast";
 import LoginService from "../services/LoginService";
 import GIFCreationService from "@/services/GIFCreationService";
 import { useLayerStore } from "@/store/LayerStore";
+import { PixelGrid } from "@/entities/PixelGrid"
+
 
 const layerStore = useLayerStore();
 
@@ -236,10 +238,26 @@ onMounted(async () => {
   getIsAdmin();
 });
 
-function editArt(): void {
+async function editArt(): Promise<void> {
   layerStore.empty();
-  layerStore.clearStorage();
-  layerStore.pushGrid(art.value.pixelGrid);
+	layerStore.clearStorage();
+  if (art.value.isGif) {
+    const art = await ArtAccessService.getArtById(id);
+    const frames = await ArtAccessService.getGif(art.gifID);
+
+    for (const frame of frames) {
+      const grid = new PixelGrid(
+        frame.pixelGrid.width,
+        frame.pixelGrid.height,
+				art.pixelGrid.backgroundColor,
+        true,
+				frame.pixelGrid.encodedGrid
+      )
+      layerStore.pushGrid(grid);
+    }
+  } else {
+		layerStore.pushGrid(art.value.pixelGrid);
+  }
   router.push(`/paint/${id}`);
 }
 
