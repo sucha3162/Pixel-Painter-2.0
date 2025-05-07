@@ -956,11 +956,9 @@ function calculateEllipse(start: Vector2, end: Vector2): Vector2[] {
     return coord.x >= 0 && coord.x < boundary && coord.y >= 0 && coord.y < boundary;
   }
 
-  if (start.x == end.x && start.y == end.y) {
-    if (inBounds(start)) {
-      coords.push(start);
-      return coords;
-    }
+  if (start.x == end.x && start.y == end.y && inBounds(start)) {
+    coords.push(start);
+    return coords;
   }
   let leftBound = Math.min(start.x, end.x);
   let rightBound = Math.max(start.x, end.x);
