@@ -860,14 +860,6 @@ function clear(): void {
   }
 }
 
-function checkBounds(x, y): boolean {
-  if (x < art.value.pixelGrid.width && x >= 0 &&
-    y < art.value.pixelGrid.height && y >= 0) {
-    return true;
-  }
-  return false;
-}
-
 function getRectanglePixels(start: Vector2, end: Vector2): Vector2[] {
   let coords: Vector2[] = [];
   let leftBound = Math.min(start.x, end.x);
