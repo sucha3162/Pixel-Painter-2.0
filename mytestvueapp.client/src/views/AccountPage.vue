@@ -174,12 +174,12 @@ onMounted(async () => {
       });
     }
 
-    newUsername.value = user.name;
     isAdmin.value = user.isAdmin;
   });
   //
   await LoginService.GetArtistByName(name).then((promise: Artist) => {
     curArtist.value = promise;
+    newUsername.value = promise.name;
     if (curArtist.value.privateProfile) {
       if (curUser.value.id != curArtist.value.id && !isAdmin.value) {
         router.go(-1);
