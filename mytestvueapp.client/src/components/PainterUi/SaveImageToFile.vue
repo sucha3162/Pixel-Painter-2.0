@@ -170,6 +170,8 @@ function saveFilteredImage() {
   if (upsizedContext) upsizedContext.imageSmoothingEnabled = false;
   upsizedContext?.translate(upsizedCanvas.width, 0); //its rotated for some reason
   upsizedContext?.rotate(Math.PI / 2);
+  upsizedContext?.translate(0, upsizedCanvas.height);
+  upsizedContext?.scale(1, -1);
   upsizedContext?.drawImage(
     canvas,
     0,
