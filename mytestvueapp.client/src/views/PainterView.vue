@@ -949,7 +949,7 @@ function getEllipsePixels(start: Vector2, end: Vector2): Vector2[] {
 }
 
 function calculateEllipse(start: Vector2, end: Vector2): Vector2[] {
-  let coords: Vector2[] = [];
+  const coords: Vector2[] = [];
   const boundary = art.value.pixelGrid.height;
 
   function inBounds(coord: Vector2): boolean {
