@@ -194,7 +194,7 @@ function upload() {
         return newArt;
       });
 
-      ArtAccessService.SaveGif(paintings)
+      ArtAccessService.saveGif(paintings)
         .then((data: Art) => finalizeUpload(!!data.id, data.id))
         .catch((error) => {
           console.error(error);

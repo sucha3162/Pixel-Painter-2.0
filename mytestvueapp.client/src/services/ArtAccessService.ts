@@ -126,7 +126,7 @@ export default class ArtAccessService {
     }
   }
 
-  public static async SaveGif(art: Art[]): Promise<Art> {
+  public static async saveGif(art: Art[]): Promise<Art> {
     try {
       for (let i = 0; i < art.length; i++) {
         art[i].creationDate = new Date().toISOString();

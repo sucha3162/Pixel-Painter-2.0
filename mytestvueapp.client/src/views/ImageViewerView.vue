@@ -209,7 +209,7 @@ onMounted(async () => {
       uploadDate.value = new Date(promise.creationDate);
       names.value = art.value.artistName;
       if (promise.isGif) {
-        ArtAccessService.GetGif(promise.gifID).then((promiseGif: Art[]) => {
+        ArtAccessService.getGif(promise.gifID).then((promiseGif: Art[]) => {
           art.value.gifFps = promiseGif[0].gifFps;
           promiseGif.forEach((element) => {
             gif.value.push(element);
