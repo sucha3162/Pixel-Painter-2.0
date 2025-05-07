@@ -78,9 +78,24 @@ namespace MyTestVueApp.Server.Controllers
         {
             try
             {
-                var artistArt = await ArtAccessService.GetArtByArtist(id);
-                var artistArtList = artistArt.Where(art => art.IsPublic).OrderByDescending(art => art.CreationDate);
-                return Ok(artistArtList);
+                if (Request.Cookies.TryGetValue("GoogleOAuth", out var userSubId))
+                {
+                    var artist = await LoginService.GetUserBySubId(userSubId);
+                    var artistArt = await ArtAccessService.GetArtByArtist(id);
+
+                    if (artist.Id != id)
+                    {
+                        var artistArtList = artistArt.Where(art => art.IsPublic).OrderByDescending(art => art.CreationDate);
+                        return Ok(artistArtList);
+                    }
+                    else
+                    {
+                        var artistArtList = artistArt.OrderByDescending(art => art.CreationDate);
+                        return Ok(artistArtList);
+                    }
+
+                }
+                else { throw new AuthenticationException("User is not logged in."); }
             }
             catch (Exception ex)
             {
