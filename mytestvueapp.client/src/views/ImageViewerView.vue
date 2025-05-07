@@ -236,20 +236,20 @@ onMounted(async () => {
   getIsAdmin();
 });
 
-function editArt() {
+function editArt(): void {
   layerStore.empty();
   layerStore.clearStorage();
   layerStore.pushGrid(art.value.pixelGrid);
   router.push(`/paint/${id}`);
 }
 
-async function updateComments() {
+async function updateComments(): Promise<void> {
   CommentAccessService.getCommentsByArtId(id).then((promise: Comment[]) => {
     allComments.value = buildCommentTree(promise);
   });
 }
 
-async function getIsAdmin() {
+async function getIsAdmin(): Promise<void> {
   LoginService.getIsAdmin().then((promise: boolean) => {
     isAdmin.value = promise;
   });
@@ -291,12 +291,7 @@ const squareColor = ref<string>("blue");
 const toneOne = ref<string>("#ff0000");
 const toneTwo = ref<string>("#0000ff");
 
-//const changeColor = () => {
-//  squareColor.value = squareColor.value === "blue" ? "red" : "blue"; // Toggle color
-//};
-//
-
-async function greyScaleFilter() {
+function greyScaleFilter(): void {
   if (art.value.isGif) {
     if (filtered.value && greyscale.value) {
       resetFilters();
@@ -422,7 +417,7 @@ function duoTone(
   }
   return newGrid;
 }
-async function duoToneFilter(toneOne: string, toneTwo: string) {
+function duoToneFilter(toneOne: string, toneTwo: string): void {
   if (art.value.isGif) {
     if (filtered.value && duotone.value) {
       resetFilters();
@@ -455,7 +450,7 @@ async function duoToneFilter(toneOne: string, toneTwo: string) {
     }
   }
 }
-async function resetFilters() {
+function resetFilters(): void {
   filtered.value = false;
   greyscale.value = false;
   duotone.value = false;
@@ -508,7 +503,7 @@ function filterSepia(currentGrid: string): string {
   }
   return newGrid;
 }
-async function sepiaFilter() {
+function sepiaFilter(): void {
   if (art.value.isGif) {
     if (filtered.value && sepia.value) {
       resetFilters();
@@ -697,7 +692,7 @@ function filterProtanope(currentGrid: string): string {
   }
   return newGrid;
 }
-async function protanopeFilter() {
+function protanopeFilter(): void {
   if (art.value.isGif) {
     if (filtered.value && prota.value) {
       resetFilters();
@@ -760,7 +755,7 @@ function filterDeu(currentGrid: string): string {
   }
   return newGrid;
 }
-async function deuFilter() {
+function deuFilter(): void {
   if (art.value.isGif) {
     if (filtered.value && deu.value) {
       resetFilters();
@@ -848,7 +843,7 @@ function ArtToGif(Paintings: Art[]): string[] {
   });
   return url;
 }
-async function gifDisplay() {
+async function gifDisplay(): Promise<void> {
   urls.value = ArtToGif(gif.value);
   GIFCreationService.createGIFcode(urls.value, art.value.gifFps).then(
     (Blob) => {

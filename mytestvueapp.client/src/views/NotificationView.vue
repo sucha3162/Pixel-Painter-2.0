@@ -10,7 +10,8 @@
         v-for="(notification, index) in notifications"
         v-bind:key="index"
         :class="notification.viewed ? 'lCardV' : 'lCard'"
-        @click="markViewed(notification)">
+        @click="markViewed(notification)"
+      >
         {{ notification.user }} has
         <span v-if="notification.type == 1">liked</span
         ><span v-else>commented on</span> your
@@ -23,7 +24,8 @@
         v-for="(notification, index) in notifications"
         v-bind:key="index"
         :class="notification.viewed ? 'dCardV' : 'dCard'"
-        @click="markViewed(notification)">
+        @click="markViewed(notification)"
+      >
         {{ notification.user }} has
         <span v-if="notification.type === 1">liked</span>
         <span v-else-if="notification.type === 0">commented on</span>
@@ -61,7 +63,7 @@ onMounted(async () => {
   }
 });
 
-async function markViewed(notification: Notification) {
+async function markViewed(notification: Notification): Promise<void> {
   if (notification.commentId != -1) {
     notification.viewed = await markComment(notification.commentId);
   } else {
@@ -159,4 +161,3 @@ async function markLike(artId: number, artistId: number): Promise<boolean> {
   margin: 40px;
 }
 </style>
-
