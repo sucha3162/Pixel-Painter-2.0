@@ -168,7 +168,7 @@ function finalizeUpload(success: boolean, artId?: number): void {
     });
   }
 }
-function upload(): Promise<void> {
+function upload(): void {
   emit("disconnect");
   loading.value = true;
 
