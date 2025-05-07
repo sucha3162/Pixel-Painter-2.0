@@ -88,7 +88,10 @@ namespace MyTestVueApp.Server.Controllers
                         var artistArtList = artistArt.Where(art => art.IsPublic).OrderByDescending(art => art.CreationDate);
                         return Ok(artistArtList);
                     }
-                    else
+                    else if(artist.IsAdmin){
+                        var artistArtList = artistArt.OrderByDescending(art => art.CreationDate);
+                        return Ok(artistArtList);
+                    }
                     {
                         var artistArtList = artistArt.OrderByDescending(art => art.CreationDate);
                         return Ok(artistArtList);
