@@ -49,7 +49,7 @@ function drawSquare(): void {
   renderfilter();
 }
 
-function updateCanvas() {
+function updateCanvas(): void {
   let canvasInit = document.getElementById(canvasId.value) as HTMLCanvasElement;
   if (canvasInit) {
     canvas.value = canvasInit;
@@ -67,7 +67,7 @@ function updateCanvas() {
   }
   render();
 }
-function render() {
+function render(): void {
   if (ctx.value && props.art.pixelGrid.encodedGrid) {
     const imageServe = props.art.pixelGrid.encodedGrid;
     let hexBegin = 0;
@@ -91,7 +91,7 @@ function render() {
     }
   }
 }
-function renderfilter() {
+function renderfilter(): void {
   if (ctx.value && props.art.pixelGrid.encodedGrid) {
     const imageServe = props.modelValue ? props.modelValue : "";
     let hexBegin = 0;

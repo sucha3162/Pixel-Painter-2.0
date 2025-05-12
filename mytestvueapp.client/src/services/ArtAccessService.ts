@@ -19,6 +19,7 @@ export default class ArtAccessService {
     } catch (error) {
       console.error;
       throw error;
+      return [];
     }
   }
 

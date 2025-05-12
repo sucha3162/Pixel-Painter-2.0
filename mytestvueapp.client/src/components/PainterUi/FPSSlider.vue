@@ -37,7 +37,6 @@
 <script setup lang="ts">
 import Button from "primevue/button";
 import FloatingCard from "./FloatingCard.vue";
-import { ref } from "vue";
 import Slider from "primevue/slider";
 
 const fps = defineModel<number>("fps", { default: 4 });

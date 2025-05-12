@@ -48,7 +48,7 @@ const placeholder = computed(() => {
   }
 });
 
-async function postComment() {
+async function postComment() :Promise<void> {
   comment.value.artId = parseInt(route.params.id as string);
   comment.value.replyId = props.parentComment?.id;
   CommentAccessService.postComment(comment.value)
@@ -74,7 +74,7 @@ onMounted(async () => {
   });
 });
 
-function cancel() {
+function cancel() :void {
   open.value = false;
   comment.value.message = "";
   emit("closeReply");
